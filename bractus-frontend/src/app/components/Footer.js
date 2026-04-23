@@ -38,12 +38,12 @@ export default function Footer() {
               width: 34, height: 34, borderRadius: 8,
               background: '#2fa492',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Montserrat, sans-serif', fontWeight: 800, fontSize: 16, color: '#fff',
+              fontFamily: 'Nunito, sans-serif', fontWeight: 400, fontSize: 16, color: '#fff',
             }}>B</div>
             <span style={{
-              fontFamily: 'Montserrat, sans-serif', fontWeight: 800,
+              fontFamily: 'Nunito, sans-serif', fontWeight: 400,
               fontSize: '1.15rem', color: '#f1f5f9',
-            }}>bractus</span>
+            }}>BRACTUS</span>
           </a>
           <p style={{
             color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7,
@@ -58,7 +58,7 @@ export default function Footer() {
                 width: 36, height: 36, borderRadius: 8,
                 border: '1px solid #334155',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#64748b', fontSize: '0.85rem', fontWeight: 600,
+                color: '#64748b', fontSize: '0.85rem', fontWeight: 400,
                 transition: 'border-color 0.2s, color 0.2s',
               }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#2fa492'; e.currentTarget.style.color = '#2fa492' }}
@@ -72,9 +72,9 @@ export default function Footer() {
         {Object.entries(FOOTER_LINKS).map(([group, links]) => (
           <div key={group}>
             <h4 style={{
-              fontSize: '0.72rem', fontWeight: 700, color: '#94a3b8',
+              fontSize: '0.72rem', fontWeight: 400, color: '#94a3b8',
               textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16,
-              fontFamily: 'Montserrat, sans-serif',
+              fontFamily: 'Nunito, sans-serif',
             }}>{group}</h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {links.map(({ label, href }) => (

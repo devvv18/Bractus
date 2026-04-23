@@ -1,17 +1,21 @@
 import Hero from './components/Hero'
 import Services from './components/Services'
-import Process from './components/Process'
-import About from './components/About'
-import ContactForm from './components/ContactForm'
+import { HowWeWork, WhyChooseUs } from './components/Process'
+import { ToolsAndPartners, GetInTouch } from './components/ContactForm'
+import { Founder, Testimonials, FAQ } from './components/About'
 
 export default function HomePage() {
   return (
     <>
       <Hero />
       <Services />
-      <Process />
-      <About />
-      <ContactForm />
+      <HowWeWork />
+      <ToolsAndPartners />
+      <Founder />
+      <WhyChooseUs />
+      <Testimonials />
+      <GetInTouch />
+      <FAQ />
     </>
   )
 }

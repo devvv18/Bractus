@@ -7,25 +7,10 @@ const TOOLS = [
   'MongoDB', 'OpenAI', 'LangChain', 'GitHub Actions',
 ]
 
-export default function ContactForm() {
-  const [form, setForm] = useState({ name: '', email: '', company: '', service: '', message: '' })
-  const [sent, setSent] = useState(false)
-  const [loading, setLoading] = useState(false)
-
-  const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
-
-  const onSubmit = async e => {
-    e.preventDefault()
-    setLoading(true)
-    await new Promise(r => setTimeout(r, 1200))
-    setSent(true)
-    setLoading(false)
-  }
-
+export function ToolsAndPartners() {
   return (
-    <section id="contact" className="section" style={{ background: 'var(--bg)' }}>
+    <section className="section" style={{ background: 'var(--bg)' }}>
       <div className="container">
-
         {/* Tools / Partners */}
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <span style={{
@@ -40,7 +25,7 @@ export default function ContactForm() {
             <span key={t} style={{
               padding: '6px 16px', borderRadius: 100,
               border: '1px solid var(--border)',
-              fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500,
+              fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400,
               transition: 'all 0.2s', cursor: 'default',
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
@@ -56,13 +41,13 @@ export default function ContactForm() {
           borderRadius: 16,
           padding: 'clamp(32px, 5vw, 56px) clamp(24px, 5vw, 56px)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          flexWrap: 'wrap', gap: 24, marginBottom: 72,
+          flexWrap: 'wrap', gap: 24,
         }}>
           <div style={{ maxWidth: 540 }}>
             <h2 style={{
-              fontFamily: 'Montserrat, sans-serif',
+              fontFamily: 'Nunito, sans-serif',
               fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
-              fontWeight: 800, marginBottom: 12,
+              fontWeight: 400, marginBottom: 12,
             }}>
               The way software gets built is <span className="accent-text">changing. Fast.</span>
             </h2>
@@ -74,11 +59,43 @@ export default function ContactForm() {
             </p>
           </div>
           <a href="#contact-form" className="btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
-            Schedule a call →
+            Schedule a call
           </a>
         </div>
+      </div>
+    </section>
+  )
+}
 
-        {/* Contact Form */}
+export function GetInTouch() {
+  const [form, setForm] = useState({ name: '', email: '', company: '', service: '', message: '' })
+  const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
+
+  const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+
+  const onSubmit = async e => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      const res = await fetch('http://localhost:3001/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      })
+      if (res.ok) setSent(true)
+    } catch (err) {
+      console.error(err)
+      alert("Failed to send message. Is the backend running?")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <section id="contact" className="section" style={{ background: 'var(--bg)' }}>
+      <div className="container">
         <div id="contact-form" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
@@ -89,7 +106,7 @@ export default function ContactForm() {
             <span className="tag" style={{ marginBottom: 20, display: 'inline-flex' }}>GET IN TOUCH</span>
             <h2 style={{
               fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
-              fontWeight: 800, marginBottom: 16,
+              fontWeight: 400, marginBottom: 16,
             }}>
               Let's build <span className="accent-text">something great</span>
             </h2>
@@ -102,9 +119,9 @@ export default function ContactForm() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
-                { icon: '📍', text: 'Mumbai, Maharashtra, India' },
-                { icon: '📞', text: '+91 98765 43210' },
-                { icon: '✉️', text: 'hello@bractus.com' },
+                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>, text: 'Mumbai, Maharashtra, India' },
+                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>, text: '+91 98765 43210' },
+                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>, text: 'hello@bractus.com' },
               ].map(({ icon, text }) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{
@@ -133,7 +150,7 @@ export default function ContactForm() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 28,
                 }}>✓</div>
-                <h3 style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: '1.3rem' }}>
+                <h3 style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 400, fontSize: '1.3rem' }}>
                   Message sent!
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
@@ -196,7 +213,7 @@ export default function ContactForm() {
 }
 
 const labelStyle = {
-  display: 'block', fontSize: '0.75rem', fontWeight: 600,
+  display: 'block', fontSize: '0.75rem', fontWeight: 400,
   color: 'var(--text-muted)', textTransform: 'uppercase',
   letterSpacing: '0.06em', marginBottom: 6,
 }

@@ -1,19 +1,18 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useTheme } from '../context/ThemeContext'
+import Link from 'next/link'
 
 const NAV_LINKS = [
-  { label: 'Services', href: '#services' },
-  { label: 'Process', href: '#process' },
-  { label: 'About', href: '#about' },
-  { label: 'Case Studies', href: '#testimonials' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Services', href: '/services' },
+  { label: 'Process', href: '/process' },
+  { label: 'About', href: '/about' },
+  { label: 'Case Studies', href: '/case-studies' },
+  { label: 'Contact', href: '/contact' },
 ]
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { theme, toggle } = useTheme()
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 10)
@@ -39,36 +38,35 @@ export default function Navbar() {
         transition: 'background 0.3s, box-shadow 0.3s',
       }}>
         {/* Logo */}
-        <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
             width: 36, height: 36, borderRadius: 8,
             background: 'var(--accent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'Montserrat, sans-serif', fontWeight: 800, fontSize: 18, color: '#fff',
+            fontFamily: 'Nunito, sans-serif', fontWeight: 400, fontSize: 18, color: '#fff',
           }}>B</div>
           <span style={{
-            fontFamily: 'Montserrat, sans-serif', fontWeight: 800,
+            fontFamily: 'Nunito, sans-serif', fontWeight: 400,
             fontSize: '1.25rem', color: 'var(--text)', letterSpacing: '-0.02em',
-          }}>bractus</span>
-        </a>
+          }}>BRACTUS</span>
+        </Link>
 
         {/* Desktop links */}
         <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
           {NAV_LINKS.map(({ label, href }) => (
-            <a key={label} href={href} style={{
-              color: 'var(--text-secondary)', fontSize: '0.88rem', fontWeight: 500,
+            <Link key={label} href={href} style={{
+              color: 'var(--text-secondary)', fontSize: '0.88rem', fontWeight: 400,
               transition: 'color 0.2s',
             }}
             onMouseEnter={e => e.target.style.color = 'var(--accent)'}
             onMouseLeave={e => e.target.style.color = 'var(--text-secondary)'}
-            >{label}</a>
+            >{label}</Link>
           ))}
         </div>
 
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button onClick={toggle} className="theme-toggle" aria-label="Toggle theme" />
-          <a href="#contact" className="btn-primary btn-sm hide-mobile">Schedule a call</a>
+          <Link href="/contact" className="btn-primary btn-sm hide-mobile">Schedule a call</Link>
 
           {/* Hamburger */}
           <button className="show-mobile" onClick={() => setMobileOpen(o => !o)}
@@ -100,17 +98,17 @@ export default function Navbar() {
           padding: '100px 32px 40px', gap: 4,
         }}>
           {NAV_LINKS.map(({ label, href }) => (
-            <a key={label} href={href} onClick={() => setMobileOpen(false)}
+            <Link key={label} href={href} onClick={() => setMobileOpen(false)}
               style={{
-                fontSize: '1.5rem', fontFamily: 'Montserrat, sans-serif', fontWeight: 700,
+                fontSize: '1.5rem', fontFamily: 'Nunito, sans-serif', fontWeight: 400,
                 color: 'var(--text)', padding: '16px 0',
                 borderBottom: '1px solid var(--border)',
-              }}>{label}</a>
+              }}>{label}</Link>
           ))}
-          <a href="#contact" onClick={() => setMobileOpen(false)}
+          <Link href="/contact" onClick={() => setMobileOpen(false)}
             className="btn-primary" style={{ marginTop: 24, textAlign: 'center' }}>
             Schedule a call
-          </a>
+          </Link>
         </div>
       )}
     </>

@@ -31,136 +31,137 @@ const FAQS = [
   { q: 'How do you handle security and compliance?', a: 'Security is foundational. We follow enterprise security standards including SOC 2, HIPAA, and GDPR as baseline practice, and integrate with your existing security policies from day one.' },
 ]
 
-export default function About() {
+export function Founder() {
   return (
-    <>
-      {/* ── About / Mission ── */}
-      <section id="about" className="section" style={{ background: 'var(--bg-alt)' }}>
-        <div className="container">
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-            gap: 48, alignItems: 'center',
-          }}>
-            <div>
-              <span className="tag" style={{ marginBottom: 20, display: 'inline-flex' }}>ABOUT US</span>
-              <h2 style={{
-                fontSize: 'clamp(2rem, 4vw, 3rem)',
-                fontWeight: 800, marginBottom: 20,
-              }}>
-                Built by founders,<br />
-                <span className="accent-text">for builders.</span>
-              </h2>
-              <p style={{
-                color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.8, marginBottom: 16,
-              }}>
-                After building, scaling, and exiting several successful companies, we launched Bractus
-                to bring entrepreneurial problem-solving to ambitious leaders.
-              </p>
-              <p style={{
-                color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.8, marginBottom: 32,
-              }}>
-                Our outcome-driven teams partner directly with C-suite executives to solve core technology
-                challenges, deliver measurable business results, and provide board-ready insights every step of the way.
-              </p>
-              <a href="#contact" className="btn-primary">Talk to our team →</a>
-            </div>
+    <section id="about" className="section" style={{ background: 'var(--bg)' }}>
+      <div className="container">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          gap: 48, alignItems: 'center',
+        }}>
+          <div>
+            <span className="tag" style={{ marginBottom: 20, display: 'inline-flex' }}>ABOUT US</span>
+            <h2 style={{
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              fontWeight: 400, marginBottom: 20,
+            }}>
+              Built by founders,<br />
+              <span className="accent-text">for builders.</span>
+            </h2>
+            <p style={{
+              color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.8, marginBottom: 16,
+            }}>
+              After building, scaling, and exiting several successful companies, we launched Bractus
+              to bring entrepreneurial problem-solving to ambitious leaders.
+            </p>
+            <p style={{
+              color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.8, marginBottom: 32,
+            }}>
+              Our outcome-driven teams partner directly with C-suite executives to solve core technology
+              challenges, deliver measurable business results, and provide board-ready insights every step of the way.
+            </p>
+          </div>
 
-            {/* Quote card */}
-            <div className="card" style={{ padding: '36px 32px' }}>
+          <div className="card" style={{ padding: '36px 32px' }}>
+            <div style={{
+              fontSize: '3.5rem', lineHeight: 1,
+              color: 'var(--accent)', opacity: 0.3,
+              fontFamily: 'Georgia, serif', marginBottom: 8,
+            }}>"</div>
+            <p style={{
+              fontSize: '1.05rem', color: 'var(--text)',
+              lineHeight: 1.75, fontStyle: 'italic', marginBottom: 24,
+            }}>
+              The way enterprise software gets built has changed. AI agents can now handle significant
+              portions of development — but only when directed by experienced professionals who understand your business.
+            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
-                fontSize: '3.5rem', lineHeight: 1,
-                color: 'var(--accent)', opacity: 0.3,
-                fontFamily: 'Georgia, serif', marginBottom: 8,
-              }}>"</div>
-              <p style={{
-                fontSize: '1.05rem', color: 'var(--text)',
-                lineHeight: 1.75, fontStyle: 'italic', marginBottom: 24,
-              }}>
-                The way enterprise software gets built has changed. AI agents can now handle significant
-                portions of development — but only when directed by experienced professionals who understand your business.
-              </p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{
-                  width: 44, height: 44, borderRadius: '50%', background: 'var(--accent)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', fontWeight: 700, fontSize: '0.85rem',
-                  fontFamily: 'Montserrat, sans-serif',
-                }}>B</div>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '0.92rem' }}>Bractus Team</div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>AI-Augmented Delivery</div>
-                </div>
+                width: 44, height: 44, borderRadius: '50%', background: 'var(--accent)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: '#fff', fontWeight: 400, fontSize: '0.85rem',
+                fontFamily: 'Nunito, sans-serif',
+              }}>B</div>
+              <div>
+                <div style={{ fontWeight: 400, fontSize: '0.92rem' }}>Bractus Team</div>
+                <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>AI-Augmented Delivery</div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      {/* ── Testimonials ── */}
-      <section id="testimonials" className="section" style={{ background: 'var(--bg)' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 20 }}>
-            <span className="tag">TESTIMONIALS</span>
-          </div>
-          <h2 style={{
-            textAlign: 'center', fontSize: 'clamp(2rem, 4vw, 3rem)',
-            fontWeight: 800, marginBottom: 48,
-          }}>
-            What our clients <span className="accent-text">say</span>
-          </h2>
+export function Testimonials() {
+  return (
+    <section id="testimonials" className="section" style={{ background: 'var(--bg)' }}>
+      <div className="container">
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          <span className="tag">TESTIMONIALS</span>
+        </div>
+        <h2 style={{
+          textAlign: 'center', fontSize: 'clamp(2rem, 4vw, 3rem)',
+          fontWeight: 400, marginBottom: 48,
+        }}>
+          What our clients <span className="accent-text">say</span>
+        </h2>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: 20,
-          }}>
-            {TESTIMONIALS.map(({ quote, name, role, initials }) => (
-              <div key={name} className="card" style={{ padding: '28px' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: 20,
+        }}>
+          {TESTIMONIALS.map(({ quote, name, role, initials }) => (
+            <div key={name} className="card" style={{ padding: '28px' }}>
+              <div style={{
+                color: 'var(--accent)', fontSize: '1.5rem', marginBottom: 16, opacity: 0.5,
+              }}>❝</div>
+              <p style={{
+                fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 24,
+              }}>{quote}</p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
                 <div style={{
-                  color: 'var(--accent)', fontSize: '1.5rem', marginBottom: 16, opacity: 0.5,
-                }}>❝</div>
-                <p style={{
-                  fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 24,
-                }}>{quote}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
-                  <div style={{
-                    width: 40, height: 40, borderRadius: '50%', background: 'var(--accent)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#fff', fontWeight: 700, fontSize: '0.8rem', flexShrink: 0,
-                  }}>{initials}</div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{name}</div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{role}</div>
-                  </div>
+                  width: 40, height: 40, borderRadius: '50%', background: 'var(--accent)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontWeight: 400, fontSize: '0.8rem', flexShrink: 0,
+                }}>{initials}</div>
+                <div>
+                  <div style={{ fontWeight: 400, fontSize: '0.9rem' }}>{name}</div>
+                  <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{role}</div>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
+    </section>
+  )
+}
 
-      {/* ── FAQ ── */}
-      <section id="faq" className="section" style={{ background: 'var(--bg-alt)' }}>
-        <div className="container" style={{ maxWidth: 800 }}>
-          <div style={{ textAlign: 'center', marginBottom: 20 }}>
-            <span className="tag">FAQ</span>
-          </div>
-          <h2 style={{
-            textAlign: 'center', fontSize: 'clamp(2rem, 4vw, 3rem)',
-            fontWeight: 800, marginBottom: 48,
-          }}>
-            Frequently asked <span className="accent-text">questions</span>
-          </h2>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {FAQS.map(({ q, a }) => (
-              <FaqItem key={q} q={q} a={a} />
-            ))}
-          </div>
+export function FAQ() {
+  return (
+    <section id="faq" className="section" style={{ background: 'var(--bg-alt)' }}>
+      <div className="container" style={{ maxWidth: 800 }}>
+        <div style={{ textAlign: 'center', marginBottom: 20 }}>
+          <span className="tag">FAQ</span>
         </div>
-      </section>
-    </>
+        <h2 style={{
+          textAlign: 'center', fontSize: 'clamp(2rem, 4vw, 3rem)',
+          fontWeight: 400, marginBottom: 48,
+        }}>
+          Frequently asked <span className="accent-text">questions</span>
+        </h2>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {FAQS.map(({ q, a }) => (
+            <FaqItem key={q} q={q} a={a} />
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }
 
@@ -178,7 +179,7 @@ function FaqItem({ q, a }) {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         gap: 16,
       }}>
-        <span style={{ fontWeight: 600, fontSize: '0.95rem' }}>{q}</span>
+        <span style={{ fontWeight: 400, fontSize: '0.95rem' }}>{q}</span>
         <span style={{
           fontSize: '1.2rem', color: 'var(--accent)', flexShrink: 0,
           transform: open ? 'rotate(45deg)' : 'rotate(0deg)',

@@ -1,5 +1,4 @@
 import './globals.css'
-import { ThemeProvider } from './context/ThemeContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 
@@ -15,7 +14,7 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap"
           rel="stylesheet"
         />
         <script dangerouslySetInnerHTML={{ __html: `
@@ -26,13 +25,11 @@ export default function RootLayout({ children }) {
         ` }} />
       </head>
       <body>
-        <ThemeProvider>
-          <Navbar />
-          <main style={{ paddingTop: 72 }}>
-            {children}
-          </main>
-          <Footer />
-        </ThemeProvider>
+        <Navbar />
+        <main style={{ paddingTop: 72 }}>
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   )
