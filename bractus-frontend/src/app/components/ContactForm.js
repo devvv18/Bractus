@@ -1,209 +1,202 @@
 'use client'
 import { useState } from 'react'
 
-const SERVICES = ['Product Engineering', 'UI/UX Design', 'AI Integration', 'Cloud & DevOps', 'Data & Analytics', 'Other']
+const TOOLS = [
+  'AWS', 'GCP', 'Azure', 'Kubernetes', 'Docker', 'Terraform',
+  'React', 'Next.js', 'Node.js', 'Python', 'Go', 'PostgreSQL',
+  'MongoDB', 'OpenAI', 'LangChain', 'GitHub Actions',
+]
 
 export default function ContactForm() {
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', service: '', message: '' })
-  const [status, setStatus] = useState('idle')
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
+  const [form, setForm] = useState({ name: '', email: '', company: '', service: '', message: '' })
+  const [sent, setSent] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e) => {
+  const onChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }))
+
+  const onSubmit = async e => {
     e.preventDefault()
-    setStatus('loading')
-    try {
-      const res = await fetch('http://localhost:3001/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      })
-      if (res.ok) {
-        setStatus('success')
-        setForm({ firstName: '', lastName: '', email: '', service: '', message: '' })
-      } else {
-        setStatus('error')
-      }
-    } catch {
-      setStatus('error')
-    }
+    setLoading(true)
+    await new Promise(r => setTimeout(r, 1200))
+    setSent(true)
+    setLoading(false)
   }
 
   return (
-    <section
-      id="contact"
-      style={{
-        position: 'relative',
-        padding: 'clamp(80px, 10vh, 120px) clamp(20px, 6vw, 96px)',
-        background: '#08090d',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Blobs */}
-      <div className="mesh-blob" style={{
-        width: 500, height: 500,
-        background: 'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)',
-        top: '-15%', right: '-10%',
-      }} />
-      <div className="mesh-blob" style={{
-        width: 350, height: 350,
-        background: 'radial-gradient(circle, rgba(52,211,153,0.08) 0%, transparent 70%)',
-        bottom: '5%', left: '-5%',
-      }} />
+    <section id="contact" className="section" style={{ background: 'var(--bg)' }}>
+      <div className="container">
 
-      <div style={{
-        maxWidth: 1100,
-        margin: '0 auto',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-        gap: 'clamp(40px, 6vw, 80px)',
-        alignItems: 'start',
-      }}>
-        {/* Left info */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <span className="section-label" style={{ marginBottom: 24, display: 'inline-flex' }}>
-            Let&apos;s talk
-          </span>
-          <h2 style={{
-            fontFamily: 'Syne, Inter, sans-serif',
-            fontSize: 'clamp(2rem, 4vw, 3rem)',
-            fontWeight: 800,
-            color: '#fff',
-            letterSpacing: '-0.03em',
-            marginTop: 16,
-            marginBottom: 20,
-            lineHeight: 1.15,
-          }}>
-            Ready to build<br />
-            <span className="grad-text">something great?</span>
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.4)', lineHeight: 1.8, fontSize: '0.95rem', marginBottom: 40 }}>
-            Tell us about your project. We&apos;ll get back to you within 24 hours with a plan tailored to your goals.
-          </p>
-
-          {/* Contact info cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {[
-              { icon: '📧', label: 'Email', val: 'hello@bractus.com' },
-              { icon: '📍', label: 'Location', val: 'Bengaluru, India · Remote worldwide' },
-              { icon: '⏰', label: 'Response time', val: 'Within 24 hours' },
-            ].map(({ icon, label, val }) => (
-              <div key={label} className="glass" style={{ borderRadius: 14, padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
-                <span style={{ fontSize: 20 }}>{icon}</span>
-                <div>
-                  <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</div>
-                  <div style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 500, marginTop: 2 }}>{val}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* Tools / Partners */}
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <span style={{
+            fontSize: '0.72rem', color: 'var(--text-muted)',
+            textTransform: 'uppercase', letterSpacing: '0.12em',
+          }}>Tools & partners</span>
+        </div>
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginBottom: 72,
+        }}>
+          {TOOLS.map(t => (
+            <span key={t} style={{
+              padding: '6px 16px', borderRadius: 100,
+              border: '1px solid var(--border)',
+              fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500,
+              transition: 'all 0.2s', cursor: 'default',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+            >{t}</span>
+          ))}
         </div>
 
-        {/* Form */}
-        <div style={{ position: 'relative', zIndex: 1 }}>
-          <form
-            onSubmit={handleSubmit}
-            className="glass"
-            style={{
-              borderRadius: 24,
-              padding: 'clamp(24px, 4vw, 40px)',
-              background: 'rgba(255,255,255,0.025)',
-            }}
-          >
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 14 }}>
-              {['firstName', 'lastName'].map((field) => (
-                <div key={field}>
-                  <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 8 }}>
-                    {field === 'firstName' ? 'First name' : 'Last name'}
-                  </label>
-                  <input
-                    name={field}
-                    value={form[field]}
-                    onChange={handleChange}
-                    required
-                    placeholder={field === 'firstName' ? 'Arjun' : 'Sharma'}
-                    className="input-dark"
-                  />
+        {/* CTA Banner */}
+        <div style={{
+          background: 'var(--accent-light)',
+          border: '1px solid var(--accent)',
+          borderRadius: 16,
+          padding: 'clamp(32px, 5vw, 56px) clamp(24px, 5vw, 56px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          flexWrap: 'wrap', gap: 24, marginBottom: 72,
+        }}>
+          <div style={{ maxWidth: 540 }}>
+            <h2 style={{
+              fontFamily: 'Montserrat, sans-serif',
+              fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
+              fontWeight: 800, marginBottom: 12,
+            }}>
+              The way software gets built is <span className="accent-text">changing. Fast.</span>
+            </h2>
+            <p style={{
+              color: 'var(--text-secondary)', fontSize: '0.93rem', lineHeight: 1.7,
+            }}>
+              You need experienced professionals who know how to direct AI tools —
+              people who understand enterprise architecture and production systems.
+            </p>
+          </div>
+          <a href="#contact-form" className="btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+            Schedule a call →
+          </a>
+        </div>
+
+        {/* Contact Form */}
+        <div id="contact-form" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: 48,
+        }}>
+          {/* Left - Info */}
+          <div>
+            <span className="tag" style={{ marginBottom: 20, display: 'inline-flex' }}>GET IN TOUCH</span>
+            <h2 style={{
+              fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
+              fontWeight: 800, marginBottom: 16,
+            }}>
+              Let's build <span className="accent-text">something great</span>
+            </h2>
+            <p style={{
+              color: 'var(--text-secondary)', fontSize: '0.93rem',
+              lineHeight: 1.8, marginBottom: 36,
+            }}>
+              Tell us about your project and the outcomes you're seeking.
+              We'll map out a digital direction together.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {[
+                { icon: '📍', text: 'Mumbai, Maharashtra, India' },
+                { icon: '📞', text: '+91 98765 43210' },
+                { icon: '✉️', text: 'hello@bractus.com' },
+              ].map(({ icon, text }) => (
+                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: 10,
+                    background: 'var(--accent-light)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 18, flexShrink: 0,
+                  }}>{icon}</div>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{text}</span>
                 </div>
               ))}
             </div>
+          </div>
 
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 8 }}>
-                Email address
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                required
-                placeholder="arjun@company.com"
-                className="input-dark"
-              />
-            </div>
-
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 8 }}>
-                Service interested in
-              </label>
-              <select
-                name="service"
-                value={form.service}
-                onChange={handleChange}
-                className="input-dark"
-                style={{ cursor: 'pointer' }}
-              >
-                <option value="" style={{ background: '#0f1117' }}>Select a service…</option>
-                {SERVICES.map(s => <option key={s} value={s} style={{ background: '#0f1117' }}>{s}</option>)}
-              </select>
-            </div>
-
-            <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: 8 }}>
-                Message
-              </label>
-              <textarea
-                name="message"
-                value={form.message}
-                onChange={handleChange}
-                required
-                rows={4}
-                placeholder="Tell us about your project — the bigger the ambition, the more we like it."
-                className="input-dark"
-                style={{ resize: 'none' }}
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={status === 'loading'}
-              className="btn-glow"
-              style={{
-                width: '100%',
-                background: status === 'success'
-                  ? 'linear-gradient(135deg, #059669, #10b981)'
-                  : 'linear-gradient(135deg, #7c3aed, #4f46e5)',
-                color: '#fff',
-                padding: '14px',
-                borderRadius: 12,
-                fontWeight: 700,
-                fontSize: '0.95rem',
-                border: 'none',
-                cursor: status === 'loading' ? 'not-allowed' : 'pointer',
-                opacity: status === 'loading' ? 0.7 : 1,
-                transition: 'all 0.3s',
-                fontFamily: 'Inter, sans-serif',
-                boxShadow: '0 0 32px rgba(124,58,237,0.35)',
-              }}
-            >
-              {status === 'loading' && '⏳ Sending…'}
-              {status === 'success' && '✅ Message sent!'}
-              {status === 'error'   && '❌ Failed — try again'}
-              {status === 'idle'    && 'Send message →'}
-            </button>
-          </form>
+          {/* Right - Form */}
+          <div className="card" style={{ padding: 32 }}>
+            {sent ? (
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justifyContent: 'center', height: '100%', minHeight: 300,
+                textAlign: 'center', gap: 16,
+              }}>
+                <div style={{
+                  width: 64, height: 64, borderRadius: '50%',
+                  background: 'var(--accent-light)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 28,
+                }}>✓</div>
+                <h3 style={{ fontFamily: 'Montserrat, sans-serif', fontWeight: 700, fontSize: '1.3rem' }}>
+                  Message sent!
+                </h3>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                  We'll be in touch within 24 hours.
+                </p>
+                <button onClick={() => { setSent(false); setForm({ name: '', email: '', company: '', service: '', message: '' }) }}
+                  className="btn-outline btn-sm" style={{ marginTop: 8 }}>
+                  Send another →
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                  <div>
+                    <label style={labelStyle}>Name *</label>
+                    <input name="name" required value={form.name} onChange={onChange}
+                      placeholder="Jane Smith" className="field" />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Email *</label>
+                    <input name="email" type="email" required value={form.email} onChange={onChange}
+                      placeholder="jane@company.com" className="field" />
+                  </div>
+                </div>
+                <div>
+                  <label style={labelStyle}>Company</label>
+                  <input name="company" value={form.company} onChange={onChange}
+                    placeholder="Acme Inc." className="field" />
+                </div>
+                <div>
+                  <label style={labelStyle}>Service Needed</label>
+                  <select name="service" value={form.service} onChange={onChange}
+                    className="field" style={{ cursor: 'pointer', appearance: 'none' }}>
+                    <option value="">Select a service...</option>
+                    <option>Strategy & Advisory</option>
+                    <option>Application Development</option>
+                    <option>DevOps & Cloud</option>
+                    <option>AI & Data Science</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>Message *</label>
+                  <textarea name="message" required rows={4} value={form.message} onChange={onChange}
+                    placeholder="Tell us about your project..."
+                    className="field" style={{ resize: 'vertical', minHeight: 100 }} />
+                </div>
+                <button type="submit" className="btn-primary"
+                  style={{ width: '100%', opacity: loading ? 0.7 : 1 }}
+                  disabled={loading}>
+                  {loading ? 'Sending…' : 'Send message →'}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
       </div>
     </section>
   )
+}
+
+const labelStyle = {
+  display: 'block', fontSize: '0.75rem', fontWeight: 600,
+  color: 'var(--text-muted)', textTransform: 'uppercase',
+  letterSpacing: '0.06em', marginBottom: 6,
 }

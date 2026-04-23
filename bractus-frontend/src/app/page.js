@@ -1,7 +1,7 @@
 import Hero from './components/Hero'
 import Services from './components/Services'
+import Process from './components/Process'
 import About from './components/About'
-import Team from './components/Team'
 import ContactForm from './components/ContactForm'
 
 export default function HomePage() {
@@ -9,8 +9,8 @@ export default function HomePage() {
     <>
       <Hero />
       <Services />
+      <Process />
       <About />
-      <Team />
       <ContactForm />
     </>
   )
