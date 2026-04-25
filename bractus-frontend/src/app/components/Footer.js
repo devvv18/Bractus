@@ -36,7 +36,7 @@ export default function Footer() {
           <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
             <div style={{
               width: 34, height: 34, borderRadius: 8,
-              background: '#2fa492',
+              background: 'var(--accent)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontFamily: 'Nunito, sans-serif', fontWeight: 400, fontSize: 16, color: '#fff',
             }}>B</div>
@@ -61,7 +61,7 @@ export default function Footer() {
                 color: '#64748b', fontSize: '0.85rem', fontWeight: 400,
                 transition: 'border-color 0.2s, color 0.2s',
               }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#2fa492'; e.currentTarget.style.color = '#2fa492' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.color = '#64748b' }}
               >{icon}</a>
             ))}
@@ -83,7 +83,7 @@ export default function Footer() {
                     color: '#94a3b8', fontSize: '0.88rem',
                     transition: 'color 0.2s',
                   }}
-                  onMouseEnter={e => e.target.style.color = '#2fa492'}
+                  onMouseEnter={e => e.target.style.color = 'var(--accent)'}
                   onMouseLeave={e => e.target.style.color = '#94a3b8'}
                   >{label}</a>
                 </li>

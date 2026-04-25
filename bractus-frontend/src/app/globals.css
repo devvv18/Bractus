@@ -32,7 +32,8 @@ button {
 /* ═══════════════════════════════════════════════════
    LIGHT PALETTE  (default)
    ═══════════════════════════════════════════════════ */
-:root {
+:root,
+[data-theme="light"] {
   --bg: #ffffff;
   --bg-alt: #f8f9fa;
   --bg-accent: #f0fdf9;
@@ -40,10 +41,10 @@ button {
   --text: #1a1a2e;
   --text-secondary: #4a5568;
   --text-muted: #94a3b8;
-  --accent: #2fa492;
-  --accent-hover: #268f7f;
-  --accent-light: rgba(47, 164, 146, 0.10);
-  --accent-glow: rgba(47, 164, 146, 0.20);
+  --accent: #2F5496;
+  --accent-hover: #213C6D;
+  --accent-light: rgba(47, 84, 150, 0.10);
+  --accent-glow: rgba(47, 84, 150, 0.20);
   --border: #e2e8f0;
   --border-light: #f1f5f9;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -58,8 +59,7 @@ button {
 /* ═══════════════════════════════════════════════════
    DARK PALETTE
    ═══════════════════════════════════════════════════ */
-@media (prefers-color-scheme: dark) {
-  :root {
+[data-theme="dark"] {
   --bg: #0f172a;
   --bg-alt: #1e293b;
   --bg-accent: #132f2a;
@@ -67,10 +67,10 @@ button {
   --text: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --accent: #3dc2af;
-  --accent-hover: #4fd4c1;
-  --accent-light: rgba(61, 194, 175, 0.12);
-  --accent-glow: rgba(61, 194, 175, 0.25);
+  --accent: #4A7BE4;
+  --accent-hover: #638BF2;
+  --accent-light: rgba(74, 123, 228, 0.12);
+  --accent-glow: rgba(74, 123, 228, 0.25);
   --border: #334155;
   --border-light: #1e293b;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -80,7 +80,6 @@ button {
   --footer-bg: #0b1120;
   --footer-text: #64748b;
   --overlay: rgba(15, 23, 42, 0.6);
-  }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -147,8 +146,8 @@ h6 {
 
 .btn-primary:hover {
   background: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px var(--accent-glow);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--accent-glow);
 }
 
 .btn-outline {
@@ -171,6 +170,8 @@ h6 {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-light);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--accent-glow);
 }
 
 .btn-sm {
@@ -190,9 +191,11 @@ h6 {
   box-shadow: var(--card-shadow);
 }
 
-.card:hover {
-  transform: translateY(-4px);
+.card:hover,
+.reveal.visible.card:hover {
+  transform: translateY(-8px);
   box-shadow: var(--card-shadow-hover);
+  border-color: var(--accent-light);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -266,18 +269,69 @@ h6 {
 }
 
 /* ═══════════════════════════════════════════════════
+   PROFESSIONAL THEME TOGGLE
+   ═══════════════════════════════════════════════════ */
+.theme-toggle {
+  position: relative;
+  width: 46px;
+  height: 24px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  transition: transform 0.4s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+[data-theme="dark"] .theme-toggle::after {
+  transform: translateX(22px);
+  background: var(--accent);
+}
+
+/* ═══════════════════════════════════════════════════
    ANIMATIONS
    ═══════════════════════════════════════════════════ */
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(24px);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes waveBobble {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(10deg); }
+  50% { transform: rotate(-5deg); }
+  75% { transform: rotate(8deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* ═══════════════════════════════════════════════════
+   SCROLL REVEAL OBSERVER FRAMEWORK
+   ═══════════════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @keyframes fadeIn {

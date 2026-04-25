@@ -1,6 +1,9 @@
 import './globals.css'
+import { ThemeProvider } from './context/ThemeContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import ChatBot from './components/ChatBot'
+import ScrollReveal from './components/ScrollReveal'
 
 export const metadata = {
   title: 'Bractus — AI & Software Development Consulting',
@@ -25,11 +28,15 @@ export default function RootLayout({ children }) {
         ` }} />
       </head>
       <body>
-        <Navbar />
-        <main style={{ paddingTop: 72 }}>
-          {children}
-        </main>
-        <Footer />
+        <ThemeProvider>
+          <Navbar />
+          <main style={{ paddingTop: 72 }}>
+            {children}
+          </main>
+          <Footer />
+          <ChatBot />
+          <ScrollReveal />
+        </ThemeProvider>
       </body>
     </html>
   )

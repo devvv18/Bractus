@@ -1,18 +1,20 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useTheme } from '../context/ThemeContext'
 
 const NAV_LINKS = [
   { label: 'Services', href: '/services' },
   { label: 'Process', href: '/process' },
   { label: 'About', href: '/about' },
   { label: 'Case Studies', href: '/case-studies' },
-  { label: 'Contact', href: '/contact' },
+  { label: 'Contact', href: '/#contact' },
 ]
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const { theme, toggle } = useTheme()
 
   useEffect(() => {
     const h = () => setScrolled(window.scrollY > 10)
@@ -66,7 +68,8 @@ export default function Navbar() {
 
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <Link href="/contact" className="btn-primary btn-sm hide-mobile">Schedule a call</Link>
+          <button onClick={toggle} className="theme-toggle" aria-label="Toggle theme map" title="Toggle Theme"></button>
+          <Link href="/#contact" className="btn-primary btn-sm hide-mobile">Schedule a call</Link>
 
           {/* Hamburger */}
           <button className="show-mobile" onClick={() => setMobileOpen(o => !o)}
@@ -105,7 +108,7 @@ export default function Navbar() {
                 borderBottom: '1px solid var(--border)',
               }}>{label}</Link>
           ))}
-          <Link href="/contact" onClick={() => setMobileOpen(false)}
+          <Link href="/#contact" onClick={() => setMobileOpen(false)}
             className="btn-primary" style={{ marginTop: 24, textAlign: 'center' }}>
             Schedule a call
           </Link>

@@ -58,7 +58,7 @@ export function ToolsAndPartners() {
               people who understand enterprise architecture and production systems.
             </p>
           </div>
-          <a href="#contact-form" className="btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
+          <a href="/#contact" className="btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
             Schedule a call
           </a>
         </div>

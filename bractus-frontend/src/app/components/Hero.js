@@ -1,6 +1,139 @@
 'use client'
+import { useEffect, useRef } from 'react'
 
 const BADGES = ['Advisory', 'Development', 'DevOps', 'Data']
+
+function ParticleGrid() {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    let animationFrameId
+
+    let width = window.innerWidth
+    let height = window.innerHeight
+
+    const setSize = () => {
+      const rect = canvas.parentElement.getBoundingClientRect()
+      width = rect.width
+      height = rect.height
+      canvas.width = width
+      canvas.height = height
+      initGrid()
+    }
+
+    let mouse = { x: -1000, y: -1000 }
+    const handleMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect()
+      mouse.x = e.clientX - rect.left
+      mouse.y = e.clientY - rect.top
+    }
+
+    const handleMouseLeave = () => {
+      mouse.x = -1000
+      mouse.y = -1000
+    }
+
+    window.addEventListener('resize', setSize)
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseout', handleMouseLeave)
+
+    // Grid Setup
+    const spacing = 35
+    let dots = []
+
+    const initGrid = () => {
+      dots = []
+      // add padding to ensure dots fill edges
+      for (let x = -spacing; x < width + spacing; x += spacing) {
+        for (let y = -spacing; y < height + spacing; y += spacing) {
+          dots.push({
+            ox: x, oy: y,
+            x: x, y: y,
+            vx: 0, vy: 0
+          })
+        }
+      }
+    }
+
+    setSize()
+
+    // Grab CSS var natively
+    const getAccentColor = () => {
+      if (typeof window === 'undefined') return '#2F5496'
+      const styles = getComputedStyle(document.documentElement)
+      return styles.getPropertyValue('--accent').trim() || '#2F5496'
+    }
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height)
+      ctx.fillStyle = getAccentColor()
+
+      for (let i = 0; i < dots.length; i++) {
+        let dot = dots[i]
+
+        let dx = mouse.x - dot.x
+        let dy = mouse.y - dot.y
+        let distance = Math.sqrt(dx * dx + dy * dy)
+
+        let forceRadius = 180
+
+        if (distance < forceRadius) {
+          // Repel force
+          let force = (forceRadius - distance) / forceRadius
+          let angle = Math.atan2(dy, dx)
+          dot.vx -= Math.cos(angle) * force * 1.2
+          dot.vy -= Math.sin(angle) * force * 1.2
+        }
+
+        // Spring force pulling back to origin
+        dot.vx += (dot.ox - dot.x) * 0.04
+        dot.vy += (dot.oy - dot.y) * 0.04
+
+        // Friction
+        dot.vx *= 0.84
+        dot.vy *= 0.84
+
+        dot.x += dot.vx
+        dot.y += dot.vy
+
+        let speed = Math.abs(dot.vx) + Math.abs(dot.vy)
+        let isDisturbed = speed > 0.3
+        let size = isDisturbed ? 5 : 3
+
+        ctx.globalAlpha = isDisturbed ? 0.6 : 0.15
+        ctx.fillRect(dot.x - size/2, dot.y - size/2, size, size)
+      }
+      animationFrameId = requestAnimationFrame(render)
+    }
+
+    render()
+
+    return () => {
+      window.removeEventListener('resize', setSize)
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseout', handleMouseLeave)
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0, left: 0,
+        width: '100%', height: '100%',
+        pointerEvents: 'none',
+        zIndex: 0,
+        WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.12) 30%, black 75%)',
+        maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.12) 30%, black 75%)',
+      }}
+    />
+  )
+}
 
 export default function Hero() {
   return (
@@ -11,14 +144,8 @@ export default function Hero() {
       background: 'var(--bg)',
       overflow: 'hidden',
     }}>
-      {/* Subtle background pattern */}
-      <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: `radial-gradient(circle at 1px 1px, var(--border) 1px, transparent 0)`,
-        backgroundSize: '40px 40px',
-        opacity: 0.4,
-        pointerEvents: 'none',
-      }} />
+      {/* Dynamic Cursor Canvas */}
+      <ParticleGrid />
 
       {/* Accent glow */}
       <div style={{
@@ -85,7 +212,7 @@ export default function Hero() {
 
           {/* CTAs */}
           <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 64 }}>
-            <a href="#contact" className="btn-primary">Schedule a call</a>
+            <a href="/#contact" className="btn-primary">Schedule a call</a>
             <a href="#services" className="btn-outline">Watch video</a>
           </div>
 
