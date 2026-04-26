@@ -1,3 +1,4 @@
+// Triggering Vercel build: 2026-04-27 00:55
 import './globals.css'
 import { ThemeProvider } from './context/ThemeContext'
 import Navbar from './components/Navbar'
