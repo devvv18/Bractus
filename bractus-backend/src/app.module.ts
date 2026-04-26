@@ -6,6 +6,7 @@ import { ContactModule } from './contact/contact.module'
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),   // loads .env file
+        /* 
         MongooseModule.forRootAsync({
             imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
@@ -14,6 +15,7 @@ import { ContactModule } from './contact/contact.module'
             inject: [ConfigService],
         }),
         ContactModule,
+        */
     ],
 })
 export class AppModule { }

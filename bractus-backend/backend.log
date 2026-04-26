@@ -10,8 +10,11 @@
 [32m[Nest] 99534  - [39m04/24/2026, 7:32:58 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +9ms[39m
 [32m[Nest] 99534  - [39m04/24/2026, 7:32:58 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +1ms[39m
 [32m[Nest] 99534  - [39m04/24/2026, 7:32:58 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 99534  - [39m04/24/2026, 7:32:58 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 99534  - [39m04/24/2026, 7:32:58 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 99534  - [39m04/24/2026, 7:32:58 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[2J[3J[H[[90m3:23:37 PM[0m] File change detected. Starting incremental compilation...
+
+[[90m3:23:39 PM[0m] Found 0 errors. Watching for file changes.
+
+d[39m[38;5;3m +0ms[39m
 [32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMongooseCoreModule dependencies initialized[39m[38;5;3m +647ms[39m
 [32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +3ms[39m
 [32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mContactModule dependencies initialized[39m[38;5;3m +0ms[39m
@@ -19,4 +22,7 @@
 [32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contact, POST} route[39m[38;5;3m +3ms[39m
 [32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contact, GET} route[39m[38;5;3m +0ms[39m
 [32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +1ms[39m
-Bractus backend running on http://localhost:3001
+Bractus backend running on http://localhost:3001[2J[3J[H[[90m3:23:37 PM[0m] File change detected. Starting incremental compilation...
+
+[[[90m3:23:39 PM[0m] Found 0 errors. Watching for file changes.
+
