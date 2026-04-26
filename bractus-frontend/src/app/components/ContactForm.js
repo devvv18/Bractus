@@ -58,7 +58,7 @@ export function ToolsAndPartners() {
               people who understand enterprise architecture and production systems.
             </p>
           </div>
-            <a href="mailto:hello@bractus.com" className="btn-primary" style={{ padding: '14px 40px', fontSize: '1.05rem', borderRadius: 100 }}>
+            <a href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary" style={{ padding: '14px 40px', fontSize: '1.05rem', borderRadius: 100 }}>
               Schedule a call
             </a>
         </div>
