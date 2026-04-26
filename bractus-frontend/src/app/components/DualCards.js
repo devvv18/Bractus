@@ -4,6 +4,14 @@ import Link from 'next/link'
 
 const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
   const canvasRef = useRef(null)
+  const particlesRef = useRef([])
+  const hoverRef = useRef({ left: false, right: false })
+  const timeRef = useRef(0)
+
+  // Sync props to refs so the render loop always has latest values without re-running useEffect
+  useEffect(() => {
+    hoverRef.current = { left: hoverLeft, right: hoverRight }
+  }, [hoverLeft, hoverRight])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -11,49 +19,52 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
     let animationFrameId
-    let particles = []
-    const friction = 0.96 // Smoother, more fluid
-    const spring = 0.002 // Gentler movement
-    const particleSpacing = 8 // Perfect balance of clarity and cleanliness
-    const dotRadius = 1.5 // Matched with Hero section
+    const friction = 0.97 // Much more buttery
+    const spring = 0.0015 // Softer, cuter gathering force
+    const dotRadius = 1.3
 
     const resize = () => {
+      if (!canvas.parentElement) return
       canvas.width = window.innerWidth
-      canvas.height = canvas.parentElement.clientHeight
+      canvas.height = canvas.parentElement.getBoundingClientRect().height || canvas.parentElement.offsetHeight
       initParticles()
     }
 
     const initParticles = () => {
       const w = canvas.width
       const h = canvas.height
+      if (w === 0 || h === 0) return
+
       const off = document.createElement('canvas')
       off.width = w
       off.height = h
       const octx = off.getContext('2d', { willReadFrequently: true })
 
-      // Define target zones based on mobile/desktop
       const isMobile = w < 768
       const cxLeft = isMobile ? w / 2 : w * 0.25
       const cxRight = isMobile ? w / 2 : w * 0.75
+      
+      // Calculate vertical centers for stacked mobile cards
+      // Mobile has 2 cards, each taking ~50% of the total section height
       const cyLeft = isMobile ? h * 0.25 : h / 2
       const cyRight = isMobile ? h * 0.75 : h / 2
 
-      // Draw Shape 1: Code (Left)
+      // Draw Shape 1: Code
       octx.clearRect(0, 0, w, h)
-      const fontSize = Math.min(w, h) * (isMobile ? 0.25 : 0.4)
+      const fontSize = Math.min(w, h) * (isMobile ? 0.3 : 0.4)
       octx.font = `300 ${fontSize}px system-ui, sans-serif`
       octx.textBaseline = 'middle'
       octx.textAlign = 'center'
       octx.fillText('< / >', cxLeft, cyLeft)
       const dataLeft = octx.getImageData(0, 0, w, h).data
 
-      // Draw Shape 2: Honeycomb (Right)
+      // Draw Shape 2: Honeycomb
       octx.clearRect(0, 0, w, h)
-      const hexR = Math.min(w, h) * (isMobile ? 0.025 : 0.04)
+      const hexR = Math.min(w, h) * (isMobile ? 0.035 : 0.05) // Larger hexagons
       const hexW = Math.sqrt(3) * hexR
       const hexH = 2 * hexR
       const ySpacing = hexH * 0.75
-      octx.lineWidth = 4
+      octx.lineWidth = 8 // Much thicker line for better sampling
       octx.lineJoin = 'round'
       for (let r = -4; r <= 4; r++) {
         for (let c = -4; c <= 4; c++) {
@@ -71,62 +82,66 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       const dataRight = octx.getImageData(0, 0, w, h).data
 
       const newParticles = []
-      // Sample both zones
-      for (let y = 0; y < h; y += particleSpacing) {
-        for (let x = 0; x < w; x += particleSpacing) {
+      const spacing = 7
+      for (let y = 0; y < h; y += spacing) {
+        for (let x = 0; x < w; x += spacing) {
           const isL = dataLeft[(y * w + x) * 4 + 3] > 128
           const isR = dataRight[(y * w + x) * 4 + 3] > 128
           
           if (isL || isR) {
             newParticles.push({
-              x: Math.random() * w,
-              y: Math.random() * h,
-              baseX: Math.random() * w,
-              baseY: Math.random() * h,
-              targetX: x,
-              targetY: y,
+              x: Math.random() * w, y: Math.random() * h,
+              baseX: Math.random() * w, baseY: Math.random() * h,
+              targetX: x, targetY: y,
               vx: 0, vy: 0,
               isLeft: isL,
-              randomWander: Math.random() * 100
+              randomWander: Math.random() * 100,
+              // Speed factor for 'organic' boom
+              speedFactor: 0.5 + Math.random() * 0.5
             })
           }
         }
       }
-      particles = newParticles
+      particlesRef.current = newParticles
     }
 
-    window.addEventListener('resize', resize)
-    resize()
-
-    let time = 0
     const render = () => {
-      time += 0.006 // Final polished 'Gemini' speed
+      timeRef.current += 0.005
       ctx.clearRect(0, 0, canvas.width, canvas.height)
+      const isMobile = canvas.width < 768
+      const particles = particlesRef.current
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]
         let tx = p.baseX
         let ty = p.baseY
 
-        const active = (p.isLeft && hoverLeft) || (!p.isLeft && hoverRight)
+        const active = isMobile || (p.isLeft && hoverRef.current.left) || (!p.isLeft && hoverRef.current.right)
+        
         if (active) {
           tx = p.targetX
           ty = p.targetY
           ctx.fillStyle = 'rgba(46, 84, 150, 0.9)'
+          
+          // DIRECT EASING (No double movement/vibration)
+          p.x += (tx - p.x) * 0.08 * p.speedFactor
+          p.y += (ty - p.y) * 0.08 * p.speedFactor
+          p.vx = 0 // Kill existing velocity for absolute precision
+          p.vy = 0
         } else {
           ctx.fillStyle = 'rgba(100, 120, 150, 0.6)'
+          
+          // Organic Spring Physics for background
+          tx += Math.sin(timeRef.current + p.randomWander) * 4
+          ty += Math.cos(timeRef.current + p.randomWander) * 4
+
+          p.vx += (tx - p.x) * spring * p.speedFactor
+          p.vy += (ty - p.y) * spring * p.speedFactor
+          p.vx *= friction
+          p.vy *= friction
+          p.x += p.vx
+          p.y += p.vy
         }
-
-        // Swarm / Join effect: Particles always move organicially
-        tx += Math.sin(time + p.randomWander) * 4
-        ty += Math.cos(time + p.randomWander) * 4
-
-        p.vx += (tx - p.x) * spring
-        p.vy += (ty - p.y) * spring
-        p.vx *= friction
-        p.vy *= friction
-        p.x += p.vx
-        p.y += p.vy
 
         ctx.beginPath()
         ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2)
@@ -134,13 +149,16 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       }
       animationFrameId = requestAnimationFrame(render)
     }
+
+    window.addEventListener('resize', resize)
+    resize()
     render()
 
     return () => {
       window.removeEventListener('resize', resize)
       cancelAnimationFrame(animationFrameId)
     }
-  }, [hoverLeft, hoverRight])
+  }, []) // Empty dependency array = Runs once on mount
 
   return (
     <canvas
