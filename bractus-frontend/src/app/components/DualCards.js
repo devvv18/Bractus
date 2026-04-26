@@ -12,9 +12,9 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
     let animationFrameId
     let particles = []
-    const friction = 0.94
-    const spring = 0.003
-    const particleSpacing = 6 
+    const friction = 0.96 // Smoother, more fluid
+    const spring = 0.002 // Gentler movement
+    const particleSpacing = 8 // Perfect balance of clarity and cleanliness
     const dotRadius = 1.5 // Matched with Hero section
 
     const resize = () => {
@@ -100,7 +100,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
     let time = 0
     const render = () => {
-      time += 0.015 // Significantly slowed for a graceful 'Gemini' drift
+      time += 0.006 // Final polished 'Gemini' speed
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       for (let i = 0; i < particles.length; i++) {

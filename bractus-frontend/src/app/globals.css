@@ -269,38 +269,39 @@ h6 {
 }
 
 /* ═══════════════════════════════════════════════════
-   PROFESSIONAL THEME TOGGLE
+   PROFESSIONAL THEME TOGGLE (ICON VERSION)
    ═══════════════════════════════════════════════════ */
-.theme-toggle {
-  position: relative;
-  width: 46px;
-  height: 24px;
-  background: var(--bg-alt);
+.theme-toggle-btn {
+  background: transparent;
   border: 1px solid var(--border);
-  border-radius: 20px;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.3s ease;
-  flex-shrink: 0;
+  color: var(--text);
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+  opacity: 0.8;
 }
 
-.theme-toggle::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
+.theme-toggle-btn:hover {
+  opacity: 1;
+  background: var(--bg-alt);
+  border-color: var(--text-muted);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-btn svg {
   width: 18px;
   height: 18px;
-  border-radius: 50%;
-  background: #000; /* Monochromatic black */
-  transition: transform 0.4s cubic-bezier(.34, 1.56, .64, 1);
+  transition: transform 0.3s ease;
 }
 
-[data-theme="dark"] .theme-toggle::after {
-  transform: translateX(22px);
-  background: #fff; /* Monochromatic white */
+.theme-toggle-btn:active {
+  transform: translateY(0) scale(0.95);
 }
 
 /* ═══════════════════════════════════════════════════

@@ -41,7 +41,7 @@ function ParticleGrid() {
     window.addEventListener('mouseout', handleMouseLeave)
 
     // Grid Setup
-    const spacing = 35
+    const spacing = 42 // Cleaner grid, zero clutter
     let dots = []
 
     const initGrid = () => {
@@ -89,12 +89,12 @@ function ParticleGrid() {
         }
 
         // Spring force pulling back to origin
-        dot.vx += (dot.ox - dot.x) * 0.04
-        dot.vy += (dot.oy - dot.y) * 0.04
+        dot.vx += (dot.ox - dot.x) * 0.02
+        dot.vy += (dot.oy - dot.y) * 0.02
 
         // Friction
-        dot.vx *= 0.84
-        dot.vy *= 0.84
+        dot.vx *= 0.92
+        dot.vy *= 0.92
 
         dot.x += dot.vx
         dot.y += dot.vy
