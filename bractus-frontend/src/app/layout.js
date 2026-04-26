@@ -4,6 +4,7 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ChatBot from './components/ChatBot'
 import ScrollReveal from './components/ScrollReveal'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata = {
   title: 'Bractus — AI & Software Development Consulting',
@@ -37,6 +38,7 @@ export default function RootLayout({ children }) {
           <ChatBot />
           <ScrollReveal />
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   )
