@@ -96,9 +96,36 @@ export function Founder() {
 }
 
 export function Testimonials() {
+  const CLIENTS = [
+    { name: 'JMJ Cloud', logo: '☁️' },
+    { name: 'Mumford', logo: '🛠️' },
+    { name: 'Podium', logo: '🎙️' },
+    { name: 'Oracle', logo: '🏛️' },
+    { name: 'Vercel', logo: '▲' },
+  ]
+
   return (
     <section id="testimonials" className="section" style={{ background: 'var(--bg)' }}>
       <div className="container">
+        {/* Client Logos Section */}
+        <div style={{ marginBottom: 80, textAlign: 'center' }}>
+          <p style={{ 
+            fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', 
+            textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 32 
+          }}>Trusted by growth-stage & mid-market leaders</p>
+          <div style={{ 
+            display: 'flex', flexWrap: 'wrap', justifyContent: 'center', 
+            gap: 'clamp(40px, 8vw, 100px)', alignItems: 'center', opacity: 0.6 
+          }}>
+            {CLIENTS.map(c => (
+              <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 10, filter: 'grayscale(1)' }}>
+                <span style={{ fontSize: '1.5rem' }}>{c.logo}</span>
+                <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.03em' }}>{c.name.toUpperCase()}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <span className="tag">TESTIMONIALS</span>
         </div>

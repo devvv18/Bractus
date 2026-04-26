@@ -68,9 +68,10 @@ export default function Navbar() {
         </div>
 
         {/* Right side */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button onClick={toggle} className="theme-toggle" aria-label="Toggle theme map" title="Toggle Theme"></button>
-          <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary btn-sm hide-mobile">Schedule a call</a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary btn-sm hide-mobile" style={{ fontSize: '0.82rem', padding: '10px 22px' }}>Schedule a call</a>
+          
+          <button onClick={toggle} className="theme-toggle" aria-label="Toggle theme" title="Toggle Theme" />
 
           {/* Hamburger */}
           <button className="show-mobile" onClick={() => setMobileOpen(o => !o)}

@@ -68,7 +68,8 @@ export default function ChatBot() {
   // Modern 3D Human Avatar - just the raw avatar, no borders/circles
   const BotAvatar = ({ large = false, waving = false }) => (
     <div style={{
-      width: large ? 90 : 36, height: large ? 90 : 36,
+      width: large ? 'clamp(60px, 15vw, 90px)' : 36, 
+      height: large ? 'clamp(60px, 15vw, 90px)' : 36,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       flexShrink: 0,
       animation: waving ? 'waveBobble 1.2s ease-in-out infinite' : 'none',
@@ -79,7 +80,12 @@ export default function ChatBot() {
   )
 
   return (
-    <div style={{ position: 'fixed', bottom: 32, right: 32, zIndex: 9999 }}>
+    <div style={{ 
+      position: 'fixed', 
+      bottom: 'clamp(16px, 4vw, 32px)', 
+      right: 'clamp(16px, 4vw, 32px)', 
+      zIndex: 9999 
+    }}>
       {open ? (
         <div className="anim-fade-up" style={{
           width: 'clamp(300px, 90vw, 380px)', height: 550,
