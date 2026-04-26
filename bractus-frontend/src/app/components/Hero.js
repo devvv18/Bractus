@@ -1,7 +1,14 @@
 'use client'
 import { useEffect, useRef } from 'react'
 
-const BADGES = ['Advisory', 'Development', 'DevOps', 'Data']
+const BADGES = [
+  'Website & Applications',
+  'AI & Machine Learning',
+  'Full-Stack Engineering',
+  'System Architecture',
+  'Cloud & DevOps',
+  'Data Engineering',
+]
 
 function ParticleGrid() {
   const canvasRef = useRef(null)
@@ -40,13 +47,11 @@ function ParticleGrid() {
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseout', handleMouseLeave)
 
-    // Grid Setup
     const spacing = 35
     let dots = []
 
     const initGrid = () => {
       dots = []
-      // add padding to ensure dots fill edges
       for (let x = -spacing; x < width + spacing; x += spacing) {
         for (let y = -spacing; y < height + spacing; y += spacing) {
           dots.push({
@@ -60,7 +65,6 @@ function ParticleGrid() {
 
     setSize()
 
-    // Grab CSS var natively
     const getAccentColor = () => {
       if (typeof window === 'undefined') return '#2F5496'
       const styles = getComputedStyle(document.documentElement)
@@ -81,18 +85,15 @@ function ParticleGrid() {
         let forceRadius = 180
 
         if (distance < forceRadius) {
-          // Repel force
           let force = (forceRadius - distance) / forceRadius
           let angle = Math.atan2(dy, dx)
           dot.vx -= Math.cos(angle) * force * 1.2
           dot.vy -= Math.sin(angle) * force * 1.2
         }
 
-        // Spring force pulling back to origin
         dot.vx += (dot.ox - dot.x) * 0.04
         dot.vy += (dot.oy - dot.y) * 0.04
 
-        // Friction
         dot.vx *= 0.84
         dot.vy *= 0.84
 
@@ -147,10 +148,8 @@ export default function Hero() {
       background: 'var(--bg)',
       overflow: 'hidden',
     }}>
-      {/* Dynamic Cursor Canvas */}
       <ParticleGrid />
 
-      {/* Accent glow */}
       <div style={{
         position: 'absolute',
         width: 600, height: 600,
@@ -168,20 +167,20 @@ export default function Hero() {
           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
         }}>
           {/* Tag */}
-          <div className="anim-fade-up" style={{ marginBottom: 28 }}>
-            <span className="tag">✦ AI-Augmented Delivery</span>
-          </div>
+      <div className="anim-fade-up" style={{ marginBottom: 28, display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
+        <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
+      </div>
 
-          {/* Headline forced to 3 lines */}
+          {/* Headline */}
           <h1 className="anim-fade-up anim-delay-1" style={{
             fontSize: 'clamp(2.5rem, 5.5vw, 4.2rem)',
             fontWeight: 400,
             lineHeight: 1.15,
             marginBottom: 24,
           }}>
-            Cross-functional teams of<br />
-            senior professionals wielding<br />
-            <span className="accent-text">AI‑native toolchains</span>
+            We Build, Scale, and Modernize<br />
+            <span className="accent-text">Complex Software Systems</span>
           </h1>
 
           {/* Subtext */}
@@ -189,11 +188,14 @@ export default function Hero() {
             fontSize: 'clamp(1rem, 2vw, 1.15rem)',
             color: 'var(--text-secondary)',
             lineHeight: 1.75,
-            maxWidth: 580,
+            maxWidth: 680,
             marginBottom: 32,
           }}>
-            Delivering outcomes with the accountability and rigor
-            enterprise systems require — from strategy through deployment.
+            Your all-in-one partner for digital transformation. Whether building
+            standard web applications to advanced DevOps, data pipelines, or reshaping
+            an outdated legacy system and architecting a cutting-edge AI platform from
+            the ground up, our cross-functional teams deliver scalable, high-performance
+            results. We provide the technical muscle to bring any digital vision to life.
           </p>
 
           {/* Badge row */}
@@ -215,8 +217,13 @@ export default function Hero() {
 
           {/* CTAs */}
           <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 64 }}>
+<<<<<<< Updated upstream
             <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
             <a href="#services" className="btn-outline">Watch video</a>
+=======
+            <a href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
+            <a href="/services" className="btn-outline">View Our Services</a>
+>>>>>>> Stashed changes
           </div>
 
           {/* Stats */}
