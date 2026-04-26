@@ -212,7 +212,7 @@ export default function Hero() {
 
           {/* CTAs */}
           <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 64 }}>
-            <a href="/#contact" className="btn-primary">Schedule a call</a>
+            <a href="mailto:hello@bractus.com" className="btn-primary">Schedule a call</a>
             <a href="#services" className="btn-outline">Watch video</a>
           </div>
 

@@ -174,16 +174,9 @@ export default function ServicesPage() {
               color: '#fff',
               padding: '14px 36px',
               borderRadius: 10,
-              fontWeight: 600,
-              fontSize: '0.95rem',
-              textDecoration: 'none',
-              transition: 'opacity 0.2s',
-            }}
-              onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-              onMouseLeave={e => e.currentTarget.style.opacity = '1'}
-            >
+            <a href="mailto:hello@bractus.com" className="btn-primary" style={{ padding: '16px 40px', fontSize: '1.1rem', borderRadius: 100 }}>
               Schedule a call
-            </Link>
+            </a>
           </div>
         </div>
       </section>

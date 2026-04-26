@@ -14,15 +14,54 @@
 
 [[90m3:23:39 PM[0m] Found 0 errors. Watching for file changes.
 
-d[39m[38;5;3m +0ms[39m
-[32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMongooseCoreModule dependencies initialized[39m[38;5;3m +647ms[39m
-[32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMongooseModule dependencies initialized[39m[38;5;3m +3ms[39m
-[32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mContactModule dependencies initialized[39m[38;5;3m +0ms[39m
-[32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mContactController {/contact}:[39m[38;5;3m +137ms[39m
-[32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contact, POST} route[39m[38;5;3m +3ms[39m
-[32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/contact, GET} route[39m[38;5;3m +0ms[39m
-[32m[Nest] 99534  - [39m04/24/2026, 7:32:59 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +1ms[39m
-Bractus backend running on http://localhost:3001[2J[3J[H[[90m3:23:37 PM[0m] File change detected. Starting incremental compilation...
+[32m[Nest] 14888  - [39m04/26/2026, 3:25:30 PM [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 14888  - [39m04/26/2026, 3:25:30 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +21ms[39m
+[32m[Nest] 14888  - [39m04/26/2026, 3:25:30 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 14888  - [39m04/26/2026, 3:25:30 PM [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 14890  - [39m04/26/2026, 3:26:21 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +50683ms[39m
+[31m[Nest] 14890  - [39m04/26/2026, 3:26:21 PM [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::3001[39m[38;5;3m +15ms[39m
+node:net:2008
+    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
+               ^
 
-[[[90m3:23:39 PM[0m] Found 0 errors. Watching for file changes.
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:2008:16)
+    at listenInCluster (node:net:2065:12)
+    at Server.listen (node:net:2170:7)
+    at ExpressAdapter.listen (/Users/ishansmacbook/Desktop/bractus /bractus-backend/node_modules/@nestjs/platform-express/adapters/express-adapter.js:115:32)
+    at /Users/ishansmacbook/Desktop/bractus /bractus-backend/node_modules/@nestjs/core/nest-application.js:188:30
+    at new Promise (<anonymous>)
+    at NestApplication.listen (/Users/ishansmacbook/Desktop/bractus /bractus-backend/node_modules/@nestjs/core/nest-application.js:178:16)
+    at async bootstrap (/Users/ishansmacbook/Desktop/bractus /bractus-backend/src/main.ts:14:5) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
 
+Node.js v25.9.0
+mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 14906  - [39m04/26/2026, 3:26:21 PM [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +50683ms[39mBractus backend running on http://localhost:3001
+ [31m  ERROR[39m [38;5;3m[NestApplication] [39m[31mError: listen EADDRINUSE: address already in use :::3001[39m[38;5;3m +16ms[39m
+node:net:2008
+    const ex = new UVExceptionWithHostPort(err, 'listen', address, port);
+               ^
+
+Error: listen EADDRINUSE: address already in use :::3001
+    at Server.setupListenHandle [as _listen2] (node:net:2008:16)
+    at listenInCluster (node:net:2065:12)
+    at Server.listen (node:net:2170:7)
+    at ExpressAdapter.listen (/Users/ishansmacbook/Desktop/bractus /bractus-backend/node_modules/@nestjs/platform-express/adapters/express-adapter.js:115:32)
+    at /Users/ishansmacbook/Desktop/bractus /bractus-backend/node_modules/@nestjs/core/nest-application.js:188:30
+    at new Promise (<anonymous>)
+    at NestApplication.listen (/Users/ishansmacbook/Desktop/bractus /bractus-backend/node_modules/@nestjs/core/nest-application.js:178:16)
+    at async bootstrap (/Users/ishansmacbook/Desktop/bractus /bractus-backend/src/main.ts:14:5) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3001
+}
+
+Node.js v25.9.0

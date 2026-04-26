@@ -69,7 +69,7 @@ export default function Navbar() {
         {/* Right side */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <button onClick={toggle} className="theme-toggle" aria-label="Toggle theme map" title="Toggle Theme"></button>
-          <Link href="/#contact" className="btn-primary btn-sm hide-mobile">Schedule a call</Link>
+          <a href="mailto:hello@bractus.com" className="btn-primary btn-sm hide-mobile">Schedule a call</a>
 
           {/* Hamburger */}
           <button className="show-mobile" onClick={() => setMobileOpen(o => !o)}
@@ -108,10 +108,9 @@ export default function Navbar() {
                 borderBottom: '1px solid var(--border)',
               }}>{label}</Link>
           ))}
-          <Link href="/#contact" onClick={() => setMobileOpen(false)}
-            className="btn-primary" style={{ marginTop: 24, textAlign: 'center' }}>
+          <a href="mailto:hello@bractus.com" className="btn-primary" style={{ marginTop: 24, textAlign: 'center' }} onClick={() => setMobileOpen(false)}>
             Schedule a call
-          </Link>
+          </a>
         </div>
       )}
     </>

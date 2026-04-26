@@ -58,9 +58,9 @@ export function ToolsAndPartners() {
               people who understand enterprise architecture and production systems.
             </p>
           </div>
-          <a href="/#contact" className="btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
-            Schedule a call
-          </a>
+            <a href="mailto:hello@bractus.com" className="btn-primary" style={{ padding: '14px 40px', fontSize: '1.05rem', borderRadius: 100 }}>
+              Schedule a call
+            </a>
         </div>
       </div>
     </section>
