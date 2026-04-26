@@ -294,13 +294,13 @@ h6 {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--accent);
+  background: #000; /* Monochromatic black */
   transition: transform 0.4s cubic-bezier(.34, 1.56, .64, 1);
 }
 
 [data-theme="dark"] .theme-toggle::after {
   transform: translateX(22px);
-  background: var(--accent);
+  background: #fff; /* Monochromatic white */
 }
 
 /* ═══════════════════════════════════════════════════

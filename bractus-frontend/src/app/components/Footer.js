@@ -47,11 +47,18 @@ export default function Footer() {
           </a>
           <p style={{
             color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7,
-            maxWidth: 280, marginBottom: 20,
+            maxWidth: 280, marginBottom: 24,
           }}>
             We help growth-stage and mid-market companies solve their toughest
             technology challenges with AI-augmented delivery.
           </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+            <a href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL}`} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>{process.env.NEXT_PUBLIC_CONTACT_EMAIL}</a>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{process.env.NEXT_PUBLIC_PHONE}</span>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{process.env.NEXT_PUBLIC_LOCATION}</span>
+          </div>
+
           <div style={{ display: 'flex', gap: 8 }}>
             {['𝕏', 'in', '○'].map((icon, i) => (
               <a key={i} href="#" style={{

@@ -101,10 +101,12 @@ function ParticleGrid() {
 
         let speed = Math.abs(dot.vx) + Math.abs(dot.vy)
         let isDisturbed = speed > 0.3
-        let size = isDisturbed ? 5 : 3
+        let size = 1.5 // Consistent dot radius
 
         ctx.globalAlpha = isDisturbed ? 0.6 : 0.15
-        ctx.fillRect(dot.x - size/2, dot.y - size/2, size, size)
+        ctx.beginPath()
+        ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2)
+        ctx.fill()
       }
       animationFrameId = requestAnimationFrame(render)
     }
