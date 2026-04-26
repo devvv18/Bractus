@@ -168,12 +168,6 @@ export default function ServicesPage() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginBottom: 24 }}>
               Not sure where to start? Let's talk about your goals.
             </p>
-            <Link href="/contact" style={{
-              display: 'inline-block',
-              background: 'var(--accent)',
-              color: '#fff',
-              padding: '14px 36px',
-              borderRadius: 10,
             <a href="mailto:hello@bractus.com" className="btn-primary" style={{ padding: '16px 40px', fontSize: '1.1rem', borderRadius: 100 }}>
               Schedule a call
             </a>
