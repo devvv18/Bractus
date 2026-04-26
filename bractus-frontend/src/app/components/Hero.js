@@ -168,16 +168,16 @@ export default function Hero() {
           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
         }}>
           {/* Tag */}
-          <div className="anim-fade-up" style={{ marginBottom: 28 }}>
+          <div className="anim-fade-up" style={{ marginBottom: 32 }}>
             <span className="tag">✦ AI-Augmented Delivery</span>
           </div>
 
           {/* Headline forced to 3 lines */}
           <h1 className="anim-fade-up anim-delay-1" style={{
-            fontSize: 'clamp(2.5rem, 5.5vw, 4.2rem)',
+            fontSize: 'clamp(1.6rem, 5vw, 4.2rem)',
             fontWeight: 400,
             lineHeight: 1.15,
-            marginBottom: 24,
+            marginBottom: 32,
           }}>
             Cross-functional teams of<br />
             senior professionals wielding<br />
@@ -190,7 +190,7 @@ export default function Hero() {
             color: 'var(--text-secondary)',
             lineHeight: 1.75,
             maxWidth: 580,
-            marginBottom: 32,
+            marginBottom: 40,
           }}>
             Delivering outcomes with the accountability and rigor
             enterprise systems require — from strategy through deployment.
@@ -198,14 +198,14 @@ export default function Hero() {
 
           {/* Badge row */}
           <div className="anim-fade-up anim-delay-2" style={{
-            display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 40,
+            display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', marginBottom: 48,
           }}>
             {BADGES.map(b => (
               <span key={b} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '6px 16px', borderRadius: 100,
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '8px 20px', borderRadius: 100,
                 border: '1px solid var(--border)',
-                fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 400,
+                fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 400,
               }}>
                 <span style={{ color: 'var(--accent)', fontSize: 14 }}>✓</span>
                 {b}
@@ -214,15 +214,15 @@ export default function Hero() {
           </div>
 
           {/* CTAs */}
-          <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 64 }}>
+          <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 80 }}>
             <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
             <a href="#services" className="btn-outline">Watch video</a>
           </div>
 
           {/* Stats */}
           <div className="anim-fade-up anim-delay-4" style={{
-            display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
-            paddingTop: 32,
+            display: 'flex', gap: 'clamp(32px, 8vw, 80px)', justifyContent: 'center',
+            paddingTop: 40,
             borderTop: '1px solid var(--border)',
             width: '100%', maxWidth: 720
           }}>

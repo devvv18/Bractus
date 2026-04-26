@@ -31,23 +31,25 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       off.height = h
       const octx = off.getContext('2d', { willReadFrequently: true })
 
-      // Define two target zones
-      const cxLeft = w * 0.25
-      const cxRight = w * 0.75
-      const cy = h / 2
+      // Define target zones based on mobile/desktop
+      const isMobile = w < 768
+      const cxLeft = isMobile ? w / 2 : w * 0.25
+      const cxRight = isMobile ? w / 2 : w * 0.75
+      const cyLeft = isMobile ? h * 0.25 : h / 2
+      const cyRight = isMobile ? h * 0.75 : h / 2
 
       // Draw Shape 1: Code (Left)
       octx.clearRect(0, 0, w, h)
-      const fontSize = Math.min(w, h) * 0.4
+      const fontSize = Math.min(w, h) * (isMobile ? 0.25 : 0.4)
       octx.font = `300 ${fontSize}px system-ui, sans-serif`
       octx.textBaseline = 'middle'
       octx.textAlign = 'center'
-      octx.fillText('< / >', cxLeft, cy)
+      octx.fillText('< / >', cxLeft, cyLeft)
       const dataLeft = octx.getImageData(0, 0, w, h).data
 
       // Draw Shape 2: Honeycomb (Right)
       octx.clearRect(0, 0, w, h)
-      const hexR = Math.min(w, h) * 0.04
+      const hexR = Math.min(w, h) * (isMobile ? 0.025 : 0.04)
       const hexW = Math.sqrt(3) * hexR
       const hexH = 2 * hexR
       const ySpacing = hexH * 0.75
@@ -57,7 +59,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
         for (let c = -4; c <= 4; c++) {
           if (Math.sqrt(r*r + c*c) > 4.2) continue
           let hx = cxRight + c * hexW + (r % 2 ? hexW / 2 : 0)
-          let hy = cy + r * ySpacing
+          let hy = cyRight + r * ySpacing
           octx.beginPath()
           for (let e = 0; e <= 6; e++) {
             const a = (Math.PI / 3) * e - Math.PI / 6
@@ -143,7 +145,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
   return (
     <canvas
       ref={canvasRef}
-      style={{ width: '100%', height: '100%', display: 'block' }}
+      style={{ width: '100%', height: '100%', display: 'block', pointerEvents: 'none' }}
     />
   )
 }
@@ -153,38 +155,38 @@ export default function DualCards() {
   const [hoverRight, setHoverRight] = useState(false)
 
   return (
-    <section style={{ background: 'var(--bg)', padding: 0, position: 'relative', overflow: 'hidden' }}>
+    <section style={{ background: 'var(--bg)', padding: 0, position: 'relative' }}>
       {/* Unified Background Canvas */}
-      <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
         <UnifiedCanvas hoverLeft={hoverLeft} hoverRight={hoverRight} />
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', minHeight: '85vh', position: 'relative', zIndex: 1 }}>
         {/* Left Card */}
         <div
-          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 48px' }}
+          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px, 12vw, 100px) 48px' }}
           onMouseEnter={() => setHoverLeft(true)}
           onMouseLeave={() => setHoverLeft(false)}
         >
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For developers</h2>
-            <p style={{ fontSize: '2.4rem', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32 }}>Achieve new heights</p>
+            <p style={{ fontSize: 'clamp(1.8rem, 5vw, 2.4rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32 }}>Achieve new heights</p>
             <Link href="/download" className="btn-primary" style={{ borderRadius: 100 }}>Download</Link>
           </div>
         </div>
 
-        {/* Vertical Divider (Invisible but helpful for layout) */}
-        <div style={{ width: 1, background: 'var(--border)', opacity: 0.1 }} />
+        {/* Vertical Divider - Hidden on Mobile */}
+        <div className="hide-mobile" style={{ width: 1, background: 'var(--border)', opacity: 0.1 }} />
 
         {/* Right Card */}
         <div
-          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 48px' }}
+          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px, 12vw, 100px) 48px' }}
           onMouseEnter={() => setHoverRight(true)}
           onMouseLeave={() => setHoverRight(false)}
         >
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For organizations</h2>
-            <p style={{ fontSize: '2.4rem', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32 }}>Level up your entire team</p>
+            <p style={{ fontSize: 'clamp(1.8rem, 5vw, 2.4rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32 }}>Level up your entire team</p>
             <Link href="/notify" className="btn-outline" style={{ borderRadius: 100, background: 'var(--bg)' }}>Notify me</Link>
           </div>
         </div>
