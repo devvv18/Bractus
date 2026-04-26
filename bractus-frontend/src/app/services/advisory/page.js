@@ -149,7 +149,7 @@ export default function AdvisoryPage() {
       </section>
  
       {/* CTA */}
-      <BottomCTA title="Ready to level up your technology strategy?" sub="Schedule a no-obligation call with our advisory team." cta="Schedule a Call →" />
+      <BottomCTA title="Ready to level up your technology strategy?" sub="Schedule a no-obligation call with our advisory team." cta="Schedule a Call →" contactEmail={contactEmail} />
     </main>
   );
 }
@@ -181,7 +181,7 @@ function ServiceCard({ icon, title, desc }) {
     </div>
   );
 }
-function BottomCTA({ title, sub, cta }) {
+function BottomCTA({ title, sub, cta, contactEmail }) {
   return (
     <section style={{ background: "linear-gradient(135deg,#0f1b3d 0%,#1a3a6b 100%)", padding: "80px 24px", textAlign: "center" }}>
       <h2 style={{ fontSize: "32px", fontWeight: 800, color: "#fff", marginBottom: "14px" }}>{title}</h2>
