@@ -1,9 +1,149 @@
-export const metadata = { title: 'Process | Bractus' }
+'use client'
+import { useState } from 'react'
+
+const HOW_WE_WORK = [
+  {
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+      </svg>
+    ),
+    title: 'Daily Stand-Up Meetings',
+    desc: 'Your project team aligns daily on progress, priorities, and any AI agent outputs that need human review. Every day starts with clarity on what has been accomplished and what is next.',
+  },
+  {
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 14H6l-2 2V4h16v12z"/>
+      </svg>
+    ),
+    title: 'Daily Client Communication',
+    desc: 'Your project manager provides daily updates on deliverables, flags decisions that need your input, and keeps you informed on how AI-augmented workflows are accelerating your timeline.',
+  },
+  {
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+      </svg>
+    ),
+    title: 'Focused Sprints',
+    desc: 'Our team works in focused sprints where experienced professionals direct AI agents to execute high-volume tasks. Faster delivery, lower cost, same enterprise-grade rigor.',
+  },
+  {
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0 0 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 0 0 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+      </svg>
+    ),
+    title: 'Sprint Retrospectives',
+    desc: 'Each sprint closes with a review of what was built, what AI agents contributed, and what gets refined next. You always know exactly where your investment is going.',
+  },
+  {
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+      </svg>
+    ),
+    title: 'Milestone Demos',
+    desc: 'At every major milestone, you see working software — not just status reports. Real demos, real progress, real accountability at every step of delivery.',
+  },
+  {
+    icon: (
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 4l5 2.18V11c0 3.5-2.33 6.79-5 7.93-2.67-1.14-5-4.43-5-7.93V7.18L12 5z"/>
+      </svg>
+    ),
+    title: 'Security & Compliance Built In',
+    desc: 'Security is foundational from day one. We follow SOC 2, HIPAA, and GDPR as baseline practice and integrate with your existing security policies from the start.',
+  },
+]
 
 export default function ProcessPage() {
   return (
-    <div className="container" style={{ paddingTop: 120, paddingBottom: 120, minHeight: '60vh', textAlign: 'center' }}>
-      <h1>Process</h1>
-    </div>
+    <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+
+      {/* Hero Banner — Particle41 style full-width colored section */}
+      <section style={{
+        background: 'var(--accent)',
+        paddingTop: 160,
+        paddingBottom: 100,
+        textAlign: 'center',
+      }}>
+        <div className="container">
+          <h1 style={{
+            fontSize: 'clamp(2rem, 5vw, 3.2rem)',
+            fontWeight: 400,
+            color: '#fff',
+            lineHeight: 1.25,
+            marginBottom: 24,
+            maxWidth: 760,
+            margin: '0 auto 24px',
+          }}>
+            You have a vision. We have the delivery model to make it real.
+          </h1>
+          <p style={{
+            fontSize: 'clamp(0.95rem, 1.8vw, 1.1rem)',
+            color: 'rgba(255,255,255,0.85)',
+            maxWidth: 720,
+            margin: '0 auto',
+            lineHeight: 1.75,
+          }}>
+            Our delivery model combines experienced professionals — architects, engineers, data experts, and strategists — with AI-driven tools to streamline every stage of development. This approach enables faster execution, cost efficiency, and reliable, production-ready solutions.
+          </p>
+        </div>
+      </section>
+
+      {/* How our team works — 2 column icon+text list */}
+      <section style={{ paddingTop: 100, paddingBottom: 100, background: '#f0f6fb' }}>
+        <div className="container">
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <h2 style={{
+              fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)',
+              fontWeight: 400, lineHeight: 1.25,
+            }}>
+              Here's how our team will work with yours
+            </h2>
+            <p style={{
+              color: 'var(--text-secondary)', fontSize: '1rem',
+              maxWidth: 600, margin: '16px auto 0', lineHeight: 1.75,
+            }}>
+              No matter what type of challenge you bring, we are dedicated solely to
+              accomplishing your goals — and giving you complete visibility into the process.
+            </p>
+          </div>
+
+          {/* 2-column feature list */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '48px 80px',
+          }}>
+            {HOW_WE_WORK.map(({ icon, title, desc }, i) => (
+              <div key={i} style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+                {/* Icon */}
+                <div style={{
+                  color: 'var(--accent)',
+                  flexShrink: 0,
+                  marginTop: 4,
+                }}>
+                  {icon}
+                </div>
+                {/* Text */}
+                <div>
+                  <h3 style={{
+                    fontSize: '1.05rem', fontWeight: 700,
+                    marginBottom: 10, color: 'var(--text)',
+                  }}>{title}</h3>
+                  <p style={{
+                    fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.75,
+                  }}>{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+    </main>
   )
 }
