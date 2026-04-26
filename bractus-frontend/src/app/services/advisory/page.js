@@ -33,14 +33,14 @@ const offerings = [
     title: "Investor Reporting",
     desc: "Board-ready updates, technology KPIs, and roadmap presentations that give investors the confidence they need.",
   },
-]
-
-const STEPS = [
+];
+ 
+const process = [
   { step: "01", title: "Discovery Call", desc: "We learn your business, goals, and current technology situation in a focused 60-minute session." },
   { step: "02", title: "Assessment", desc: "A structured audit of your stack, team, and roadmap — delivered as a clear written report within 5 business days." },
   { step: "03", title: "Strategy Session", desc: "We walk through findings and co-create a 90-day action plan with your leadership team." },
   { step: "04", title: "Ongoing Partnership", desc: "Monthly advisory retainer — available for decisions, reviews, and escalations as your company grows." },
-]
+];
  
 export default function AdvisoryPage() {
   const [activeQ, setActiveQ] = useState(null);
@@ -109,7 +109,7 @@ export default function AdvisoryPage() {
           <SectionLabel>How It Works</SectionLabel>
           <h2 style={{ fontSize: "32px", fontWeight: 800, textAlign: "center", marginBottom: "52px" }}>From first call to ongoing partnership</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "32px" }}>
-            {STEPS.map((p, i) => (
+            {process.map((p, i) => (
               <div key={i} style={{ textAlign: "center" }}>
                 <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "#eef2ff", border: "2px solid #c7d7fd", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 14px", fontSize: "14px", fontWeight: 800, color: "#2563eb" }}>{p.step}</div>
                 <h3 style={{ fontSize: "15px", fontWeight: 700, marginBottom: "8px" }}>{p.title}</h3>

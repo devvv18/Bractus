@@ -6,42 +6,42 @@ const VALUES = [
   {
     letter: 'B',
     title: 'Bold Thinking',
-    desc: 'We ask the hard questions others avoid and pursue solutions that actually move the needle — not the safe, predictable ones.',
+    desc: 'We challenge assumptions and push for smarter solutions every time.',
   },
   {
     letter: 'R',
     title: 'Results Driven',
-    desc: 'We measure our success by yours. Every sprint, every decision, every line of code is tied to an outcome that matters to your business.',
+    desc: 'Every decision we make is tied directly to outcomes that matter to you.',
   },
   {
     letter: 'A',
     title: 'Accountability',
-    desc: 'One team, one point of contact, full ownership. We do not pass the buck — we own the outcome from kickoff to delivery.',
+    desc: 'We own the outcome — one team, clear ownership, no excuses.',
   },
   {
     letter: 'C',
     title: 'Craft',
-    desc: 'We take deep pride in what we build. Clean architecture, tested code, and thoughtful design are non-negotiable on every engagement.',
+    desc: 'We take pride in the quality of everything we build and ship.',
   },
   {
     letter: 'T',
     title: 'Transparency',
-    desc: 'No surprises, no spin. You get honest updates, clear timelines, and full visibility into exactly where your project stands at all times.',
+    desc: 'You always know exactly where your project stands and why.',
   },
 ]
 
 const DIFFERENTIATORS = [
   {
     title: 'You get a professional, not a process.',
-    desc: 'A senior engineer or strategist is assigned to your engagement from day one — owning every architecture decision, every client conversation, and every delivery milestone. Accountability lives at the top, not buried in a team hierarchy.',
+    desc: 'A senior engineer or strategist works with you directly — owning architecture decisions, client communication, and delivery quality from day one. You get accountability at the top, not just at the bottom.',
   },
   {
     title: 'Every output is working software.',
-    desc: 'We do not hand over decks, documentation, or roadmaps as proof of progress. Every phase closes with tested, deployable software — code that runs, infrastructure that scales, features your users can actually touch.',
+    desc: 'We do not deliver slide decks or status reports as milestones. Every phase of our engagement produces something concrete — tested code, deployed infrastructure, or shipped features.',
   },
   {
     title: 'We rebuilt delivery around AI from the ground up.',
-    desc: 'AI is not a buzzword we have bolted onto an old model. Our entire delivery framework was designed from scratch around senior professionals directing AI agents — so you get faster timelines, lower costs, and zero drop in quality.',
+    desc: 'AI is not an add-on to how we work — it is how we work. Our model was designed from scratch to pair experienced professionals with AI agents, giving you faster timelines and lower costs without sacrificing quality.',
   },
 ]
 
@@ -76,8 +76,7 @@ export default function AboutPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <span className="tag" style={{ marginBottom: 16 }}>OUR CORE VALUES</span>
             <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.4rem)', fontWeight: 400, lineHeight: 1.3 }}>
-              Built different. Wired for outcomes.<br />
-            <span className="accent-text">Driven by values that never bend.</span>
+              Bold. Results-driven. Accountable.<br />Crafted with Transparency.
             </h2>
           </div>
 
@@ -141,9 +140,9 @@ export default function AboutPage() {
             color: 'rgba(255,255,255,0.85)',
             maxWidth: 720, margin: '0 auto 64px', lineHeight: 1.8,
           }}>
-            Bractus was built on a simple but powerful idea — that experienced professionals
-            leading focused, outcome-driven teams will always outperform traditional outsourcing models.
-            That idea has not changed. What has changed is the scale and speed at which we can now deliver on it.
+            Bractus started with a straightforward belief: outcome-focused teams led by experienced
+            professionals consistently outperform traditional outsourcing. That belief has not changed.
+            What has changed is how powerfully we can now execute it.
           </p>
 
           <div style={{

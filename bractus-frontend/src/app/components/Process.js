@@ -3,28 +3,28 @@
 const STEPS = [
   {
     num: '01',
-    title: 'We Listen',
-    desc: 'We start by deeply understanding your business — your goals, your constraints, and the outcomes that matter most. From there, we map out a clear technology direction built around your specific needs.',
+    title: 'We talk',
+    desc: 'We find out about your business and the outcomes you\'re seeking. Then we map out a digital direction that\'s right for you.',
   },
   {
     num: '02',
-    title: 'We Build',
-    desc: 'Our senior professionals embed directly with your team, directing AI agents to accelerate every phase of delivery — always maintaining enterprise-grade quality, on time and within budget.',
+    title: 'We collaborate',
+    desc: 'We work shoulder-to-shoulder with your team to build and launch a tailored digital solution — always on time and on budget.',
   },
   {
     num: '03',
-    title: 'We Evolve',
-    desc: 'After delivery, we measure real impact on your business and customers. Then we recalibrate, optimize, and identify the next opportunity to push your technology further forward.',
+    title: 'We advance',
+    desc: 'You\'ll see the difference in the lives of your customers and employees. Then we\'ll recalibrate to see if there\'s any more ground to gain.',
   },
 ]
 
 const VALUES = [
-  { title: 'Outcomes over activity.', desc: 'We focus on what moves your business forward — not hours logged or tickets closed. Every decision we make is tied directly to results you can measure.' },
-  { title: 'You own everything.', desc: 'Every line of code, every system, every deliverable is 100% yours. No vendor lock-in, no shared IP — just clean, documented work that belongs to your organization.' },
-  { title: 'Flexible engagement.', desc: 'No long-term commitments required. We earn the next phase by delivering on the current one — giving you full control over scope, timeline, and investment.' },
-  { title: 'One team, one throat to choke.', desc: 'A single senior professional owns your engagement end-to-end. No finger-pointing between teams, no handoff failures — just clear accountability from day one.' },
-  { title: 'Complete visibility.', desc: 'You always know exactly where your project stands. Daily updates, working demos at every milestone, and honest reporting — no surprises, ever.' },
-  { title: 'Senior talent, AI-powered speed.', desc: 'Every engagement is led by experienced professionals who direct AI agents to deliver more, faster. You get enterprise-grade expertise at a cost that makes business sense.' },
+  { title: 'No over-promising.', desc: 'We listen first, understand your business, then map out a direction aligned with your goals.' },
+  { title: 'No loss of equity.', desc: 'You own 100% of everything we create — your IP, your success, your future.' },
+  { title: 'No long-term contract.', desc: 'Your investment goes directly to results — not months of unnecessary busy work.' },
+  { title: 'Full accountability.', desc: 'One team, clear responsibility, no finger-pointing — just measurable impact.' },
+  { title: 'Radical transparency.', desc: 'Clear updates, honest reporting, and total visibility at every step.' },
+  { title: 'Proven expertise.', desc: 'Enterprise-grade teams now augmented by AI agents for faster, more cost-effective results.' },
 ]
 
 export function HowWeWork() {

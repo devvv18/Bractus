@@ -9,7 +9,7 @@ const HOW_WE_WORK = [
       </svg>
     ),
     title: 'Daily Stand-Up Meetings',
-    desc: 'Every morning, your dedicated team syncs on progress, blockers, and next steps. Nothing gets missed, nothing gets delayed — you always know exactly what is happening and why.',
+    desc: 'Your project team aligns daily on progress, priorities, and any AI agent outputs that need human review. Every day starts with clarity on what has been accomplished and what is next.',
   },
   {
     icon: (
@@ -18,7 +18,7 @@ const HOW_WE_WORK = [
       </svg>
     ),
     title: 'Daily Client Communication',
-    desc: 'Your dedicated project manager sends clear, concise updates every single day — flagging decisions that need your input and showing exactly how our AI-augmented workflows are compressing your timeline.',
+    desc: 'Your project manager provides daily updates on deliverables, flags decisions that need your input, and keeps you informed on how AI-augmented workflows are accelerating your timeline.',
   },
   {
     icon: (
@@ -27,7 +27,7 @@ const HOW_WE_WORK = [
       </svg>
     ),
     title: 'Focused Sprints',
-    desc: 'We work in tight, purposeful sprints — each one producing tangible, testable output. Senior engineers direct AI agents to handle high-volume execution while maintaining the precision your product demands.',
+    desc: 'Our team works in focused sprints where experienced professionals direct AI agents to execute high-volume tasks. Faster delivery, lower cost, same enterprise-grade rigor.',
   },
   {
     icon: (
@@ -36,7 +36,7 @@ const HOW_WE_WORK = [
       </svg>
     ),
     title: 'Sprint Retrospectives',
-    desc: 'At the close of every sprint, we review what shipped, assess what AI contributed, and identify what to sharpen next. Your investment is always accounted for — down to every decision and deliverable.',
+    desc: 'Each sprint closes with a review of what was built, what AI agents contributed, and what gets refined next. You always know exactly where your investment is going.',
   },
   {
     icon: (
@@ -45,7 +45,7 @@ const HOW_WE_WORK = [
       </svg>
     ),
     title: 'Milestone Demos',
-    desc: 'We do not deliver status updates — we deliver working software. At every major milestone, you see real functionality in action, giving you confidence that the build is on track and built right.',
+    desc: 'At every major milestone, you see working software — not just status reports. Real demos, real progress, real accountability at every step of delivery.',
   },
   {
     icon: (
@@ -54,7 +54,7 @@ const HOW_WE_WORK = [
       </svg>
     ),
     title: 'Security & Compliance Built In',
-    desc: 'Security is never an afterthought. From day one, we build to SOC 2, HIPAA, and GDPR standards — integrating seamlessly with your existing governance policies and data protection requirements.',
+    desc: 'Security is foundational from day one. We follow SOC 2, HIPAA, and GDPR as baseline practice and integrate with your existing security policies from the start.',
   },
 ]
 
@@ -62,7 +62,7 @@ export default function ProcessPage() {
   return (
     <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
 
-      {/* Hero Banner */}
+      {/* Hero Banner — Particle41 style full-width colored section */}
       <section style={{
         background: 'var(--accent)',
         paddingTop: 160,
@@ -79,7 +79,7 @@ export default function ProcessPage() {
             maxWidth: 760,
             margin: '0 auto 24px',
           }}>
-            Your goals are clear. Our process is built to get you there.
+            You have a vision. We have the delivery model to make it real.
           </h1>
           <p style={{
             fontSize: 'clamp(0.95rem, 1.8vw, 1.1rem)',
@@ -88,10 +88,7 @@ export default function ProcessPage() {
             margin: '0 auto',
             lineHeight: 1.75,
           }}>
-            We do not just assign resources and hope for the best. Our structured,
-            AI-augmented delivery model gives you senior professionals who own outcomes,
-            transparent communication at every step, and working software you can see
-            and test — from kickoff through launch and beyond.
+            Our delivery model combines experienced professionals — architects, engineers, data experts, and strategists — with AI-driven tools to streamline every stage of development. This approach enables faster execution, cost efficiency, and reliable, production-ready solutions.
           </p>
         </div>
       </section>
@@ -123,6 +120,7 @@ export default function ProcessPage() {
           }}>
             {HOW_WE_WORK.map(({ icon, title, desc }, i) => (
               <div key={i} style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+                {/* Icon */}
                 <div style={{
                   color: 'var(--accent)',
                   flexShrink: 0,
@@ -130,6 +128,7 @@ export default function ProcessPage() {
                 }}>
                   {icon}
                 </div>
+                {/* Text */}
                 <div>
                   <h3 style={{
                     fontSize: '1.05rem', fontWeight: 700,
