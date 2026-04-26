@@ -3,11 +3,11 @@ import { IsEmail, IsNotEmpty, IsString, IsOptional } from 'class-validator'
 export class CreateContactDto {
     @IsString()
     @IsNotEmpty()
-    firstName: string
+    name: string
 
+    @IsOptional()
     @IsString()
-    @IsNotEmpty()
-    lastName: string
+    company?: string
 
     @IsEmail()
     email: string

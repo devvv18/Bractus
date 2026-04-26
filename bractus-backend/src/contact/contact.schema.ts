@@ -4,10 +4,10 @@ import { Document } from 'mongoose'
 @Schema({ timestamps: true })   // adds createdAt, updatedAt automatically
 export class Contact extends Document {
     @Prop({ required: true })
-    firstName: string
+    name: string
 
-    @Prop({ required: true })
-    lastName: string
+    @Prop()
+    company: string
 
     @Prop({ required: true })
     email: string

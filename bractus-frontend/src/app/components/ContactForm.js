@@ -78,6 +78,14 @@ export function GetInTouch() {
     e.preventDefault()
     setLoading(true)
 
+    // Simulated UI-only success (Backend connection commented out for handoff)
+    setTimeout(() => {
+      setSent(true)
+      setLoading(false)
+      console.log('Form submission (simulated):', form)
+    }, 800)
+
+    /*
     try {
       const res = await fetch('http://localhost:3001/contact', {
         method: 'POST',
@@ -91,6 +99,7 @@ export function GetInTouch() {
     } finally {
       setLoading(false)
     }
+    */
   }
 
   return (

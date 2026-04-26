@@ -46,6 +46,13 @@ export default function ChatBot() {
     setInput('')
     setLoading(true)
 
+    // Simulated UI-only response (AI backend logic commented out for handoff)
+    setTimeout(() => {
+      setMessages([...newMessages, { role: 'assistant', content: "I'm in offline mode right now, but I can still show you around the UI!" }])
+      setLoading(false)
+    }, 1000)
+
+    /*
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -63,6 +70,7 @@ export default function ChatBot() {
        setMessages([...newMessages, { role: 'assistant', content: 'Sorry, your internet connection may have dropped.' }])
     }
     setLoading(false)
+    */
   }
 
   // Modern 3D Human Avatar - just the raw avatar, no borders/circles
