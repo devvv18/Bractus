@@ -45,13 +45,13 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       const cxRight = isMobile ? w / 2 : w * 0.75
       
       // Calculate vertical centers for stacked mobile cards
-      // Mobile has 2 cards, each taking ~50% of the total section height
-      const cyLeft = isMobile ? h * 0.25 : h / 2
-      const cyRight = isMobile ? h * 0.75 : h / 2
+      // Shifted up to 'frame' the text (0.18/0.68) for the perfect halo effect
+      const cyLeft = isMobile ? h * 0.18 : h / 2
+      const cyRight = isMobile ? h * 0.68 : h / 2
 
       // Draw Shape 1: Code
       octx.clearRect(0, 0, w, h)
-      const fontSize = Math.min(w, h) * (isMobile ? 0.3 : 0.4)
+      const fontSize = Math.min(w, h) * (isMobile ? 0.45 : 0.4) // Bold mobile shapes
       octx.font = `300 ${fontSize}px system-ui, sans-serif`
       octx.textBaseline = 'middle'
       octx.textAlign = 'center'
@@ -60,7 +60,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
       // Draw Shape 2: Honeycomb
       octx.clearRect(0, 0, w, h)
-      const hexR = Math.min(w, h) * (isMobile ? 0.035 : 0.05) // Larger hexagons
+      const hexR = Math.min(w, h) * (isMobile ? 0.045 : 0.05) // Larger honeycomb pattern
       const hexW = Math.sqrt(3) * hexR
       const hexH = 2 * hexR
       const ySpacing = hexH * 0.75

@@ -172,15 +172,18 @@ export default function Hero() {
             <span className="tag">✦ AI-Augmented Delivery</span>
           </div>
 
-          {/* Headline forced to 3 lines */}
+          {/* Headline with responsive line breaks */}
           <h1 className="anim-fade-up anim-delay-1" style={{
-            fontSize: 'clamp(1.6rem, 5vw, 4.2rem)',
+            fontSize: 'clamp(1.65rem, 5.2vw, 4.2rem)',
             fontWeight: 400,
-            lineHeight: 1.15,
+            lineHeight: 1.2,
             marginBottom: 32,
+            maxWidth: '90vw'
           }}>
-            Cross-functional teams of<br />
-            senior professionals wielding<br />
+            <span className="hide-mobile">Cross-functional teams of<br /></span>
+            <span className="show-mobile">Cross-functional teams of </span>
+            <span className="hide-mobile">senior professionals wielding<br /></span>
+            <span className="show-mobile">senior professionals wielding </span>
             <span className="accent-text">AI‑native toolchains</span>
           </h1>
 
@@ -219,12 +222,17 @@ export default function Hero() {
             <a href="#services" className="btn-outline">Watch video</a>
           </div>
 
-          {/* Stats */}
+          {/* Stats Row - Responsive Grid */}
           <div className="anim-fade-up anim-delay-4" style={{
-            display: 'flex', gap: 'clamp(32px, 8vw, 80px)', justifyContent: 'center',
+            display: 'flex', 
+            gap: 'clamp(24px, 5vw, 60px)', 
+            justifyContent: 'center',
+            flexWrap: 'wrap', // Allow wrapping on mobile
             paddingTop: 40,
             borderTop: '1px solid var(--border)',
-            width: '100%', maxWidth: 720
+            width: '100%', 
+            maxWidth: 800,
+            margin: '0 auto'
           }}>
             {[
               { value: '120+', label: 'Clients Served' },
@@ -232,7 +240,7 @@ export default function Hero() {
               { value: '98%', label: 'Satisfaction Rate' },
               { value: '8+', label: 'Years Experience' },
             ].map(({ value, label }) => (
-              <div key={label}>
+              <div key={label} style={{ minWidth: 140 }}>
                 <div style={{
                   fontFamily: 'Nunito, sans-serif',
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',

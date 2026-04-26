@@ -82,8 +82,8 @@ export default function ChatBot() {
   return (
     <div style={{ 
       position: 'fixed', 
-      bottom: 'clamp(16px, 4vw, 32px)', 
-      right: 'clamp(16px, 4vw, 32px)', 
+      bottom: 'clamp(12px, 4vw, 32px)', 
+      right: 'clamp(12px, 4vw, 32px)', 
       zIndex: 9999 
     }}>
       {open ? (

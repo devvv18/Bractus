@@ -374,7 +374,7 @@ h6 {
   }
 
   .show-mobile {
-    display: flex !important;
+    display: inline !important; /* Changed to inline for text spans */
   }
 }
 
