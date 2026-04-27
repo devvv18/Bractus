@@ -9,7 +9,7 @@ const SERVICES = [
     title: 'Websites & Applications',
     desc: 'Tailored digital experiences designed for scale. We build responsive, enterprise-grade web platforms and custom applications that drive user engagement and streamline complex business operations.',
     linkText: 'Learn More →',
-    href: '/services/websites-applications',
+    href: '/services',
   },
   {
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>,
@@ -17,7 +17,7 @@ const SERVICES = [
     title: 'Full-Stack Engineering',
     desc: 'End-to-end development capabilities from the database to the user interface. Our cross-functional teams build robust, secure, reliable, and seamlessly integrated software solutions from scratch.',
     linkText: 'Learn More →',
-    href: '/services/full-stack-engineering',
+    href: '/services',
   },
   {
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>,
@@ -25,7 +25,7 @@ const SERVICES = [
     title: 'System Architecture',
     desc: 'Strategic blueprints for digital transformation. We design scalable, future-proof frameworks and seamlessly reshape legacy systems to ensure your technology stack aligns with your long-term business goals.',
     linkText: 'Learn More →',
-    href: '/services/system-architecture',
+    href: '/services',
   },
   {
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>,
@@ -33,7 +33,7 @@ const SERVICES = [
     title: 'AI & Machine Learning',
     desc: 'Empower your operations with intelligent automation and predictive insights. We develop and integrate custom AI/ML models that solve complex logic problems and create distinct competitive advantages.',
     linkText: 'Learn More →',
-    href: '/services/ai-machine-learning',
+    href: '/services',
   },
   {
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" /></svg>,
@@ -41,7 +41,7 @@ const SERVICES = [
     title: 'Cloud & DevOps',
     desc: 'Accelerate delivery and ensure maximum reliability. We implement efficient CI/CD pipelines and design secure, highly available cloud environments to keep your enterprise running flawlessly.',
     linkText: 'Learn More →',
-    href: '/services/cloud-devops',
+    href: '/services',
   },
   {
     icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>,
@@ -49,7 +49,7 @@ const SERVICES = [
     title: 'Data Engineering',
     desc: 'Turn raw information into an actionable strategy. We architect scalable data pipelines and robust storage solutions, ensuring your business data is accurate, secure, and ready for advanced analytics.',
     linkText: 'Learn More →',
-    href: '/services/data-engineering',
+    href: '/services',
   },
 ]
 
