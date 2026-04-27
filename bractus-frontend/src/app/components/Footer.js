@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 
 const FOOTER_LINKS = {
   Services: [
@@ -15,8 +16,8 @@ const FOOTER_LINKS = {
     { label: 'Contact', href: '#contact' },
   ],
   Legal: [
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Service', href: '#' },
+    { label: 'Privacy Policy', href: '/privacy' },
+    { label: 'Terms of Service', href: '/terms' },
   ],
 }
 
@@ -34,7 +35,7 @@ export default function Footer() {
       }} className="footer-grid">
         {/* Brand col */}
         <div>
-          <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, textDecoration: 'none' }}>
             <div style={{
               width: 34, height: 34, borderRadius: 8,
               background: 'var(--accent)',
@@ -45,7 +46,7 @@ export default function Footer() {
               fontFamily: 'Nunito, sans-serif', fontWeight: 400,
               fontSize: '1.15rem', color: '#f1f5f9',
             }}>BRACTUS</span>
-          </a>
+          </Link>
           <p style={{
             color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7,
             maxWidth: 320, marginBottom: 24,
@@ -55,7 +56,7 @@ export default function Footer() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
             <a href={`mailto:hr@bractus.com`} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>hr@bractus.com</a>
-            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>9667507343</span>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>+91 9667507343</span>
             <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Delhi, India</span>
           </div>
 
@@ -66,6 +67,7 @@ export default function Footer() {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#64748b', fontSize: '0.85rem', fontWeight: 400,
               transition: 'border-color 0.2s, color 0.2s',
+              textDecoration: 'none'
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.color = '#64748b' }}
@@ -81,16 +83,17 @@ export default function Footer() {
               textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16,
               fontFamily: 'Nunito, sans-serif',
             }}>{group}</h4>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: 10, listStyle: 'none', padding: 0, margin: 0 }}>
               {links.map(({ label, href }) => (
                 <li key={label}>
-                  <a href={href} style={{
+                  <Link href={href} style={{
                     color: '#94a3b8', fontSize: '0.88rem',
                     transition: 'color 0.2s',
+                    textDecoration: 'none'
                   }}
                   onMouseEnter={e => e.target.style.color = 'var(--accent)'}
                   onMouseLeave={e => e.target.style.color = '#94a3b8'}
-                  >{label}</a>
+                  >{label}</Link>
                 </li>
               ))}
             </ul>

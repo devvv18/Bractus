@@ -19,9 +19,9 @@ const STEPS = [
 ]
 
 const VALUES = [
-  { title: 'No Hype Delivery', desc: 'We don\'t sell hype. We analyze your technical requirements deeply to architect realistic, scalable solutions and commit to timelines we can actually deliver.' },
-  { title: 'IP & Data Ownership', desc: 'Your code is your asset. From day one, you retain complete ownership of all intellectual property, data architecture, and custom integrations we build.' },
-  { title: 'Trust-Based Flexibility', desc: 'We earn your trust through results, not rigid contracts. Our flexible engagement models allow you to scale resources up or down as your project demands.' },
+  { title: 'No over-promising.', desc: 'We don\'t sell hype. We analyze your technical requirements deeply to architect realistic, scalable solutions and commit to timelines we can actually deliver.' },
+  { title: 'No loss of equity.', desc: 'Your code is your asset. From day one, you retain complete ownership of all intellectual property, data architecture, and custom integrations we build.' },
+  { title: 'No long-term contract.', desc: 'We earn your trust through results, not rigid contracts. Our flexible engagement models allow you to scale resources up or down as your project demands.' },
   { title: 'End-to-End Ownership', desc: 'No pointing fingers. From initial system blueprinting to final deployment and maintenance, our team takes complete responsibility for the technical outcome.' },
   { title: 'Absolute Transparency', desc: 'Get complete visibility into our development cycles. You receive honest reporting, direct access to the engineers, and regular milestone updates without the fluff.' },
   { title: 'Elite Technical Talent', desc: 'Bypass the hiring grind. You get immediate access to senior developers, architects, and AI specialists who build secure, production-ready systems from the ground up.' },

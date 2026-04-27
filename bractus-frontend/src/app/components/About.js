@@ -48,7 +48,7 @@ export function Founder() {
               fontWeight: 400, marginBottom: 28,
               lineHeight: 1.1
             }}>
-              Rooted in engineering.<br />
+              Rooted in <span className="accent-text">engineering.</span><br />
               Driven by <span className="accent-text">accountability.</span>
             </h2>
             <p style={{
