@@ -3,7 +3,7 @@ import { Suspense, useState, useRef, useEffect } from 'react'
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState([{ role: 'assistant', content: 'Hi! How can I help you regarding Bractus today?' }])
+  const [messages, setMessages] = useState([{ role: 'assistant', content: 'Hi! I\'m John. How can I help you regarding Bractus today?' }])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -100,7 +100,7 @@ export default function ChatBot() {
           <div style={{ background: 'var(--accent)', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff' }}>
             <div style={{ fontWeight: 400, fontFamily: 'Nunito, sans-serif', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 8, height: 8, background: '#4ade80', borderRadius: '50%', boxShadow: '0 0 10px #4ade80' }}></div>
-              Bractus AI
+              John
             </div>
             <button onClick={() => setOpen(false)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 24, cursor: 'pointer', lineHeight: 1 }}>×</button>
           </div>

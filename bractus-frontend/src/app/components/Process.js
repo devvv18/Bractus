@@ -3,18 +3,18 @@
 const STEPS = [
   {
     num: '01',
-    title: 'We talk',
-    desc: 'We find out about your business and the outcomes you\'re seeking. Then we map out a digital direction that\'s right for you.',
+    title: 'Architect & Advice',
+    desc: 'We start by analyzing your unique business challenges and technical requirements. Our senior architects then design a comprehensive, secure blueprint that serves as a scalable foundation for your digital transformation.',
   },
   {
     num: '02',
-    title: 'We collaborate',
-    desc: 'We work shoulder-to-shoulder with your team to build and launch a tailored digital solution — always on time and on budget.',
+    title: 'Engineer & Execute',
+    desc: 'We bring the blueprint to life with uncompromising quality. Whether building from scratch or collaborating with your team, our full-stack teams develop, rigorously test, and integrate robust solutions tailored to your exact needs.',
   },
   {
     num: '03',
-    title: 'We advance',
-    desc: 'You\'ll see the difference in the lives of your customers and employees. Then we\'ll recalibrate to see if there\'s any more ground to gain.',
+    title: 'Deploy & Evolve',
+    desc: 'As your dedicated technology partner, our job doesn\'t end at launch. We handle secure cloud deployments, configure continuous delivery pipelines, and proactively optimize your systems so they grow seamlessly alongside your business.',
   },
 ]
 
@@ -38,7 +38,7 @@ export function HowWeWork() {
           textAlign: 'center', fontSize: 'clamp(2rem, 4vw, 3rem)',
           fontWeight: 400, marginBottom: 56,
         }}>
-          A process built on <span className="accent-text">trust</span>
+          A framework built for <span className="accent-text">reliability</span>
         </h2>
 
         <div style={{

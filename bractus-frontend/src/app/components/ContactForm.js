@@ -50,13 +50,12 @@ export function ToolsAndPartners() {
               fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
               fontWeight: 400, marginBottom: 12,
             }}>
-              The way software gets built is <span className="accent-text">changing. Fast.</span>
+              One partner for your entire <span className="accent-text">technology ecosystem.</span>
             </h2>
             <p style={{
               color: 'var(--text-secondary)', fontSize: '0.93rem', lineHeight: 1.7,
             }}>
-              You need experienced professionals who know how to direct AI tools —
-              people who understand enterprise architecture and production systems.
+              You need more than just developers; you need strategic architects. We bring the deep technical expertise required to build reliable, secure, and high-performance systems that scale alongside your business ambitions.
             </p>
           </div>
             <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary" style={{ padding: '14px 40px', fontSize: '1.05rem', borderRadius: 100 }}>
