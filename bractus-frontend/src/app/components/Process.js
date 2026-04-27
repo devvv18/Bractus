@@ -3,28 +3,28 @@
 const STEPS = [
   {
     num: '01',
-    title: 'We talk',
-    desc: 'We find out about your business and the outcomes you\'re seeking. Then we map out a digital direction that\'s right for you.',
+    title: 'Architect & Advice',
+    desc: 'We start by analyzing your unique business challenges and technical requirements. Our senior architects then design a comprehensive, secure blueprint that serves as a scalable foundation for your digital transformation.',
   },
   {
     num: '02',
-    title: 'We collaborate',
-    desc: 'We work shoulder-to-shoulder with your team to build and launch a tailored digital solution — always on time and on budget.',
+    title: 'Engineer & Execute',
+    desc: 'We bring the blueprint to life with uncompromising quality. Whether building from scratch or collaborating with your team, our full-stack teams develop, rigorously test, and integrate robust solutions tailored to your exact needs.',
   },
   {
     num: '03',
-    title: 'We advance',
-    desc: 'You\'ll see the difference in the lives of your customers and employees. Then we\'ll recalibrate to see if there\'s any more ground to gain.',
+    title: 'Deploy & Evolve',
+    desc: 'As your dedicated technology partner, our job doesn\'t end at launch. We handle secure cloud deployments, configure continuous delivery pipelines, and proactively optimize your systems so they grow seamlessly alongside your business.',
   },
 ]
 
 const VALUES = [
-  { title: 'No over-promising.', desc: 'We listen first, understand your business, then map out a direction aligned with your goals.' },
-  { title: 'No loss of equity.', desc: 'You own 100% of everything we create — your IP, your success, your future.' },
-  { title: 'No long-term contract.', desc: 'Your investment goes directly to results — not months of unnecessary busy work.' },
-  { title: 'Full accountability.', desc: 'One team, clear responsibility, no finger-pointing — just measurable impact.' },
-  { title: 'Radical transparency.', desc: 'Clear updates, honest reporting, and total visibility at every step.' },
-  { title: 'Proven expertise.', desc: 'Enterprise-grade teams now augmented by AI agents for faster, more cost-effective results.' },
+  { title: 'No over-promising.', desc: 'We don\'t sell hype. We analyze your technical requirements deeply to architect realistic, scalable solutions and commit to timelines we can actually deliver.' },
+  { title: 'No loss of equity.', desc: 'Your code is your asset. From day one, you retain complete ownership of all intellectual property, data architecture, and custom integrations we build.' },
+  { title: 'No long-term contract.', desc: 'We earn your trust through results, not rigid contracts. Our flexible engagement models allow you to scale resources up or down as your project demands.' },
+  { title: 'End-to-End Ownership', desc: 'No pointing fingers. From initial system blueprinting to final deployment and maintenance, our team takes complete responsibility for the technical outcome.' },
+  { title: 'Absolute Transparency', desc: 'Get complete visibility into our development cycles. You receive honest reporting, direct access to the engineers, and regular milestone updates without the fluff.' },
+  { title: 'Elite Technical Talent', desc: 'Bypass the hiring grind. You get immediate access to senior developers, architects, and AI specialists who build secure, production-ready systems from the ground up.' },
 ]
 
 export function HowWeWork() {
@@ -38,7 +38,7 @@ export function HowWeWork() {
           textAlign: 'center', fontSize: 'clamp(2rem, 4vw, 3rem)',
           fontWeight: 400, marginBottom: 56,
         }}>
-          A process built on <span className="accent-text">trust</span>
+          A framework built for <span className="accent-text">reliability</span>
         </h2>
 
         <div style={{
@@ -77,7 +77,7 @@ export function WhyChooseUs() {
           fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.7,
           textAlign: 'center', maxWidth: 620, margin: '0 auto 16px',
         }}>
-          Our teams deliver the outcomes you need — quickly and efficiently — so you see progress, not just process.
+          Our teams deliver the outcomes you need quickly and efficiently, so you see progress, not just process.
         </p>
         <h2 style={{
           textAlign: 'center', fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)',

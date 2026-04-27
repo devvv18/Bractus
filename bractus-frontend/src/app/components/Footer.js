@@ -1,11 +1,13 @@
 'use client'
+import Link from 'next/link'
 
 const FOOTER_LINKS = {
   Services: [
-    { label: 'Advisory', href: '#services' },
-    { label: 'Development', href: '#services' },
-    { label: 'DevOps', href: '#services' },
-    { label: 'Data Science', href: '#services' },
+    { label: 'Web & Applications', href: '#services' },
+    { label: 'Full-Stack Engineering', href: '#services' },
+    { label: 'AI & Machine Learning', href: '#services' },
+    { label: 'Cloud & DevOps', href: '#services' },
+    { label: 'Data Engineering', href: '#services' },
   ],
   Company: [
     { label: 'About', href: '#about' },
@@ -14,8 +16,8 @@ const FOOTER_LINKS = {
     { label: 'Contact', href: '#contact' },
   ],
   Legal: [
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Service', href: '#' },
+    { label: 'Privacy Policy', href: '/privacy' },
+    { label: 'Terms of Service', href: '/terms' },
   ],
 }
 
@@ -33,7 +35,7 @@ export default function Footer() {
       }} className="footer-grid">
         {/* Brand col */}
         <div>
-          <a href="#" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, textDecoration: 'none' }}>
             <div style={{
               width: 34, height: 34, borderRadius: 8,
               background: 'var(--accent)',
@@ -44,27 +46,32 @@ export default function Footer() {
               fontFamily: 'Nunito, sans-serif', fontWeight: 400,
               fontSize: '1.15rem', color: '#f1f5f9',
             }}>BRACTUS</span>
-          </a>
+          </Link>
           <p style={{
             color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7,
-            maxWidth: 280, marginBottom: 20,
+            maxWidth: 320, marginBottom: 24,
           }}>
-            We help growth-stage and mid-market companies solve their toughest
-            technology challenges with AI-augmented delivery.
+            Your end-to-end technology partner. From reshaping legacy systems to engineering custom software and AI platforms from the ground up, we deliver technical excellence at scale.
           </p>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+            <a href={`mailto:hr@bractus.com`} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>hr@bractus.com</a>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>+91 9667507343</span>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Delhi, India</span>
+          </div>
+
           <div style={{ display: 'flex', gap: 8 }}>
-            {['𝕏', 'in', '○'].map((icon, i) => (
-              <a key={i} href="#" style={{
-                width: 36, height: 36, borderRadius: 8,
-                border: '1px solid #334155',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#64748b', fontSize: '0.85rem', fontWeight: 400,
-                transition: 'border-color 0.2s, color 0.2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.color = '#64748b' }}
-              >{icon}</a>
-            ))}
+            <a href="https://www.linkedin.com/company/bractus-innovations/" target="_blank" rel="noopener noreferrer" style={{
+              width: 36, height: 36, borderRadius: 8,
+              border: '1px solid #334155',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#64748b', fontSize: '0.85rem', fontWeight: 400,
+              transition: 'border-color 0.2s, color 0.2s',
+              textDecoration: 'none'
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.color = '#64748b' }}
+            >in</a>
           </div>
         </div>
 
@@ -76,16 +83,17 @@ export default function Footer() {
               textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16,
               fontFamily: 'Nunito, sans-serif',
             }}>{group}</h4>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: 10, listStyle: 'none', padding: 0, margin: 0 }}>
               {links.map(({ label, href }) => (
                 <li key={label}>
-                  <a href={href} style={{
+                  <Link href={href} style={{
                     color: '#94a3b8', fontSize: '0.88rem',
                     transition: 'color 0.2s',
+                    textDecoration: 'none'
                   }}
                   onMouseEnter={e => e.target.style.color = 'var(--accent)'}
                   onMouseLeave={e => e.target.style.color = '#94a3b8'}
-                  >{label}</a>
+                  >{label}</Link>
                 </li>
               ))}
             </ul>
@@ -101,10 +109,7 @@ export default function Footer() {
         flexWrap: 'wrap', gap: 12,
       }}>
         <p style={{ color: '#475569', fontSize: '0.8rem' }}>
-          © 2025 Bractus Inc. All rights reserved.
-        </p>
-        <p style={{ color: '#475569', fontSize: '0.8rem' }}>
-          Made with ❤️ in India
+          © 2026 Bractus. All rights reserved.
         </p>
       </div>
 

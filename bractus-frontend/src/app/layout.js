@@ -1,10 +1,11 @@
+// Triggering Vercel build: 2026-04-27 00:55
 import './globals.css'
 import { ThemeProvider } from './context/ThemeContext'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ChatBot from './components/ChatBot'
 import ScrollReveal from './components/ScrollReveal'
-import { Analytics } from '@vercel/analytics/next'
+import { Analytics } from '@vercel/analytics/react'
 
 export const metadata = {
   title: 'Bractus — AI & Software Development Consulting',

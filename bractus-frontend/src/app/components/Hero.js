@@ -1,7 +1,14 @@
 'use client'
 import { useEffect, useRef } from 'react'
 
-const BADGES = ['Advisory', 'Development', 'DevOps', 'Data']
+const BADGES = [
+  'Website & Applications',
+  'AI & Machine Learning',
+  'Full-Stack Engineering',
+  'System Architecture',
+  'Cloud & DevOps',
+  'Data Engineering'
+]
 
 function ParticleGrid() {
   const canvasRef = useRef(null)
@@ -41,7 +48,7 @@ function ParticleGrid() {
     window.addEventListener('mouseout', handleMouseLeave)
 
     // Grid Setup
-    const spacing = 35
+    const spacing = 42 // Cleaner grid, zero clutter
     let dots = []
 
     const initGrid = () => {
@@ -89,22 +96,24 @@ function ParticleGrid() {
         }
 
         // Spring force pulling back to origin
-        dot.vx += (dot.ox - dot.x) * 0.04
-        dot.vy += (dot.oy - dot.y) * 0.04
+        dot.vx += (dot.ox - dot.x) * 0.02
+        dot.vy += (dot.oy - dot.y) * 0.02
 
         // Friction
-        dot.vx *= 0.84
-        dot.vy *= 0.84
+        dot.vx *= 0.92
+        dot.vy *= 0.92
 
         dot.x += dot.vx
         dot.y += dot.vy
 
         let speed = Math.abs(dot.vx) + Math.abs(dot.vy)
         let isDisturbed = speed > 0.3
-        let size = isDisturbed ? 5 : 3
+        let size = 1.5 // Consistent dot radius
 
         ctx.globalAlpha = isDisturbed ? 0.6 : 0.15
-        ctx.fillRect(dot.x - size/2, dot.y - size/2, size, size)
+        ctx.beginPath()
+        ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2)
+        ctx.fill()
       }
       animationFrameId = requestAnimationFrame(render)
     }
@@ -166,44 +175,44 @@ export default function Hero() {
           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
         }}>
           {/* Tag */}
-          <div className="anim-fade-up" style={{ marginBottom: 28 }}>
-            <span className="tag">✦ AI-Augmented Delivery</span>
+          <div className="anim-fade-up" style={{ marginBottom: 32, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
+            <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
           </div>
 
-          {/* Headline forced to 3 lines */}
+          {/* Headline with responsive line breaks */}
           <h1 className="anim-fade-up anim-delay-1" style={{
-            fontSize: 'clamp(2.5rem, 5.5vw, 4.2rem)',
+            fontSize: 'clamp(1.65rem, 5.2vw, 4.2rem)',
             fontWeight: 400,
-            lineHeight: 1.15,
-            marginBottom: 24,
+            lineHeight: 1.2,
+            marginBottom: 32,
+            maxWidth: '90vw'
           }}>
-            Cross-functional teams of<br />
-            senior professionals wielding<br />
-            <span className="accent-text">AI‑native toolchains</span>
+            We Build, Scale, and Modernize<br />
+            <span className="accent-text">Complex Software Systems</span>
           </h1>
 
           {/* Subtext */}
           <p className="anim-fade-up anim-delay-2" style={{
-            fontSize: 'clamp(1rem, 2vw, 1.15rem)',
+            fontSize: 'clamp(1rem, 2vw, 1.12rem)',
             color: 'var(--text-secondary)',
             lineHeight: 1.75,
-            maxWidth: 580,
-            marginBottom: 32,
+            maxWidth: 800,
+            marginBottom: 40,
           }}>
-            Delivering outcomes with the accountability and rigor
-            enterprise systems require — from strategy through deployment.
+            Your all-in-one partner for digital transformation. Whether building standard web applications to advanced DevOps, data pipelines, or reshaping an outdated legacy system and architecting a cutting-edge AI platform from the ground up, our cross-functional teams deliver scalable, high-performance results. We provide the technical muscle to bring any digital vision to life.
           </p>
 
           {/* Badge row */}
           <div className="anim-fade-up anim-delay-2" style={{
-            display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 40,
+            display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', marginBottom: 48,
           }}>
             {BADGES.map(b => (
               <span key={b} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '6px 16px', borderRadius: 100,
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                padding: '8px 20px', borderRadius: 100,
                 border: '1px solid var(--border)',
-                fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 400,
+                fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 400,
               }}>
                 <span style={{ color: 'var(--accent)', fontSize: 14 }}>✓</span>
                 {b}
@@ -212,17 +221,22 @@ export default function Hero() {
           </div>
 
           {/* CTAs */}
-          <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 64 }}>
+          <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 80 }}>
             <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
-            <a href="#services" className="btn-outline">Watch video</a>
+            <a href="#services" className="btn-outline">View Our Services</a>
           </div>
 
-          {/* Stats */}
+          {/* Stats Row - Responsive Grid */}
           <div className="anim-fade-up anim-delay-4" style={{
-            display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
-            paddingTop: 32,
+            display: 'flex', 
+            gap: 'clamp(24px, 5vw, 60px)', 
+            justifyContent: 'center',
+            flexWrap: 'wrap', // Allow wrapping on mobile
+            paddingTop: 40,
             borderTop: '1px solid var(--border)',
-            width: '100%', maxWidth: 720
+            width: '100%', 
+            maxWidth: 800,
+            margin: '0 auto'
           }}>
             {[
               { value: '120+', label: 'Clients Served' },
@@ -230,7 +244,7 @@ export default function Hero() {
               { value: '98%', label: 'Satisfaction Rate' },
               { value: '8+', label: 'Years Experience' },
             ].map(({ value, label }) => (
-              <div key={label}>
+              <div key={label} style={{ minWidth: 140 }}>
                 <div style={{
                   fontFamily: 'Nunito, sans-serif',
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',

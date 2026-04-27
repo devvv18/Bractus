@@ -2,8 +2,16 @@
 import { useRef, useEffect, useState } from 'react'
 import Link from 'next/link'
 
-const CanvasParticles = ({ shape, isHovered }) => {
+const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
   const canvasRef = useRef(null)
+  const particlesRef = useRef([])
+  const hoverRef = useRef({ left: false, right: false })
+  const timeRef = useRef(0)
+
+  // Sync props to refs so the render loop always has latest values without re-running useEffect
+  useEffect(() => {
+    hoverRef.current = { left: hoverLeft, right: hoverRight }
+  }, [hoverLeft, hoverRight])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -11,185 +19,151 @@ const CanvasParticles = ({ shape, isHovered }) => {
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
     let animationFrameId
-    let particles = []
-
-    // Physics configuration for an overdamped, majestic transition
-    const friction = 0.92 // Mathematically overdamped to guarantee NO bouncing
-    const spring = 0.0015 // Slightly increased tension to speed up the transition just a little bit
-    const particleSpacing = 6 // Dot density
+    const friction = 0.97 // Much more buttery
+    const spring = 0.0015 // Softer, cuter gathering force
+    const dotRadius = 1.3
 
     const resize = () => {
-      canvas.width = canvas.parentElement.clientWidth
-      canvas.height = canvas.parentElement.clientHeight
+      if (!canvas.parentElement) return
+      canvas.width = window.innerWidth
+      canvas.height = canvas.parentElement.getBoundingClientRect().height || canvas.parentElement.offsetHeight
       initParticles()
     }
 
     const initParticles = () => {
       const w = canvas.width
       const h = canvas.height
+      if (w === 0 || h === 0) return
 
       const off = document.createElement('canvas')
       off.width = w
       off.height = h
       const octx = off.getContext('2d', { willReadFrequently: true })
 
+      const isMobile = w < 768
+      const cxLeft = isMobile ? w / 2 : w * 0.25
+      const cxRight = isMobile ? w / 2 : w * 0.75
+      
+      // Calculate vertical centers for stacked mobile cards
+      // Shifted up to 'frame' the text (0.18/0.68) for the perfect halo effect
+      const cyLeft = isMobile ? h * 0.18 : h / 2
+      const cyRight = isMobile ? h * 0.68 : h / 2
+
+      // Draw Shape 1: Code
       octx.clearRect(0, 0, w, h)
+      const fontSize = Math.min(w, h) * (isMobile ? 0.45 : 0.4) // Bold mobile shapes
+      octx.font = `300 ${fontSize}px system-ui, sans-serif`
+      octx.textBaseline = 'middle'
+      octx.textAlign = 'center'
+      octx.fillText('< / >', cxLeft, cyLeft)
+      const dataLeft = octx.getImageData(0, 0, w, h).data
 
-      if (shape === 'code') {
-        const cx = w / 2, cy = h / 2
-        const fontSize = Math.min(w, h) * 0.5
-        octx.font = `300 ${fontSize}px system-ui, -apple-system, sans-serif`
-        octx.fillStyle = 'black'
-        octx.textBaseline = 'middle'
-        octx.textAlign = 'center'
-
-        const gap = fontSize * 0.65
-        octx.fillText('<', cx - gap, cy)
-        octx.fillText('/', cx, cy)
-        octx.fillText('>', cx + gap, cy)
-
-      } else if (shape === 'honeycomb') {
-        const hexR = Math.min(w, h) * 0.05
-        const cols = 9
-        const rows = 9
-        const hexW = Math.sqrt(3) * hexR
-        const hexH = 2 * hexR
-        const ySpacing = hexH * 0.75
-
-        const startX = w / 2 - ((cols - 1) * hexW) / 2
-        const startY = h / 2 - ((rows - 1) * ySpacing) / 2
-
-        octx.lineWidth = 4
-        octx.lineJoin = 'round'
-        octx.strokeStyle = 'black'
-
-        for (let r = 0; r < rows; r++) {
-          for (let c = 0; c < cols; c++) {
-            const distFromCenter = Math.sqrt(Math.pow(r - 4, 2) + Math.pow(c - 4, 2))
-            if (distFromCenter > 4.2) continue
-
-            let hx = startX + c * hexW
-            let hy = startY + r * ySpacing
-            if (r % 2 === 1) hx += hexW / 2
-
-            octx.beginPath()
-            for (let edge = 0; edge <= 6; edge++) {
-              const a = (Math.PI / 3) * edge - Math.PI / 6
-              const px = hx + hexR * Math.cos(a)
-              const py = hy + hexR * Math.sin(a)
-              if (edge === 0) octx.moveTo(px, py)
-              else octx.lineTo(px, py)
-            }
-            octx.stroke()
+      // Draw Shape 2: Honeycomb
+      octx.clearRect(0, 0, w, h)
+      const hexR = Math.min(w, h) * (isMobile ? 0.045 : 0.05) // Larger honeycomb pattern
+      const hexW = Math.sqrt(3) * hexR
+      const hexH = 2 * hexR
+      const ySpacing = hexH * 0.75
+      octx.lineWidth = 8 // Much thicker line for better sampling
+      octx.lineJoin = 'round'
+      for (let r = -4; r <= 4; r++) {
+        for (let c = -4; c <= 4; c++) {
+          if (Math.sqrt(r*r + c*c) > 4.2) continue
+          let hx = cxRight + c * hexW + (r % 2 ? hexW / 2 : 0)
+          let hy = cyRight + r * ySpacing
+          octx.beginPath()
+          for (let e = 0; e <= 6; e++) {
+            const a = (Math.PI / 3) * e - Math.PI / 6
+            octx.lineTo(hx + hexR * Math.cos(a), hy + hexR * Math.sin(a))
           }
+          octx.stroke()
         }
       }
+      const dataRight = octx.getImageData(0, 0, w, h).data
 
-      const imgData = octx.getImageData(0, 0, w, h).data
       const newParticles = []
-
-      for (let y = 0; y < h; y += particleSpacing) {
-        for (let x = 0; x < w; x += particleSpacing) {
-          if (imgData[(y * w + x) * 4 + 3] > 50) {
-            // Target coordinates
-            const targetX = x
-            const targetY = y
-
-            // Random ambient starting position spread across the screen
-            const baseX = Math.random() * w
-            const baseY = Math.random() * h
-
+      const spacing = 7
+      for (let y = 0; y < h; y += spacing) {
+        for (let x = 0; x < w; x += spacing) {
+          const isL = dataLeft[(y * w + x) * 4 + 3] > 128
+          const isR = dataRight[(y * w + x) * 4 + 3] > 128
+          
+          if (isL || isR) {
             newParticles.push({
-              x: baseX,
-              y: baseY,
-              baseX: baseX,
-              baseY: baseY,
-              targetX: targetX,
-              targetY: targetY,
-              vx: 0,
-              vy: 0,
-              radius: Math.random() * 1.5 + 1.0,
-              randomWander: Math.random() * 100
+              x: Math.random() * w, y: Math.random() * h,
+              baseX: Math.random() * w, baseY: Math.random() * h,
+              targetX: x, targetY: y,
+              vx: 0, vy: 0,
+              isLeft: isL,
+              randomWander: Math.random() * 100,
+              // Speed factor for 'organic' boom
+              speedFactor: 0.5 + Math.random() * 0.5
             })
           }
         }
       }
-
-      particles = newParticles
+      particlesRef.current = newParticles
     }
 
-    let mouse = { x: canvas.width / 2, y: canvas.height / 2 }
-    const handleMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect()
-      mouse.x = e.clientX - rect.left
-      mouse.y = e.clientY - rect.top
-    }
-    canvas.addEventListener('mousemove', handleMouseMove)
-
-    window.addEventListener('resize', resize)
-    resize()
-
-    let time = 0
     const render = () => {
-      time += 0.02 // Slowed down time for smoother ambient drift
+      timeRef.current += 0.005
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      ctx.fillStyle = 'rgba(100, 120, 150, 0.8)' // Idle color
-      if (isHovered) {
-        ctx.fillStyle = 'rgba(46, 84, 150, 0.9)' // Active blue color
-      }
+      const isMobile = canvas.width < 768
+      const particles = particlesRef.current
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]
-
         let tx = p.baseX
         let ty = p.baseY
 
-        if (isHovered) {
+        const active = isMobile || (p.isLeft && hoverRef.current.left) || (!p.isLeft && hoverRef.current.right)
+        
+        if (active) {
           tx = p.targetX
           ty = p.targetY
+          ctx.fillStyle = 'rgba(46, 84, 150, 0.9)'
+          
+          // DIRECT EASING (No double movement/vibration)
+          p.x += (tx - p.x) * 0.08 * p.speedFactor
+          p.y += (ty - p.y) * 0.08 * p.speedFactor
+          p.vx = 0 // Kill existing velocity for absolute precision
+          p.vy = 0
+        } else {
+          ctx.fillStyle = 'rgba(100, 120, 150, 0.6)'
+          
+          // Organic Spring Physics for background
+          tx += Math.sin(timeRef.current + p.randomWander) * 4
+          ty += Math.cos(timeRef.current + p.randomWander) * 4
+
+          p.vx += (tx - p.x) * spring * p.speedFactor
+          p.vy += (ty - p.y) * spring * p.speedFactor
+          p.vx *= friction
+          p.vy *= friction
+          p.x += p.vx
+          p.y += p.vy
         }
 
-        // Add subtle, buttery organic floating effect
-        tx += Math.sin(time + p.randomWander) * 1.5
-        ty += Math.cos(time + p.randomWander) * 1.5
-
-        // Physics update
-        const dx = tx - p.x
-        const dy = ty - p.y
-        p.vx += dx * spring
-        p.vy += dy * spring
-        p.vx *= friction
-        p.vy *= friction
-
-        p.x += p.vx
-        p.y += p.vy
-
         ctx.beginPath()
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2)
+        ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2)
         ctx.fill()
       }
-
       animationFrameId = requestAnimationFrame(render)
     }
+
+    window.addEventListener('resize', resize)
+    resize()
     render()
 
     return () => {
       window.removeEventListener('resize', resize)
-      canvas.removeEventListener('mousemove', handleMouseMove)
       cancelAnimationFrame(animationFrameId)
     }
-  }, [shape, isHovered])
+  }, []) // Empty dependency array = Runs once on mount
 
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        width: '100%',
-        height: '100%',
-        display: 'block',
-        pointerEvents: 'auto'
-      }}
+      style={{ width: '100%', height: '100%', display: 'block', pointerEvents: 'none' }}
     />
   )
 }
@@ -198,46 +172,71 @@ export default function DualCards() {
   const [hoverLeft, setHoverLeft] = useState(false)
   const [hoverRight, setHoverRight] = useState(false)
 
+  const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
+
+  const devSubject = encodeURIComponent("Engineering Support & Collaboration");
+  const devBody = encodeURIComponent(
+    `Hi Bractus Team,\n\n` +
+    `I am reaching out to get some dedicated engineering support for my current project.\n` +
+    `Here is a quick overview of what I am working on:\n` +
+    `My Project: [Project Details]\n` +
+    `Current Tech Stack: [Tech stack details]\n\n` +
+    `I am looking for a reliable technical partner to help me push this across the finish line. Please let me know your availability for a quick introductory call to discuss how we might collaborate.\n\n` +
+    `Best,\n` +
+    `[Your Name]\n` +
+    `[Link to your project/website, if applicable]`
+  );
+
+  const orgSubject = encodeURIComponent("Engineering & Development Services");
+  const orgBody = encodeURIComponent(
+    `Hi Bractus Team,\n\n` +
+    `I am reaching out on behalf of [Your Company Name]. We are currently looking for a reliable technology partner to help us scale our engineering capabilities and execute our digital roadmap.\n\n` +
+    `We are primarily looking for expertise in:\n` +
+    `[e.g., Legacy System Modernization / Cloud Infrastructure / Building a new AI tool from scratch]\n\n` +
+    `We need a dedicated team that can take technical ownership and deliver secure, high-performance results.\n\n` +
+    `I would love to schedule a brief discovery call this week to discuss our upcoming initiatives and see if Bractus is the right fit to support our growth. Let me know what your schedule looks like over the next few days.\n\n` +
+    `Best regards,\n` +
+    `[Your Name]\n` +
+    `[Your Job Title]\n` +
+    `[Your Company Name]`
+  );
+
   return (
     <section style={{ background: 'var(--bg)', padding: 0, position: 'relative' }}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', minHeight: '85vh' }}>
+      {/* Unified Background Canvas */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <UnifiedCanvas hoverLeft={hoverLeft} hoverRight={hoverRight} />
+      </div>
 
-        {/* ─── Left: For developers ─── */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', minHeight: '85vh', position: 'relative', zIndex: 1 }}>
+        {/* Left Card */}
         <div
-          style={{ flex: 1, minWidth: 320, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px,8vw,100px) clamp(24px,4vw,48px)', overflow: 'hidden' }}
+          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px, 12vw, 100px) 48px' }}
           onMouseEnter={() => setHoverLeft(true)}
           onMouseLeave={() => setHoverLeft(false)}
         >
-          {/* Fluid 2D Canvas Engine */}
-          <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-            <CanvasParticles shape="code" isHovered={hoverLeft} />
-          </div>
-
-          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', pointerEvents: 'none' }}>
-            <h2 style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, marginBottom: 4 }}>For developers</h2>
-            <p style={{ fontSize: 'clamp(1.8rem,4vw,2.8rem)', fontWeight: 300, color: 'var(--text-secondary)', lineHeight: 1.2, marginBottom: 32 }}>Achieve new heights</p>
-            <Link href="/download" className="btn-primary" style={{ padding: '14px 36px', fontSize: '1rem', borderRadius: 100, pointerEvents: 'auto' }}>Download</Link>
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For Individual Technical Support</h2>
+            <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Get the dedicated engineering support and expert guidance.</p>
+            <a href={`mailto:${contactEmail}?subject=${devSubject}&body=${devBody}`} className="btn-primary" style={{ borderRadius: 100 }}>Request Support</a>
           </div>
         </div>
 
-        {/* ─── Right: For organizations ─── */}
+        {/* Vertical Divider - Hidden on Mobile */}
+        <div className="hide-mobile" style={{ width: 1, background: 'var(--border)', opacity: 0.1 }} />
+
+        {/* Right Card */}
         <div
-          style={{ flex: 1, minWidth: 320, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px,8vw,100px) clamp(24px,4vw,48px)', overflow: 'hidden' }}
+          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px, 12vw, 100px) 48px' }}
           onMouseEnter={() => setHoverRight(true)}
           onMouseLeave={() => setHoverRight(false)}
         >
-          {/* Fluid 2D Canvas Engine */}
-          <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-            <CanvasParticles shape="honeycomb" isHovered={hoverRight} />
-          </div>
-
-          <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', pointerEvents: 'none' }}>
-            <h2 style={{ fontSize: 'clamp(1.5rem,3vw,2rem)', fontWeight: 700, color: 'var(--text)', lineHeight: 1.2, marginBottom: 4 }}>For organizations</h2>
-            <p style={{ fontSize: 'clamp(1.8rem,4vw,2.8rem)', fontWeight: 300, color: 'var(--text-secondary)', lineHeight: 1.2, marginBottom: 32 }}>Level up your entire team</p>
-            <Link href="/notify" className="btn-outline" style={{ padding: '14px 36px', fontSize: '1rem', borderRadius: 100, background: 'var(--bg)', pointerEvents: 'auto' }}>Notify me</Link>
+          <div style={{ textAlign: 'center' }}>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For organization</h2>
+            <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Scale your digital capabilities instantly.</p>
+            <a href={`mailto:${contactEmail}?subject=${orgSubject}&body=${orgBody}`} className="btn-outline" style={{ borderRadius: 100, background: 'var(--bg)' }}>Partner with us</a>
           </div>
         </div>
-
       </div>
     </section>
   )

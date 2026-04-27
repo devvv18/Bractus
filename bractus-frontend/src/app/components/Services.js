@@ -4,36 +4,52 @@ import Link from 'next/link'
 
 const SERVICES = [
   {
-    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>,
-    title: 'Advisory',
-    subtitle: 'Strategy & Consulting',
-    desc: 'Fractional CTO leadership that understands how AI changes the build-vs-buy equation for your business.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>,
+    tag: 'DEVELOPMENT',
+    title: 'Websites & Applications',
+    desc: 'Tailored digital experiences designed for scale. We build responsive, enterprise-grade web platforms and custom applications that drive user engagement and streamline complex business operations.',
     linkText: 'Learn More →',
-    href: '/services/advisory',
+    href: '/services/websites-applications',
   },
   {
-    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>,
-    title: 'Development',
-    subtitle: 'Application Development',
-    desc: 'Software your customers rely on — built by experienced engineers directing AI agents through every stage.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" /></svg>,
+    tag: 'CORE ENGINEERING',
+    title: 'Full-Stack Engineering',
+    desc: 'End-to-end development capabilities from the database to the user interface. Our cross-functional teams build robust, secure, reliable, and seamlessly integrated software solutions from scratch.',
     linkText: 'Learn More →',
-    href: '/services/development',
+    href: '/services/full-stack-engineering',
   },
   {
-    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>,
-    title: 'DevOps',
-    subtitle: 'DevOps & Performance',
-    desc: 'Cloud infrastructure and CI/CD pipelines designed for speed — with AI-augmented automation that cuts deployment time.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>,
+    tag: 'ADVISORY & STRATEGY',
+    title: 'System Architecture',
+    desc: 'Strategic blueprints for digital transformation. We design scalable, future-proof frameworks and seamlessly reshape legacy systems to ensure your technology stack aligns with your long-term business goals.',
     linkText: 'Learn More →',
-    href: '/services/devops',
+    href: '/services/system-architecture',
   },
   {
-    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
-    title: 'Data Science',
-    subtitle: 'Data & Analytics',
-    desc: 'Data engineering and analytics powered by experienced analysts and AI agents that surface insights humans alone would miss.',
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>,
+    tag: 'INNOVATION',
+    title: 'AI & Machine Learning',
+    desc: 'Empower your operations with intelligent automation and predictive insights. We develop and integrate custom AI/ML models that solve complex logic problems and create distinct competitive advantages.',
     linkText: 'Learn More →',
-    href: '/services/data-science',
+    href: '/services/ai-machine-learning',
+  },
+  {
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" /></svg>,
+    tag: 'INFRASTRUCTURE',
+    title: 'Cloud & DevOps',
+    desc: 'Accelerate delivery and ensure maximum reliability. We implement efficient CI/CD pipelines and design secure, highly available cloud environments to keep your enterprise running flawlessly.',
+    linkText: 'Learn More →',
+    href: '/services/cloud-devops',
+  },
+  {
+    icon: <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>,
+    tag: 'INTELLIGENCE',
+    title: 'Data Engineering',
+    desc: 'Turn raw information into an actionable strategy. We architect scalable data pipelines and robust storage solutions, ensuring your business data is accurate, secure, and ready for advanced analytics.',
+    linkText: 'Learn More →',
+    href: '/services/data-engineering',
   },
 ]
 
@@ -118,14 +134,14 @@ export default function Services() {
       <div className="container">
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <span className="tag" style={{ marginBottom: 16 }}>OUR SERVICES</span>
+          <span className="tag" style={{ marginBottom: 16 }}>OUR EXPERTISE</span>
         </div>
         <h2 style={{
           textAlign: 'center',
           fontSize: 'clamp(2rem, 4vw, 3rem)',
           fontWeight: 400, marginBottom: 16,
         }}>
-          Modernize your <span className="accent-text">operation</span>
+          Scale your <span className="accent-text">vision</span>
         </h2>
         <p style={{
           textAlign: 'center',
@@ -134,14 +150,15 @@ export default function Services() {
           maxWidth: 600, margin: '0 auto 56px',
           lineHeight: 1.7,
         }}>
-          Our team embeds with yours to modernize your technology — directing AI agents
-          to accelerate every phase of delivery. You get experienced professionals,
-          smarter tooling, and real cost savings.
+          We don't just write code; we partner with you to solve foundational business challenges.
+          From modernizing mission-critical legacy infrastructure to developing intelligent,
+          AI-driven platforms from scratch, our cross-functional teams deliver end-to-end
+          technical excellence tailored to your goals.
         </p>
 
         {/* 3D Carousel Stack */}
         <div style={{ position: 'relative', width: '100%', maxWidth: 1000, margin: '0 auto' }}>
-          
+
           <div style={{ position: 'relative', height: 380, width: '100%' }}>
             {SERVICES.map((service, index) => (
               <div key={index} style={getCardStyle(index)}>
@@ -151,9 +168,9 @@ export default function Services() {
           </div>
 
           {/* Carousel Controls */}
-          <div style={{ 
+          <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24,
-            marginTop: 16 
+            marginTop: 16
           }}>
             <button onClick={prev} style={navBtnStyle} aria-label="Previous service">
               ←
@@ -180,7 +197,7 @@ export default function Services() {
   )
 }
 
-function ServiceCard({ icon, title, subtitle, desc, linkText, href, active }) {
+function ServiceCard({ icon, tag, title, desc, linkText, href, active }) {
   const [hovered, setHovered] = useState(false)
   return (
     <div className="card" style={{
@@ -193,8 +210,8 @@ function ServiceCard({ icon, title, subtitle, desc, linkText, href, active }) {
       display: 'flex', flexDirection: 'column',
       transition: 'border-color 0.3s ease',
     }}
-    onMouseEnter={() => setHovered(true)}
-    onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <div style={{
         width: 48, height: 48, borderRadius: 10,
@@ -206,16 +223,16 @@ function ServiceCard({ icon, title, subtitle, desc, linkText, href, active }) {
       <div style={{
         fontSize: '0.75rem', fontWeight: 400, color: 'var(--accent)',
         textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8,
-      }}>{title}</div>
+      }}>{tag}</div>
       <h3 style={{
         fontFamily: 'Nunito, sans-serif', fontSize: '1.4rem',
         fontWeight: 400, marginBottom: 12, lineHeight: 1.3
-      }}>{subtitle}</h3>
+      }}>{title}</h3>
       <p style={{
-        fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.65, 
+        fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.65,
         marginBottom: 32, flexGrow: 1
       }}>{desc}</p>
-      
+
       {active && (
         <Link href={href} style={{
           fontSize: '0.95rem', fontWeight: 400,
