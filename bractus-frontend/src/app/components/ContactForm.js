@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 
+const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
+
 const TOOLS = [
   'AWS', 'GCP', 'Azure', 'Kubernetes', 'Docker', 'Terraform',
   'React', 'Next.js', 'Node.js', 'Python', 'Go', 'PostgreSQL',
@@ -8,7 +10,6 @@ const TOOLS = [
 ]
 
 export function ToolsAndPartners() {
-  const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
   return (
     <section className="section" style={{ background: 'var(--bg)' }}>
       <div className="container">
@@ -78,18 +79,59 @@ export function GetInTouch() {
     e.preventDefault()
     setLoading(true)
 
+    const type = window.location.hash.includes('type=org') ? 'org' : 
+                 window.location.hash.includes('type=dev') ? 'dev' : 'general';
+
+    let subject = '';
+    let bodyText = '';
+
+    if (type === 'dev') {
+      subject = `Engineering Support & Collaboration`;
+      bodyText = `Hi Bractus Team,\n\n` +
+                 `I am reaching out to get some dedicated engineering support for my current project.\n\n` +
+                 `Here is a quick overview of what I am working on:\n` +
+                 `My Project: ${form.message}\n` +
+                 `Current Tech Stack: [Fill your tech stack]\n\n` +
+                 `I am looking for a reliable technical partner to help me push this across the finish line. Please let me know your availability for a quick introductory call to discuss how we might collaborate.\n\n` +
+                 `Best,\n` +
+                 `${form.name}\n` +
+                 `[Link to your project/website]`;
+    } else if (type === 'org') {
+      subject = `Engineering & Development Services`;
+      bodyText = `Hi Bractus Team,\n\n` +
+                 `I am reaching out on behalf of ${form.company || '[Your Company]'}. We are currently looking for a reliable technology partner to help us scale our engineering capabilities and execute our digital roadmap.\n\n` +
+                 `We are primarily looking for expertise in:\n` +
+                 `${form.message || '[e.g., Legacy System Modernization / Cloud Infrastructure / Building a new AI tool from scratch]'}\n\n` +
+                 `We need a dedicated team that can take technical ownership and deliver secure, high-performance results.\n\n` +
+                 `I would love to schedule a brief discovery call this week to discuss our upcoming initiatives and see if Bractus is the right fit to support our growth. Let me know what your schedule looks like over the next few days.\n\n` +
+                 `Best regards,\n` +
+                 `${form.name}\n` +
+                 `[Your Job Title]\n` +
+                 `${form.company || '[Your Company]'}`;
+    } else {
+      subject = `Inquiry: ${form.service || 'General'} - ${form.company || form.name}`;
+      bodyText = `Hello Bractus Team,\n\n` +
+                 `I am reaching out to discuss ${form.service || 'your services'}.\n\n` +
+                 `${form.message}\n\n` +
+                 `Best regards,\n` +
+                 `${form.name}\n` +
+                 `${form.company ? form.company : ''}`;
+    }
+
+    const mailtoLink = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
+
     try {
-      const res = await fetch('http://localhost:3001/contact', {
+      await fetch('http://localhost:3001/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       })
-      if (res.ok) setSent(true)
     } catch (err) {
-      console.error(err)
-      alert("Failed to send message. Is the backend running?")
+      console.warn("Backend not reachable, proceeding with email redirect only.");
     } finally {
-      setLoading(false)
+      setLoading(false);
+      setSent(true);
+      window.location.href = mailtoLink;
     }
   }
 
@@ -119,10 +161,10 @@ export function GetInTouch() {
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
-                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>, text: process.env.NEXT_PUBLIC_LOCATION },
-                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>, text: process.env.NEXT_PUBLIC_PHONE },
-                { icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>, text: process.env.NEXT_PUBLIC_CONTACT_EMAIL },
-              ].map(({ icon, text }) => (
+                { label: 'Location:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>, text: 'Delhi, India' },
+                { label: 'Phone:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>, text: '9667507343' },
+                { label: 'Mail:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>, text: 'hr@bractus.com' },
+              ].map(({ icon, text, label }) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{
                     width: 40, height: 40, borderRadius: 10,
@@ -130,7 +172,10 @@ export function GetInTouch() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 18, flexShrink: 0,
                   }}>{icon}</div>
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{text}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                    <strong style={{ color: 'var(--text)', marginRight: 6 }}>{label}</strong>
+                    {text}
+                  </span>
                 </div>
               ))}
             </div>

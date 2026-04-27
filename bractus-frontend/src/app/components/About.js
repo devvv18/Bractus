@@ -25,9 +25,9 @@ const TESTIMONIALS = [
 const FAQS = [
   { q: 'How experienced is the Bractus team?', a: 'We staff exclusively with senior professionals — architects, engineers, and data specialists with deep enterprise backgrounds. Every project is led by someone who has built production systems at scale.' },
   { q: 'How do you ensure projects stay on-time and on-budget?', a: 'Transparency and accountability. Every engagement includes a dedicated delivery lead, biweekly executive summaries, and working demos at each milestone. You\'ll always know exactly where your project stands.' },
-  { q: 'Can you scale to meet enterprise-level demands?', a: 'Absolutely. Our AI-augmented approach means each professional delivers significantly more output. We\'ve scaled engagements rapidly for clients facing tight deadlines.' },
-  { q: 'Do we own the IP if AI agents helped build it?', a: 'Yes — full ownership, no exceptions. Every deliverable we produce is yours, regardless of what tools or AI agents were involved.' },
-  { q: 'How does Bractus use AI in delivery?', a: 'We pair experienced professionals with AI agents to accelerate every phase. Engineers set the direction and review all outputs — AI handles high-volume execution. Faster delivery, lower cost, same rigor.' },
+  // { q: 'Can you scale to meet enterprise-level demands?', a: 'Absolutely. Our AI-augmented approach means each professional delivers significantly more output. We\'ve scaled engagements rapidly for clients facing tight deadlines.' },
+  // { q: 'Do we own the IP if AI agents helped build it?', a: 'Yes — full ownership, no exceptions. Every deliverable we produce is yours, regardless of what tools or AI agents were involved.' },
+  // { q: 'How does Bractus use AI in delivery?', a: 'We pair experienced professionals with AI agents to accelerate every phase. Engineers set the direction and review all outputs — AI handles high-volume execution. Faster delivery, lower cost, same rigor.' },
   { q: 'How do you handle security and compliance?', a: 'Security is foundational. We follow enterprise security standards including SOC 2, HIPAA, and GDPR as baseline practice, and integrate with your existing security policies from day one.' },
 ]
 
@@ -37,57 +37,70 @@ export function Founder() {
       <div className="container">
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: 48, alignItems: 'center',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: 'clamp(48px, 8vw, 100px)', alignItems: 'center',
         }}>
+          {/* Left Column: Story */}
           <div>
-            <span className="tag" style={{ marginBottom: 20, display: 'inline-flex' }}>ABOUT US</span>
+            <span className="tag" style={{ marginBottom: 20, display: 'inline-flex' }}>THE BRACTUS STORY</span>
             <h2 style={{
-              fontSize: 'clamp(2rem, 4vw, 3rem)',
-              fontWeight: 400, marginBottom: 20,
+              fontSize: 'clamp(2.2rem, 4vw, 3.2rem)',
+              fontWeight: 400, marginBottom: 28,
+              lineHeight: 1.1
             }}>
-              Built by founders,<br />
-              <span className="accent-text">for builders.</span>
+              Rooted in engineering.<br />
+              Driven by <span className="accent-text">accountability.</span>
             </h2>
             <p style={{
-              color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.8, marginBottom: 16,
+              color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.8, marginBottom: 20,
             }}>
-              After building, scaling, and exiting several successful companies, we launched Bractus
-              to bring entrepreneurial problem-solving to ambitious leaders.
+              We know how frustrating it is to hire a vendor that over-promises and under-delivers. Bractus was born out of a desire to change that dynamic. Starting out by taking on complex, hands-on technical projects for international clients, we realized that what businesses really need isn't just "more developers"—they need absolute technical ownership.
             </p>
             <p style={{
-              color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.8, marginBottom: 32,
+              color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.8,
             }}>
-              Our outcome-driven teams partner directly with C-suite executives to solve core technology
-              challenges, deliver measurable business results, and provide board-ready insights every step of the way.
+              We aren't a massive, faceless corporation. We are a specialized, highly focused team that has been in the trenches debugging deployments and architecting systems from the ground up. We built this company to bring that exact level of deep, individual care to every project we take on. When you work with us, you are partnering with builders who actually care about the code.
             </p>
           </div>
 
-          <div className="card" style={{ padding: '36px 32px' }}>
-            <div style={{
-              fontSize: '3.5rem', lineHeight: 1,
-              color: 'var(--accent)', opacity: 0.3,
-              fontFamily: 'Georgia, serif', marginBottom: 8,
-            }}>"</div>
-            <p style={{
-              fontSize: '1.05rem', color: 'var(--text)',
-              lineHeight: 1.75, fontStyle: 'italic', marginBottom: 24,
-            }}>
-              The way enterprise software gets built has changed. AI agents can now handle significant
-              portions of development — but only when directed by experienced professionals who understand your business.
-            </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: '50%', background: 'var(--accent)',
+          {/* Right Column: Image & Quote */}
+          <div style={{ position: 'relative' }}>
+            <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 24, border: 'none' }}>
+              {/* Founder Image Placeholder */}
+              <div style={{ 
+                width: '100%', height: 420, 
+                background: 'linear-gradient(135deg, var(--bg-alt) 0%, var(--accent-light) 100%)', 
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontWeight: 400, fontSize: '0.85rem',
-                fontFamily: 'Nunito, sans-serif',
-              }}>B</div>
-              <div>
-                <div style={{ fontWeight: 400, fontSize: '0.92rem' }}>Bractus Team</div>
-                <div style={{ color: 'var(--text-muted)', fontSize: '0.82rem' }}>AI-Augmented Delivery</div>
+                position: 'relative'
+              }}>
+                <img src="/founder-portrait.png" alt="Kunal Khanna" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} />
+                
+                {/* Floating Quote Over Image */}
+                <div style={{
+                  position: 'absolute', bottom: 0, left: 0, right: 0,
+                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, transparent 100%)',
+                  padding: '40px 32px 32px', color: '#fff'
+                }}>
+                  <p style={{
+                    fontSize: '1.05rem', lineHeight: 1.7, fontStyle: 'italic', marginBottom: 20,
+                    fontWeight: 300, opacity: 0.95
+                  }}>
+                    "Technology is moving faster than ever, but the fundamentals of good engineering and honest business never change. I built this company to give leaders a partner who deeply understands the tech, and actually delivers on their promises."
+                  </p>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: '1rem', letterSpacing: '0.02em' }}>Kunal Khanna</div>
+                    <div style={{ opacity: 0.7, fontSize: '0.85rem', marginTop: 2 }}>Founder, Bractus</div>
+                  </div>
+                </div>
               </div>
             </div>
+            
+            {/* Visual Decorative Element */}
+            <div style={{
+              position: 'absolute', top: -20, right: -20, width: 120, height: 120,
+              background: 'var(--accent-glow)', borderRadius: '50%', zIndex: -1, filter: 'blur(50px)',
+              opacity: 0.6
+            }} />
           </div>
         </div>
       </div>

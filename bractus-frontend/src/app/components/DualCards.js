@@ -172,6 +172,35 @@ export default function DualCards() {
   const [hoverLeft, setHoverLeft] = useState(false)
   const [hoverRight, setHoverRight] = useState(false)
 
+  const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
+
+  const devSubject = encodeURIComponent("Engineering Support & Collaboration");
+  const devBody = encodeURIComponent(
+    `Hi Bractus Team,\n\n` +
+    `I am reaching out to get some dedicated engineering support for my current project.\n` +
+    `Here is a quick overview of what I am working on:\n` +
+    `My Project: [Project Details]\n` +
+    `Current Tech Stack: [Tech stack details]\n\n` +
+    `I am looking for a reliable technical partner to help me push this across the finish line. Please let me know your availability for a quick introductory call to discuss how we might collaborate.\n\n` +
+    `Best,\n` +
+    `[Your Name]\n` +
+    `[Link to your project/website, if applicable]`
+  );
+
+  const orgSubject = encodeURIComponent("Engineering & Development Services");
+  const orgBody = encodeURIComponent(
+    `Hi Bractus Team,\n\n` +
+    `I am reaching out on behalf of [Your Company Name]. We are currently looking for a reliable technology partner to help us scale our engineering capabilities and execute our digital roadmap.\n\n` +
+    `We are primarily looking for expertise in:\n` +
+    `[e.g., Legacy System Modernization / Cloud Infrastructure / Building a new AI tool from scratch]\n\n` +
+    `We need a dedicated team that can take technical ownership and deliver secure, high-performance results.\n\n` +
+    `I would love to schedule a brief discovery call this week to discuss our upcoming initiatives and see if Bractus is the right fit to support our growth. Let me know what your schedule looks like over the next few days.\n\n` +
+    `Best regards,\n` +
+    `[Your Name]\n` +
+    `[Your Job Title]\n` +
+    `[Your Company Name]`
+  );
+
   return (
     <section style={{ background: 'var(--bg)', padding: 0, position: 'relative' }}>
       {/* Unified Background Canvas */}
@@ -187,9 +216,9 @@ export default function DualCards() {
           onMouseLeave={() => setHoverLeft(false)}
         >
           <div style={{ textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For developers</h2>
-            <p style={{ fontSize: 'clamp(1.8rem, 5vw, 2.4rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32 }}>Achieve new heights</p>
-            <Link href="/download" className="btn-primary" style={{ borderRadius: 100 }}>Download</Link>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For Individual Technical Support</h2>
+            <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Get the dedicated engineering support and expert guidance.</p>
+            <a href={`mailto:${contactEmail}?subject=${devSubject}&body=${devBody}`} className="btn-primary" style={{ borderRadius: 100 }}>Request Support</a>
           </div>
         </div>
 
@@ -203,9 +232,9 @@ export default function DualCards() {
           onMouseLeave={() => setHoverRight(false)}
         >
           <div style={{ textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For organizations</h2>
-            <p style={{ fontSize: 'clamp(1.8rem, 5vw, 2.4rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32 }}>Level up your entire team</p>
-            <Link href="/notify" className="btn-outline" style={{ borderRadius: 100, background: 'var(--bg)' }}>Notify me</Link>
+            <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For organization</h2>
+            <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Scale your digital capabilities instantly.</p>
+            <a href={`mailto:${contactEmail}?subject=${orgSubject}&body=${orgBody}`} className="btn-outline" style={{ borderRadius: 100, background: 'var(--bg)' }}>Partner with us</a>
           </div>
         </div>
       </div>

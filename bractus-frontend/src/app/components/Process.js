@@ -19,12 +19,12 @@ const STEPS = [
 ]
 
 const VALUES = [
-  { title: 'No over-promising.', desc: 'We listen first, understand your business, then map out a direction aligned with your goals.' },
-  { title: 'No loss of equity.', desc: 'You own 100% of everything we create — your IP, your success, your future.' },
-  { title: 'No long-term contract.', desc: 'Your investment goes directly to results — not months of unnecessary busy work.' },
-  { title: 'Full accountability.', desc: 'One team, clear responsibility, no finger-pointing — just measurable impact.' },
-  { title: 'Radical transparency.', desc: 'Clear updates, honest reporting, and total visibility at every step.' },
-  { title: 'Proven expertise.', desc: 'Enterprise-grade teams now augmented by AI agents for faster, more cost-effective results.' },
+  { title: 'No Hype Delivery', desc: 'We don\'t sell hype. We analyze your technical requirements deeply to architect realistic, scalable solutions and commit to timelines we can actually deliver.' },
+  { title: 'IP & Data Ownership', desc: 'Your code is your asset. From day one, you retain complete ownership of all intellectual property, data architecture, and custom integrations we build.' },
+  { title: 'Trust-Based Flexibility', desc: 'We earn your trust through results, not rigid contracts. Our flexible engagement models allow you to scale resources up or down as your project demands.' },
+  { title: 'End-to-End Ownership', desc: 'No pointing fingers. From initial system blueprinting to final deployment and maintenance, our team takes complete responsibility for the technical outcome.' },
+  { title: 'Absolute Transparency', desc: 'Get complete visibility into our development cycles. You receive honest reporting, direct access to the engineers, and regular milestone updates without the fluff.' },
+  { title: 'Elite Technical Talent', desc: 'Bypass the hiring grind. You get immediate access to senior developers, architects, and AI specialists who build secure, production-ready systems from the ground up.' },
 ]
 
 export function HowWeWork() {
@@ -77,7 +77,7 @@ export function WhyChooseUs() {
           fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.7,
           textAlign: 'center', maxWidth: 620, margin: '0 auto 16px',
         }}>
-          Our teams deliver the outcomes you need — quickly and efficiently — so you see progress, not just process.
+          Our teams deliver the outcomes you need quickly and efficiently, so you see progress, not just process.
         </p>
         <h2 style={{
           textAlign: 'center', fontSize: 'clamp(1.8rem, 3.5vw, 2.6rem)',

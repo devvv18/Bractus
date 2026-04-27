@@ -2,10 +2,11 @@
 
 const FOOTER_LINKS = {
   Services: [
-    { label: 'Advisory', href: '#services' },
-    { label: 'Development', href: '#services' },
-    { label: 'DevOps', href: '#services' },
-    { label: 'Data Science', href: '#services' },
+    { label: 'Web & Applications', href: '#services' },
+    { label: 'Full-Stack Engineering', href: '#services' },
+    { label: 'AI & Machine Learning', href: '#services' },
+    { label: 'Cloud & DevOps', href: '#services' },
+    { label: 'Data Engineering', href: '#services' },
   ],
   Company: [
     { label: 'About', href: '#about' },
@@ -47,31 +48,28 @@ export default function Footer() {
           </a>
           <p style={{
             color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7,
-            maxWidth: 280, marginBottom: 24,
+            maxWidth: 320, marginBottom: 24,
           }}>
-            We help growth-stage and mid-market companies solve their toughest
-            technology challenges with AI-augmented delivery.
+            Your end-to-end technology partner. From reshaping legacy systems to engineering custom software and AI platforms from the ground up, we deliver technical excellence at scale.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
-            <a href={`mailto:${process.env.NEXT_PUBLIC_CONTACT_EMAIL}`} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>{process.env.NEXT_PUBLIC_CONTACT_EMAIL}</a>
-            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{process.env.NEXT_PUBLIC_PHONE}</span>
-            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>{process.env.NEXT_PUBLIC_LOCATION}</span>
+            <a href={`mailto:hr@bractus.com`} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>hr@bractus.com</a>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>9667507343</span>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Delhi, India</span>
           </div>
 
           <div style={{ display: 'flex', gap: 8 }}>
-            {['𝕏', 'in', '○'].map((icon, i) => (
-              <a key={i} href="#" style={{
-                width: 36, height: 36, borderRadius: 8,
-                border: '1px solid #334155',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#64748b', fontSize: '0.85rem', fontWeight: 400,
-                transition: 'border-color 0.2s, color 0.2s',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.color = '#64748b' }}
-              >{icon}</a>
-            ))}
+            <a href="https://www.linkedin.com/company/bractus-innovations/" target="_blank" rel="noopener noreferrer" style={{
+              width: 36, height: 36, borderRadius: 8,
+              border: '1px solid #334155',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: '#64748b', fontSize: '0.85rem', fontWeight: 400,
+              transition: 'border-color 0.2s, color 0.2s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.color = '#64748b' }}
+            >in</a>
           </div>
         </div>
 
@@ -108,10 +106,7 @@ export default function Footer() {
         flexWrap: 'wrap', gap: 12,
       }}>
         <p style={{ color: '#475569', fontSize: '0.8rem' }}>
-          © 2025 Bractus Inc. All rights reserved.
-        </p>
-        <p style={{ color: '#475569', fontSize: '0.8rem' }}>
-          Made with ❤️ in India
+          © 2026 Bractus. All rights reserved.
         </p>
       </div>
 

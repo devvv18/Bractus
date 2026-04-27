@@ -11,11 +11,11 @@ export default function HomePage() {
       <Hero />
       <Services />
       <HowWeWork />
-      <ToolsAndPartners />
+      {/* <ToolsAndPartners /> */}
       <DualCards />
       <Founder />
       <WhyChooseUs />
-      <Testimonials />
+      {/* <Testimonials /> */}
       <GetInTouch />
       <FAQ />
     </>
