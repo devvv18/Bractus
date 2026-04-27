@@ -5,64 +5,53 @@ import Link from 'next/link'
 const VALUES = [
   {
     letter: 'B',
-    title: 'Bold Thinking',
-    desc: 'We challenge assumptions and push for smarter solutions every time.',
+    title: 'Builders First',
+    desc: "We aren't just consultants; we are hands-on engineers. We challenge technical assumptions and build robust solutions to your most complex problems.",
   },
   {
     letter: 'R',
-    title: 'Results Driven',
-    desc: 'Every decision we make is tied directly to outcomes that matter to you.',
+    title: 'Results-Driven',
+    desc: "Your business objectives dictate our architecture. We focus strictly on deploying scalable systems that deliver a measurable return on your investment.",
   },
   {
     letter: 'A',
-    title: 'Accountability',
-    desc: 'We own the outcome — one team, clear ownership, no excuses.',
+    title: 'Absolute Accountability',
+    desc: "We take complete technical ownership of your project. You get one dedicated team, clear responsibilities, and reliable, on-time delivery.",
   },
   {
     letter: 'C',
-    title: 'Craft',
-    desc: 'We take pride in the quality of everything we build and ship.',
+    title: 'Craftsmanship',
+    desc: "We don't settle for \"good enough.\" We take immense pride in writing clean, secure, and highly performant code designed for long-term scalability.",
   },
   {
     letter: 'T',
-    title: 'Transparency',
-    desc: 'You always know exactly where your project stands and why.',
+    title: 'Total Transparency',
+    desc: "No black boxes or hidden technical debt. You get honest reporting, direct access to the developers, and complete visibility into every sprint.",
+  },
+  {
+    letter: 'U',
+    title: 'Uncompromising Quality',
+    desc: "Security and performance are never afterthoughts. We adhere to the highest enterprise standards from the very first line of code we write.",
+  },
+  {
+    letter: 'S',
+    title: 'Scalable By Design',
+    desc: "We don't just build for today. We architect future-proof cloud environments and data pipelines that grow seamlessly alongside your ambitions.",
   },
 ]
 
 const DIFFERENTIATORS = [
   {
-    title: 'You get a professional, not a process.',
-    desc: 'A senior engineer or strategist works with you directly — owning architecture decisions, client communication, and delivery quality from day one. You get accountability at the top, not just at the bottom.',
+    title: 'Direct Access to Senior Talent',
+    desc: "You won't get passed down to junior account managers. A senior engineer or technical architect partners with you directly, taking absolute ownership of system design, client communication, and code quality from day one.",
   },
   {
-    title: 'Every output is working software.',
-    desc: 'We do not deliver slide decks or status reports as milestones. Every phase of our engagement produces something concrete — tested code, deployed infrastructure, or shipped features.',
+    title: 'Tangible Deliverables',
+    desc: "We don't hide behind slide decks or theoretical roadmaps. Every phase of our engagement is designed to produce concrete, measurable results, whether it is rigorously tested code, deployed cloud infrastructure, or a fully shipped application.",
   },
   {
-    title: 'We rebuilt delivery around AI from the ground up.',
-    desc: 'AI is not an add-on to how we work — it is how we work. Our model was designed from scratch to pair experienced professionals with AI agents, giving you faster timelines and lower costs without sacrificing quality.',
-  },
-]
-
-const TESTIMONIALS = [
-  {
-    quote: 'Bractus completely transformed our engineering culture. Their team embedded with us and shipped in half the timeline we expected.',
-    name: 'Jamie Stokes',
-    role: 'CEO, JMJ Cloud',
-    initials: 'JS',
-  },
-  {
-    quote: 'We needed a partner who could move fast without sacrificing quality. Bractus delivered a production-ready platform our board was genuinely impressed with.',
-    name: 'Zach Mumford',
-    role: 'General Manager, Mumford Restoration',
-    initials: 'ZM',
-  },
-  {
-    quote: 'The level of transparency and accountability exceeded everything we expected. No hidden surprises — just consistent, high-quality delivery.',
-    name: 'Jon Oxidine',
-    role: 'COO, Podium Audio',
-    initials: 'JO',
+    title: 'Accelerated Execution',
+    desc: "We combine deep, foundational engineering expertise with cutting-edge toolchains. By integrating intelligent automation and modern DevOps practices into our workflow, we deliver secure, enterprise-grade systems faster and more cost-effectively without ever sacrificing quality.",
   },
 ]
 
@@ -76,18 +65,30 @@ export default function AboutPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <span className="tag" style={{ marginBottom: 16 }}>OUR CORE VALUES</span>
             <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.4rem)', fontWeight: 400, lineHeight: 1.3 }}>
-              Bold. Results-driven. Accountable.<br />Crafted with Transparency.
+              Engineering <span className="accent-text">excellence</span>, rooted in <span className="accent-text">integrity</span>.
             </h2>
           </div>
 
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(5, 1fr)',
-            gap: 24,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '48px 32px',
             textAlign: 'center',
+            marginBottom: 64,
+            maxWidth: 1100,
+            margin: '0 auto 64px'
           }}>
             {VALUES.map(({ letter, title, desc }) => (
-              <div key={letter} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+              <div key={letter} style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                gap: 16,
+                width: 'calc(25% - 32px)',
+                minWidth: 240,
+                flexGrow: 0
+              }}>
                 <div style={{ position: 'relative', width: 72, height: 72 }}>
                   <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
                     <polygon
@@ -104,7 +105,7 @@ export default function AboutPage() {
                     color: 'var(--accent)',
                   }}>{letter}</span>
                 </div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)' }}>{title}</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', fontFamily: 'Nunito, sans-serif' }}>{title}</h3>
                 <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.65 }}>{desc}</p>
               </div>
             ))}
@@ -113,19 +114,15 @@ export default function AboutPage() {
           <p style={{
             textAlign: 'center',
             fontSize: '1rem', color: 'var(--text-secondary)',
-            maxWidth: 700, margin: '56px auto 0', lineHeight: 1.75,
+            maxWidth: 750, margin: '0 auto', lineHeight: 1.75,
           }}>
-            At Bractus, we embed <strong>senior professionals</strong> who integrate smoothly with your team.
-            From strategy to execution,{' '}
-            <Link href="/services" style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 500 }}>
-              we build modern, AI-augmented solutions
-            </Link>{' '}
-            for lasting business impact.
+            At Bractus, we don't just write code, we act as a seamless extension of your organization.
+            From strategic blueprinting to final execution, we deliver the comprehensive technical firepower required to future-proof your enterprise.
           </p>
         </div>
       </section>
 
-      {/* ── 2. HOW WE'VE GROWN ── */}
+      {/* ── 2. BEYOND TRADITIONAL OUTSOURCING ── */}
       <section style={{ background: 'var(--accent)', paddingTop: 80, paddingBottom: 80 }}>
         <div className="container" style={{ textAlign: 'center' }}>
           <h2 style={{
@@ -133,22 +130,20 @@ export default function AboutPage() {
             fontWeight: 400, color: '#fff',
             marginBottom: 24, lineHeight: 1.3,
           }}>
-            How We've Grown
+            Beyond Traditional Outsourcing
           </h2>
           <p style={{
             fontSize: 'clamp(0.95rem, 1.8vw, 1.05rem)',
             color: 'rgba(255,255,255,0.85)',
-            maxWidth: 720, margin: '0 auto 64px', lineHeight: 1.8,
+            maxWidth: 820, margin: '0 auto 64px', lineHeight: 1.8,
           }}>
-            Bractus started with a straightforward belief: outcome-focused teams led by experienced
-            professionals consistently outperform traditional outsourcing. That belief has not changed.
-            What has changed is how powerfully we can now execute it.
+            Bractus was built on a straightforward premise: dedicated, outcome-focused teams consistently outperform traditional outsourcing models. While our commitment to engineering quality remains unchanged, our capabilities have scaled. Today, we deliver the comprehensive technical firepower required to handle your most complex digital transformations.
           </p>
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '0 48px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '32px 48px',
             textAlign: 'left',
           }}>
             {DIFFERENTIATORS.map(({ title, desc }, i) => (
@@ -165,46 +160,6 @@ export default function AboutPage() {
                   color: 'rgba(255,255,255,0.78)',
                   lineHeight: 1.75,
                 }}>{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── 3. TESTIMONIALS ── */}
-      <section style={{ paddingTop: 100, paddingBottom: 120, background: 'var(--bg)' }}>
-        <div className="container">
-          <div style={{ textAlign: 'center', marginBottom: 48 }}>
-            <span className="tag" style={{ marginBottom: 16 }}>TESTIMONIALS</span>
-            <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.4rem)', fontWeight: 400 }}>
-              What our clients <span className="accent-text">say</span>
-            </h2>
-          </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-            gap: 24,
-          }}>
-            {TESTIMONIALS.map(({ quote, name, role, initials }) => (
-              <div key={name} style={{
-                background: 'var(--surface)',
-                border: '1.5px solid var(--border)',
-                borderRadius: 16, padding: 28,
-              }}>
-                <div style={{ fontSize: '1.5rem', color: 'var(--accent)', opacity: 0.5, marginBottom: 16 }}>❝</div>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 24 }}>{quote}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, borderTop: '1px solid var(--border)', paddingTop: 16 }}>
-                  <div style={{
-                    width: 40, height: 40, borderRadius: '50%',
-                    background: 'var(--accent)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: '#fff', fontSize: '0.8rem', fontWeight: 700, flexShrink: 0,
-                  }}>{initials}</div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{name}</div>
-                    <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>{role}</div>
-                  </div>
-                </div>
               </div>
             ))}
           </div>
