@@ -1,7 +1,14 @@
 'use client'
 import { useEffect, useRef } from 'react'
 
-const BADGES = ['Advisory', 'Development', 'DevOps', 'Data']
+const BADGES = [
+  'Website & Applications',
+  'AI & Machine Learning',
+  'Full-Stack Engineering',
+  'System Architecture',
+  'Cloud & DevOps',
+  'Data Engineering'
+]
 
 function ParticleGrid() {
   const canvasRef = useRef(null)
@@ -168,8 +175,9 @@ export default function Hero() {
           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
         }}>
           {/* Tag */}
-          <div className="anim-fade-up" style={{ marginBottom: 32 }}>
-            <span className="tag">✦ AI-Augmented Delivery</span>
+          <div className="anim-fade-up" style={{ marginBottom: 32, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
+            <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
           </div>
 
           {/* Headline with responsive line breaks */}
@@ -180,23 +188,19 @@ export default function Hero() {
             marginBottom: 32,
             maxWidth: '90vw'
           }}>
-            <span className="hide-mobile">Cross-functional teams of<br /></span>
-            <span className="show-mobile">Cross-functional teams of </span>
-            <span className="hide-mobile">senior professionals wielding<br /></span>
-            <span className="show-mobile">senior professionals wielding </span>
-            <span className="accent-text">AI‑native toolchains</span>
+            We Build, Scale, and Modernize<br />
+            <span className="accent-text">Complex Software Systems</span>
           </h1>
 
           {/* Subtext */}
           <p className="anim-fade-up anim-delay-2" style={{
-            fontSize: 'clamp(1rem, 2vw, 1.15rem)',
+            fontSize: 'clamp(1rem, 2vw, 1.12rem)',
             color: 'var(--text-secondary)',
             lineHeight: 1.75,
-            maxWidth: 580,
+            maxWidth: 800,
             marginBottom: 40,
           }}>
-            Delivering outcomes with the accountability and rigor
-            enterprise systems require — from strategy through deployment.
+            Your all-in-one partner for digital transformation. Whether building standard web applications to advanced DevOps, data pipelines, or reshaping an outdated legacy system and architecting a cutting-edge AI platform from the ground up, our cross-functional teams deliver scalable, high-performance results. We provide the technical muscle to bring any digital vision to life.
           </p>
 
           {/* Badge row */}
@@ -219,7 +223,7 @@ export default function Hero() {
           {/* CTAs */}
           <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 80 }}>
             <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
-            <a href="#services" className="btn-outline">Watch video</a>
+            <a href="#services" className="btn-outline">View Our Services</a>
           </div>
 
           {/* Stats Row - Responsive Grid */}
