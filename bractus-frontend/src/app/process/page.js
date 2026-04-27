@@ -111,14 +111,19 @@ export default function ProcessPage() {
             </p>
           </div>
 
-          {/* 2-column feature list */}
+          {/* 2-column feature list — more responsive grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-            gap: '48px 80px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
+            gap: '48px 40px',
           }}>
             {HOW_WE_WORK.map(({ icon, title, desc }, i) => (
-              <div key={i} style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+              <div key={i} style={{ 
+                display: 'flex', 
+                gap: 'clamp(16px, 4vw, 24px)', 
+                alignItems: 'flex-start',
+                padding: '0 4px'
+              }}>
                 {/* Icon */}
                 <div style={{
                   color: 'var(--accent)',
@@ -128,7 +133,7 @@ export default function ProcessPage() {
                   {icon}
                 </div>
                 {/* Text */}
-                <div>
+                <div style={{ flex: 1 }}>
                   <h3 style={{
                     fontSize: '1.05rem', fontWeight: 700,
                     marginBottom: 10, color: 'var(--text)',

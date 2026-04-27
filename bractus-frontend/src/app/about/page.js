@@ -65,19 +65,30 @@ export default function AboutPage() {
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <span className="tag" style={{ marginBottom: 16 }}>OUR CORE VALUES</span>
             <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.4rem)', fontWeight: 400, lineHeight: 1.3 }}>
-              Engineering excellence, rooted in integrity.
+              Engineering <span className="accent-text">excellence</span>, rooted in <span className="accent-text">integrity</span>.
             </h2>
           </div>
 
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: '40px 24px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '48px 32px',
             textAlign: 'center',
-            marginBottom: 64
+            marginBottom: 64,
+            maxWidth: 1100,
+            margin: '0 auto 64px'
           }}>
             {VALUES.map(({ letter, title, desc }) => (
-              <div key={letter} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+              <div key={letter} style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                gap: 16,
+                width: 'calc(25% - 32px)',
+                minWidth: 240,
+                flexGrow: 0
+              }}>
                 <div style={{ position: 'relative', width: 72, height: 72 }}>
                   <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
                     <polygon
