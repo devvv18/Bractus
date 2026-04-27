@@ -5,24 +5,42 @@ const SERVICES = [
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
       </svg>
     ),
-    category: 'Advisory',
-    title: 'Strategy & Consulting',
-    items: ['Product Management', 'Fractional CTO Services', 'Technical Due Diligence', 'Cost Optimization'],
-    href: '/services/advisory',
+    title: 'Websites & Applications',
+    items: ['Custom Web Platforms', 'Mobile Application Development', 'UI/UX Design & Prototyping', 'API Design & Integration'],
+    href: '/services/websites-applications',
   },
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+        <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
       </svg>
     ),
-    category: 'Development',
-    title: 'Application Development',
-    items: ['Mobile App Development', 'Web Application Development', 'UI/UX Design & Development'],
-    href: '/services/development',
+    title: 'Full-Stack Engineering',
+    items: ['End-to-End System Development', 'Microservices Architecture', 'Legacy System Modernization', 'Quality Assurance & Automated Testing'],
+    href: '/services/full-stack-engineering',
+  },
+  {
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    ),
+    title: 'System Architecture (Advisory)',
+    items: ['Fractional CTO Services', 'Technical Due Diligence', 'Infrastructure Audits & Cost Optimization', 'Scalability & Security Planning'],
+    href: '/services/system-architecture',
+  },
+  {
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>
+      </svg>
+    ),
+    title: 'AI & Machine Learning',
+    items: ['AI Strategy & Implementation', 'Custom LLMs & Generative AI', 'Intelligent Chatbots & Agents', 'Predictive Logic Models'],
+    href: '/services/ai-machine-learning',
   },
   {
     icon: (
@@ -31,10 +49,9 @@ const SERVICES = [
         <line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/>
       </svg>
     ),
-    category: 'DevOps',
-    title: 'DevOps & Performance',
-    items: ['DevOps Implementation', 'Performance Optimization', 'Monitoring & Alerting Systems', 'Quality Assurance & Testing'],
-    href: '/services/devops',
+    title: 'Cloud & DevOps',
+    items: ['Cloud Infrastructure Design', 'CI/CD Pipeline Automation', 'Cloud Migration & Deployment', 'System Monitoring & Performance Tuning'],
+    href: '/services/cloud-devops',
   },
   {
     icon: (
@@ -42,47 +59,13 @@ const SERVICES = [
         <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
       </svg>
     ),
-    category: 'Data Science',
-    title: 'Data & Analytics',
-    items: ['Data Management & Governance', 'Analytics & Platform Implementation', 'Machine Learning & AI'],
-    href: '/services/data-science',
-  },
-  {
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8v4l3 3"/><circle cx="18" cy="6" r="3"/>
-      </svg>
-    ),
-    category: 'Artificial Intelligence',
-    title: 'AI & Machine Learning',
-    items: ['AI Strategy & Implementation', 'ChatBot Development', 'Generative AI', 'Machine Learning'],
-    href: '/services/ai',
-  },
-  {
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-      </svg>
-    ),
-    category: 'Cloud',
-    title: 'Cloud Infrastructure',
-    items: ['Cloud Infrastructure Design', 'Cloud Migration Services'],
-    href: '/services/cloud',
-  },
-  {
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-      </svg>
-    ),
-    category: 'Modernization',
-    title: 'Application Modernization & Migration',
-    items: ['Cloud Migration Services', 'Microservices Architecture', 'Integration Solutions'],
-    href: '/services/modernization',
+    title: 'Data Engineering',
+    items: ['Data Pipeline Architecture', 'Database Migration & Management', 'Data Governance & Security', 'Analytics Platform Implementation'],
+    href: '/services/data-engineering',
   },
 ]
 
-function ServiceColumn({ icon, category, title, items, href }) {
+function ServiceColumn({ icon, title, items, href }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
       {/* Icon */}
@@ -97,7 +80,7 @@ function ServiceColumn({ icon, category, title, items, href }) {
         {icon}
       </div>
 
-      {/* Category + Title */}
+      {/* Title */}
       <Link href={href} style={{ textDecoration: 'none' }}>
         <h3 style={{
           fontSize: '1.05rem',
@@ -107,6 +90,7 @@ function ServiceColumn({ icon, category, title, items, href }) {
           marginBottom: 20,
           cursor: 'pointer',
           transition: 'color 0.2s',
+          fontFamily: 'Nunito, sans-serif'
         }}
           onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
           onMouseLeave={e => e.currentTarget.style.color = 'var(--text)'}
@@ -115,16 +99,16 @@ function ServiceColumn({ icon, category, title, items, href }) {
         </h3>
       </Link>
 
-      {/* Sub items */}
+      {/* Sub items as bullets */}
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
         {items.map((item, i) => (
-          <li key={i}>
+          <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ color: 'var(--accent)', fontSize: '1.1rem' }}>•</span>
             <Link href={href} style={{
               fontSize: '0.88rem',
               color: 'var(--text-secondary)',
               textDecoration: 'none',
               transition: 'color 0.2s',
-              display: 'block',
             }}
               onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
               onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
@@ -143,26 +127,25 @@ export default function ServicesPage() {
   return (
     <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
 
-      {/* Services Grid — Particle41 style flat columns */}
-      <section style={{ paddingTop: 120, paddingBottom: 120 }}>
+      <section style={{ paddingTop: 60, paddingBottom: 100 }}>
         <div className="container">
 
-          {/* Top divider */}
-          <div style={{ height: 1, background: 'var(--border)', marginBottom: 56 }} />
+          {/* Top divider removed as requested */}
+          {/* <div style={{ height: 1, background: 'var(--border)', marginBottom: 56 }} /> */}
 
-          {/* 4-column grid */}
+          {/* 3-column grid for 6 blocks */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '48px 40px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '64px 40px',
           }}>
             {SERVICES.map((s, i) => (
               <ServiceColumn key={i} {...s} />
             ))}
           </div>
 
-          {/* Bottom divider */}
-          <div style={{ height: 1, background: 'var(--border)', marginTop: 64 }} />
+          {/* Bottom divider remains */}
+          <div style={{ height: 1, background: 'var(--border)', marginTop: 80 }} />
 
           {/* CTA */}
           <div style={{ textAlign: 'center', marginTop: 56 }}>
