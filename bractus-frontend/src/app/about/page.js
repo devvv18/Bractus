@@ -85,8 +85,8 @@ export default function AboutPage() {
                 flexDirection: 'column', 
                 alignItems: 'center', 
                 gap: 16,
-                width: 'calc(25% - 32px)',
-                minWidth: 240,
+                width: 'calc(20% - 32px)',
+                minWidth: 180,
                 flexGrow: 0
               }}>
                 <div style={{ position: 'relative', width: 72, height: 72 }}>
