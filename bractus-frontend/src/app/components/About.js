@@ -64,22 +64,22 @@ export function Founder() {
           </div>
 
           {/* Right Column: Image & Quote */}
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative' , marginTop: 20}}>
             <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 24, border: 'none' }}>
               {/* Founder Image Placeholder */}
               <div style={{ 
-                width: '100%', height: 420, 
+                width: '100%', height: 700, 
                 background: 'linear-gradient(135deg, var(--bg-alt) 0%, var(--accent-light) 100%)', 
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 position: 'relative'
               }}>
-                <img src="/founder-portrait.png" alt="Kunal Khanna" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} />
+                <img src="/founder-portrait.png" alt="Kunal Khanna" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 , borderRadius: '24px 24px 0 0' }} />
                 
                 {/* Floating Quote Over Image */}
                 <div style={{
                   position: 'absolute', bottom: 0, left: 0, right: 0,
-                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, transparent 100%)',
-                  padding: '40px 32px 32px', color: '#fff'
+                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 60%, transparent 100%)',
+                  padding: '280px 32px 36px', color: '#fff'
                 }}>
                   <p style={{
                     fontSize: '1.05rem', lineHeight: 1.7, fontStyle: 'italic', marginBottom: 20,
