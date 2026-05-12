@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const BADGES = [
   'Website & Applications',
@@ -7,7 +7,7 @@ const BADGES = [
   'Full-Stack Engineering',
   'System Architecture',
   'Cloud & DevOps',
-  'Data Engineering'
+  'Data Engineering',
 ]
 
 function ParticleGrid() {
@@ -46,14 +46,13 @@ function ParticleGrid() {
     window.addEventListener('resize', setSize)
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseout', handleMouseLeave)
-
+    
     // Grid Setup
-    const spacing = 42 // Cleaner grid, zero clutter
+    const spacing = 35
     let dots = []
 
     const initGrid = () => {
       dots = []
-      // add padding to ensure dots fill edges
       for (let x = -spacing; x < width + spacing; x += spacing) {
         for (let y = -spacing; y < height + spacing; y += spacing) {
           dots.push({
@@ -67,7 +66,6 @@ function ParticleGrid() {
 
     setSize()
 
-    // Grab CSS var natively
     const getAccentColor = () => {
       if (typeof window === 'undefined') return '#2F5496'
       const styles = getComputedStyle(document.documentElement)
@@ -88,20 +86,17 @@ function ParticleGrid() {
         let forceRadius = 180
 
         if (distance < forceRadius) {
-          // Repel force
           let force = (forceRadius - distance) / forceRadius
           let angle = Math.atan2(dy, dx)
           dot.vx -= Math.cos(angle) * force * 1.2
           dot.vy -= Math.sin(angle) * force * 1.2
         }
 
-        // Spring force pulling back to origin
-        dot.vx += (dot.ox - dot.x) * 0.02
-        dot.vy += (dot.oy - dot.y) * 0.02
+        dot.vx += (dot.ox - dot.x) * 0.04
+        dot.vy += (dot.oy - dot.y) * 0.04
 
-        // Friction
-        dot.vx *= 0.92
-        dot.vy *= 0.92
+        dot.vx *= 0.84
+        dot.vy *= 0.84
 
         dot.x += dot.vx
         dot.y += dot.vy
@@ -146,6 +141,35 @@ function ParticleGrid() {
 
 export default function Hero() {
   const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
+  const statsRef = useRef(null)
+  const [counts, setCounts] = useState({ c0: 0, c1: 0, c2: 0, c3: 0 })
+  const animated = useRef(false)
+
+  const STATS = [
+    { end: 120, suffix: '+', label: 'Clients Served' },
+    { end: 50,  suffix: '+', label: 'Projects Delivered' },
+    { end: 98,  suffix: '%', label: 'Satisfaction Rate' },
+    { end: 8,   suffix: '+', label: 'Years Experience' },
+  ]
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !animated.current) {
+        animated.current = true
+        STATS.forEach(({ end }, i) => {
+          let start = 0
+          const step = Math.ceil(end / (1500 / 16))
+          const timer = setInterval(() => {
+            start += step
+            if (start >= end) { start = end; clearInterval(timer) }
+            setCounts(prev => ({ ...prev, [`c${i}`]: start }))
+          }, 16)
+        })
+      }
+    }, { threshold: 0.4 })
+    if (statsRef.current) observer.observe(statsRef.current)
+    return () => observer.disconnect()
+  }, [])
   return (
     <section style={{
       position: 'relative',
@@ -154,10 +178,8 @@ export default function Hero() {
       background: 'var(--bg)',
       overflow: 'hidden',
     }}>
-      {/* Dynamic Cursor Canvas */}
       <ParticleGrid />
 
-      {/* Accent glow */}
       <div style={{
         position: 'absolute',
         width: 600, height: 600,
@@ -175,18 +197,17 @@ export default function Hero() {
           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
         }}>
           {/* Tag */}
-          <div className="anim-fade-up" style={{ marginBottom: 32, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
-            <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
-          </div>
+      <div className="anim-fade-up" style={{ marginBottom: 28, display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
+        <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
+      </div>
 
-          {/* Headline with responsive line breaks */}
+          {/* Headline */}
           <h1 className="anim-fade-up anim-delay-1" style={{
-            fontSize: 'clamp(1.65rem, 5.2vw, 4.2rem)',
+            fontSize: 'clamp(2.5rem, 5.5vw, 4.2rem)',
             fontWeight: 400,
-            lineHeight: 1.2,
-            marginBottom: 32,
-            maxWidth: '90vw'
+            lineHeight: 1.15,
+            marginBottom: 24,
           }}>
             We Build, Scale, and Modernize<br />
             <span className="accent-text">Complex Software Systems</span>
@@ -194,25 +215,29 @@ export default function Hero() {
 
           {/* Subtext */}
           <p className="anim-fade-up anim-delay-2" style={{
-            fontSize: 'clamp(1rem, 2vw, 1.12rem)',
+            fontSize: 'clamp(1rem, 2vw, 1.15rem)',
             color: 'var(--text-secondary)',
             lineHeight: 1.75,
-            maxWidth: 800,
-            marginBottom: 40,
+            maxWidth: 680,
+            marginBottom: 32,
           }}>
-            Your all-in-one partner for digital transformation. Whether building standard web applications to advanced DevOps, data pipelines, or reshaping an outdated legacy system and architecting a cutting-edge AI platform from the ground up, our cross-functional teams deliver scalable, high-performance results. We provide the technical muscle to bring any digital vision to life.
+            Your all-in-one partner for digital transformation. Whether building
+            standard web applications to advanced DevOps, data pipelines, or reshaping
+            an outdated legacy system and architecting a cutting-edge AI platform from
+            the ground up, our cross-functional teams deliver scalable, high-performance
+            results. We provide the technical muscle to bring any digital vision to life.
           </p>
 
           {/* Badge row */}
           <div className="anim-fade-up anim-delay-2" style={{
-            display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', marginBottom: 48,
+            display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 40,
           }}>
             {BADGES.map(b => (
               <span key={b} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                padding: '8px 20px', borderRadius: 100,
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '6px 16px', borderRadius: 100,
                 border: '1px solid var(--border)',
-                fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 400,
+                fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 400,
               }}>
                 <span style={{ color: 'var(--accent)', fontSize: 14 }}>✓</span>
                 {b}
@@ -221,42 +246,35 @@ export default function Hero() {
           </div>
 
           {/* CTAs */}
-          <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 80 }}>
+          <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 64 }}>
             <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
-            <a href="#services" className="btn-outline">View Our Services</a>
+            <a href="/services" className="btn-outline">View Our Services</a>
           </div>
 
-          {/* Stats Row - Responsive Grid */}
-          <div className="anim-fade-up anim-delay-4" style={{
-            display: 'flex', 
-            gap: 'clamp(24px, 5vw, 60px)', 
-            justifyContent: 'center',
-            flexWrap: 'wrap', // Allow wrapping on mobile
-            paddingTop: 40,
-            borderTop: '1px solid var(--border)',
-            width: '100%', 
-            maxWidth: 800,
-            margin: '0 auto'
-          }}>
-            {[
-              { value: '120+', label: 'Clients Served' },
-              { value: '50+', label: 'Projects Delivered' },
-              { value: '98%', label: 'Satisfaction Rate' },
-              { value: '8+', label: 'Years Experience' },
-            ].map(({ value, label }) => (
-              <div key={label} style={{ minWidth: 140 }}>
-                <div style={{
-                  fontFamily: 'Nunito, sans-serif',
-                  fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
-                  fontWeight: 400, color: 'var(--accent)',
-                }}>{value}</div>
-                <div style={{
-                  fontSize: '0.75rem', color: 'var(--text-muted)',
-                  textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4,
-                }}>{label}</div>
-              </div>
-            ))}
-          </div>
+          {/* Stats */}
+          <div ref={statsRef} className="anim-fade-up anim-delay-4" style={{
+          display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
+         padding: '28px 48px',
+         borderRadius: 16,
+         background: 'var(--accent)',
+         boxShadow: '0 8px 32px rgba(47,84,150,0.18)',
+         width: '100%', maxWidth: 720,
+         marginTop: 8,
+         }}>
+         {STATS.map(({ suffix, label }, i) => (
+         <div key={label} style={{ textAlign: 'center' }}>
+         <div style={{
+         fontFamily: 'Nunito, sans-serif',
+         fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
+         fontWeight: 700, color: '#fff',
+         }}>{counts[`c${i}`]}{suffix}</div>
+         <div style={{
+         fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)',
+         textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4,
+         }}>{label}</div>
+         </div>
+        ))}
+        </div>
         </div>
       </div>
     </section>
