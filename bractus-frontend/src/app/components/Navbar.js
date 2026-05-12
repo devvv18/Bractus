@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useTheme } from '../context/ThemeContext'
 
 const NAV_LINKS = [
+  { label: 'Home', href: '/' },
   { label: 'Services', href: '/services' },
   { label: 'Process', href: '/process' },
   { label: 'About', href: '/about' },
