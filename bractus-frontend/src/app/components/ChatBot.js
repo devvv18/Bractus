@@ -68,8 +68,8 @@ export default function ChatBot() {
   // Modern 3D Human Avatar - just the raw avatar, no borders/circles
   const BotAvatar = ({ large = false, waving = false }) => (
     <div style={{
-      width: large ? 'clamp(60px, 15vw, 90px)' : 36, 
-      height: large ? 'clamp(60px, 15vw, 90px)' : 36,
+      width: large ? 'clamp(80px, 18vw, 120px)' : 36, 
+      height: large ? 'clamp(80px, 18vw, 120px)' : 36,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       flexShrink: 0,
       animation: waving ? 'waveBobble 1.2s ease-in-out infinite' : 'none',
@@ -156,12 +156,27 @@ export default function ChatBot() {
           onClick={() => setOpen(true)}
           style={{
             background: 'transparent', border: 'none',
-            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center',
             padding: 0, outline: 'none', transition: 'transform 0.2s'
           }}
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)' }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)' }}
         >
+           <div style={{
+            background: 'var(--accent)',
+            color: '#fff',
+            fontSize: '0.75rem',
+            fontFamily: 'Nunito, sans-serif',
+            fontWeight: 700,
+            padding: '5px 10px',
+            borderRadius: 20,
+            marginBottom: 6,
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+            animation: 'waveBobble 2s ease-in-out infinite'
+          }}>
+            Hi! I&apos;m John. Ask me anything.
+          </div>
           <BotAvatar large={true} waving={isWaving} />
         </button>
       )}
