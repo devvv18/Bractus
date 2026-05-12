@@ -55,11 +55,14 @@ const SERVICES = [
 
 export default function Services() {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [spin, setSpin] = useState(false)
 
   // Auto-scroll every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % SERVICES.length)
+    setCurrentIndex((prev) => (prev + 1) % SERVICES.length)
+    setSpin(true)
+    setTimeout(() => setSpin(false), 700)
     }, 5000)
     return () => clearInterval(interval)
   }, [])
@@ -105,8 +108,19 @@ export default function Services() {
       opacity = 0.4;
       zIndex = 20;
       pointerEvents = 'none';
+    }  else if (diff === 2) {
+      translateX = '100%';
+      scale = 0.7;
+      opacity = 0.2;
+      zIndex = 15;
+      pointerEvents = 'none';
+    } else if (diff === -2) {
+      translateX = '-100%';
+      scale = 0.7;
+      opacity = 0.2;
+      zIndex = 15;
+      pointerEvents = 'none';
     } else {
-      // Hidden behind (or far sides)
       translateX = '0%';
       scale = 0.6;
       opacity = 0;
@@ -130,6 +144,13 @@ export default function Services() {
   };
 
   return (
+    <>
+    <style>{`
+      @keyframes spin360 {
+        from { transform: rotateY(0deg); }
+        to { transform: rotateY(360deg); }
+      }
+    `}</style>
     <section id="services" className="section" style={{ background: 'var(--bg)', overflowX: 'hidden' }}>
       <div className="container">
         {/* Header */}
@@ -162,11 +183,14 @@ export default function Services() {
           <div style={{ position: 'relative', height: 380, width: '100%' }}>
             {SERVICES.map((service, index) => (
               <div key={index} style={getCardStyle(index)}>
-                <ServiceCard {...service} active={index === currentIndex} />
-              </div>
+              <div style={{ animation: index !== currentIndex && spin ? 'spin360 0.7s ease' : 'none',
+              height: '100%',
+            }}>
+            <ServiceCard {...service} active={index === currentIndex} />
+           </div>
+           </div>  
             ))}
           </div>
-
           {/* Carousel Controls */}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24,
@@ -175,18 +199,6 @@ export default function Services() {
             <button onClick={prev} style={navBtnStyle} aria-label="Previous service">
               ←
             </button>
-            <div style={{ display: 'flex', gap: 6 }}>
-              {SERVICES.map((_, i) => (
-                <div key={i} style={{
-                  width: i === currentIndex ? 24 : 8,
-                  height: 8,
-                  borderRadius: 4,
-                  background: i === currentIndex ? 'var(--accent)' : 'var(--border-light)',
-                  transition: 'all 0.4s ease',
-                  border: i !== currentIndex ? '1px solid var(--border)' : 'none'
-                }} />
-              ))}
-            </div>
             <button onClick={next} style={navBtnStyle} aria-label="Next service">
               →
             </button>
@@ -194,6 +206,7 @@ export default function Services() {
         </div>
       </div>
     </section>
+    </>
   )
 }
 
