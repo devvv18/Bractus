@@ -335,6 +335,24 @@ h6 {
   transform: translateY(0);
 }
 
+.reveal.reveal-heading {
+  transition-delay: 0s;
+}
+
+.reveal.reveal-image {
+  transform: translateY(20px) scale(0.97);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  transition-delay: 0.1s;
+}
+
+.reveal.reveal-text {
+  transition-delay: 0.15s;
+}
+
+.reveal.reveal-button {
+  transition-delay: 0.25s;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

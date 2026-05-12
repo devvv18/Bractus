@@ -10,20 +10,37 @@ export default function ScrollReveal() {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible')
-          // Optional: stop observing once revealed so it doesn't animate out/in continuously
           observer.unobserve(entry.target)
         }
       })
     }, { threshold: 0.05, rootMargin: '0px' })
 
-    // Give the DOM a tiny fraction of a second to render layout before binding
     const timeout = setTimeout(() => {
-      // Select elements we want to slide up dynamically (cards, headers, paragraphs)
-      // Exclude anything in the very first view (like hero sections) so they don't pop-in weirdly
-      const els = document.querySelectorAll('section:not(:first-of-type) h2, section:not(:first-of-type) p:not(.hero-text), .card, .accordion')
-      
+      const els = document.querySelectorAll(`
+        section:not(:first-of-type) h1,
+        section:not(:first-of-type) h2,
+        section:not(:first-of-type) h3,
+        section:not(:first-of-type) h4,
+        section:not(:first-of-type) img,
+        section:not(:first-of-type) p:not(.hero-text),
+        section:not(:first-of-type) span.subtitle,
+        section:not(:first-of-type) button,
+        section:not(:first-of-type) a.btn,
+        .card,
+        .accordion
+      `)
+
       els.forEach(el => {
-        el.classList.add('reveal')
+        // Tag element type so CSS can apply different delays
+        if (el.matches('h1, h2, h3, h4')) {
+          el.classList.add('reveal', 'reveal-heading')
+        } else if (el.matches('img')) {
+          el.classList.add('reveal', 'reveal-image')
+        } else if (el.matches('button, a.btn')) {
+          el.classList.add('reveal', 'reveal-button')
+        } else {
+          el.classList.add('reveal', 'reveal-text')
+        }
         observer.observe(el)
       })
     }, 100)
@@ -32,7 +49,7 @@ export default function ScrollReveal() {
       clearTimeout(timeout)
       observer.disconnect()
     }
-  }, [pathname]) // Re-run if they change pages
+  }, [pathname])
 
   return null
 }
