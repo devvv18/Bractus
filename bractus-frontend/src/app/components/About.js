@@ -37,7 +37,7 @@ export function Founder() {
       <div className="container">
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: '1fr 1.2fr',
           gap: 'clamp(48px, 8vw, 100px)', alignItems: 'center',
         }}>
           {/* Left Column: Story */}
@@ -64,25 +64,30 @@ export function Founder() {
           </div>
 
           {/* Right Column: Image & Quote */}
-          <div style={{ position: 'relative' , marginTop: 20}}>
+          <div style={{ position: 'relative' , marginTop: 20, marginLeft: '-50px'}}>
             <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 24, border: 'none' }}>
               {/* Founder Image Placeholder */}
               <div style={{ 
-                width: '100%', height: 700, 
+                width: '100%',
+                height: '650px',
+                minHeight: '650px', 
+                flexShrink: 0,
+                margin: '0 auto', 
                 background: 'linear-gradient(135deg, var(--bg-alt) 0%, var(--accent-light) 100%)', 
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 position: 'relative'
-              }}>
-                <img src="/founder-portrait.png" alt="Kunal Khanna" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 , borderRadius: '24px 24px 0 0' }} />
+                }}>
+                <img src="/founder-portrait.png" alt="Kunal Khanna" style={{ width: '100%', height: '650px',minHeight: '650px', objectFit: 'cover',objectPosition: 'top', opacity: 0.85 , borderRadius: '24px 24px 0 0' }} />
                 
                 {/* Floating Quote Over Image */}
                 <div style={{
                   position: 'absolute', bottom: 0, left: 0, right: 0,
-                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.4) 60%, transparent 100%)',
-                  padding: '280px 32px 36px', color: '#fff'
+                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.85) 45%, transparent 70%)',
+                  display: 'flex', flexDirection: 'column',justifyContent: 'flex-end',
+                  padding: '80px 32px 36px', color: '#fff'
                 }}>
                   <p style={{
-                    fontSize: '1.05rem', lineHeight: 1.7, fontStyle: 'italic', marginBottom: 20,
+                    fontSize: '0.9rem', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 16,
                     fontWeight: 300, opacity: 0.95
                   }}>
                     "Technology is moving faster than ever, but the fundamentals of good engineering and honest business never change. I built this company to give leaders a partner who deeply understands the tech, and actually delivers on their promises."
