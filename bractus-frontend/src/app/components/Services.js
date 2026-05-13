@@ -55,105 +55,104 @@ const SERVICES = [
 
 export default function Services() {
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [spin, setSpin] = useState(false)
+  // rotatingCards: set of indices currently doing 360 spin
+  const [rotatingCards, setRotatingCards] = useState(new Set())
 
   // Auto-scroll every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-    setCurrentIndex((prev) => (prev + 1) % SERVICES.length)
-    setSpin(true)
-    setTimeout(() => setSpin(false), 700)
+      setCurrentIndex((prev) => (prev + 1) % SERVICES.length)
     }, 5000)
     return () => clearInterval(interval)
   }, [])
 
+  // 360° rotation for background cards every 5 seconds, in sync with currentIndex
+  useEffect(() => {
+    const total = SERVICES.length
+    const rotating = new Set()
+    SERVICES.forEach((_, index) => {
+      let diff = index - currentIndex
+      if (diff > Math.floor(total / 2)) diff -= total
+      else if (diff < -Math.floor(total / 2)) diff += total
+      // Rotate the 4 background cards (diff ±1 and ±2)
+      if (diff !== 0 && Math.abs(diff) <= 2) {
+        rotating.add(index)
+      }
+    })
+    setRotatingCards(rotating)
+    const timer = setTimeout(() => setRotatingCards(new Set()), 1800)
+    return () => clearTimeout(timer)
+  }, [currentIndex])
+
   const next = () => setCurrentIndex((i) => (i + 1) % SERVICES.length)
   const prev = () => setCurrentIndex((i) => (i - 1 + SERVICES.length) % SERVICES.length)
 
-  // Calculate 3D stacking positions
   const getCardStyle = (index) => {
-    const total = SERVICES.length;
-    let diff = index - currentIndex;
+    const total = SERVICES.length
+    let diff = index - currentIndex
 
-    // Smooth circular wrapping logic
-    if (diff > Math.floor(total / 2)) {
-      diff -= total;
-    } else if (diff < -Math.floor(total / 2)) {
-      diff += total;
-    }
+    if (diff > Math.floor(total / 2)) diff -= total
+    else if (diff < -Math.floor(total / 2)) diff += total
 
-    let translateX = 0;
-    let scale = 1;
-    let opacity = 1;
-    let zIndex = 10;
-    let pointerEvents = 'auto';
+    let translateX = 0
+    let scale = 1
+    let opacity = 1
+    let zIndex = 10
+    let pointerEvents = 'auto'
 
     if (diff === 0) {
-      // Center card
-      translateX = 0;
-      scale = 1;
-      opacity = 1;
-      zIndex = 30;
+      translateX = 0; scale = 1; opacity = 1; zIndex = 30
     } else if (diff === 1) {
-      // Right card
-      translateX = '55%';
-      scale = 0.85;
-      opacity = 0.4;
-      zIndex = 20;
-      pointerEvents = 'none';
+      translateX = '70%'; scale = 0.85; opacity = 1; zIndex = 20; pointerEvents = 'none'
     } else if (diff === -1) {
-      // Left card
-      translateX = '-55%';
-      scale = 0.85;
-      opacity = 0.4;
-      zIndex = 20;
-      pointerEvents = 'none';
-    }  else if (diff === 2) {
-      translateX = '100%';
-      scale = 0.7;
-      opacity = 0.2;
-      zIndex = 15;
-      pointerEvents = 'none';
+      translateX = '-70%'; scale = 0.85; opacity = 1; zIndex = 20; pointerEvents = 'none'
+    } else if (diff === 2) {
+      translateX = '125%'; scale = 0.7; opacity = 1; zIndex = 10; pointerEvents = 'none'
     } else if (diff === -2) {
-      translateX = '-100%';
-      scale = 0.7;
-      opacity = 0.2;
-      zIndex = 15;
-      pointerEvents = 'none';
+      translateX = '-125%'; scale = 0.7; opacity = 1; zIndex = 10; pointerEvents = 'none'
     } else {
-      translateX = '0%';
-      scale = 0.6;
-      opacity = 0;
-      zIndex = 10;
-      pointerEvents = 'none';
+      translateX = '0%'; scale = 0.6; opacity = 0; zIndex = 5; pointerEvents = 'none'
     }
 
     return {
       position: 'absolute',
-      left: 0,
-      right: 0,
-      margin: '0 auto',
+      left: '50%',
+      marginLeft: -190, // half of maxWidth 380
       width: '100%',
       maxWidth: 380,
       transform: `translateX(${translateX}) scale(${scale})`,
-      opacity: opacity,
-      zIndex: zIndex,
-      pointerEvents: pointerEvents,
+      opacity,
+      zIndex,
+      pointerEvents,
       transition: 'all 0.6s cubic-bezier(0.25, 1, 0.5, 1)',
-    };
-  };
+      overflow: 'visible',
+      transformOrigin: 'center center',
+    }
+  }
 
   return (
-    <>
-    <style>{`
-      @keyframes spin360 {
-        from { transform: rotateY(0deg); }
-        to { transform: rotateY(360deg); }
-      }
-    `}</style>
-    <section id="services" className="section" style={{ background: 'var(--bg)', overflowX: 'hidden' }}>
+    <section id="services" className="section" style={{ background: 'var(--bg)', overflowX: 'visible' }}>
+      <style>{`
+        @keyframes cardJump {
+          0%   { transform: translateY(0); }
+          30%  { transform: translateY(-18px); }
+          60%  { transform: translateY(-8px); }
+          80%  { transform: translateY(-14px); }
+          100% { transform: translateY(0); }
+        }
+        @keyframes cardRotate360 {
+          0%   { transform: rotateY(0deg); }
+          100% { transform: rotateY(360deg); }
+        }
+        .service-card-active:hover {
+          animation: cardJump 0.6s ease forwards;
+        }
+        .service-card-inner-rotating {
+          animation: cardRotate360 2.2s linear forwards;
+        }
+      `}</style>
+
       <div className="container">
-        {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <span className="tag" style={{ marginBottom: 16 }}>OUR EXPERTISE</span>
         </div>
@@ -177,52 +176,65 @@ export default function Services() {
           technical excellence tailored to your goals.
         </p>
 
-        {/* 3D Carousel Stack */}
-        <div style={{ position: 'relative', width: '100%', maxWidth: 1000, margin: '0 auto' }}>
-
-          <div style={{ position: 'relative', height: 380, width: '100%' }}>
-            {SERVICES.map((service, index) => (
-              <div key={index} style={getCardStyle(index)}>
-              <div style={{ animation: index !== currentIndex && spin ? 'spin360 0.7s ease' : 'none',
-              height: '100%',
-            }}>
-            <ServiceCard {...service} active={index === currentIndex} />
-           </div>
-           </div>  
-            ))}
+        <div style={{
+          position: 'relative',
+          width: '100vw',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          perspective: '1200px',
+        }}>
+          {/* overflow: visible so side cards are not clipped */}
+          <div style={{ position: 'relative', height: 380, width: '100%', overflow: 'visible' }}>
+            {SERVICES.map((service, index) => {
+              const isRotating = rotatingCards.has(index)
+              return (
+                <div
+                  key={index}
+                  style={getCardStyle(index)}
+                >
+                  <ServiceCard
+                    {...service}
+                    active={index === currentIndex}
+                    rotating={isRotating}
+                  />
+                </div>
+              )
+            })}
           </div>
-          {/* Carousel Controls */}
+
+          {/* Only arrows — centred under carousel */}
           <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 24,
-            marginTop: 16
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: 56,
+            marginTop: 8,
           }}>
-            <button onClick={prev} style={navBtnStyle} aria-label="Previous service">
-              ←
-            </button>
-            <button onClick={next} style={navBtnStyle} aria-label="Next service">
-              →
-            </button>
+            <button onClick={prev} style={navBtnStyle} aria-label="Previous service">←</button>
+            <button onClick={next} style={navBtnStyle} aria-label="Next service">→</button>
           </div>
         </div>
       </div>
     </section>
-    </>
   )
 }
 
-function ServiceCard({ icon, tag, title, desc, linkText, href, active }) {
+function ServiceCard({ icon, tag, title, desc, linkText, href, active, rotating }) {
   const [hovered, setHovered] = useState(false)
   return (
-    <div className="card" style={{
-      cursor: active ? 'pointer' : 'default',
-      borderColor: (hovered && active) ? 'var(--accent)' : 'var(--border)',
-      background: 'var(--surface)',
-      boxShadow: active ? 'var(--card-shadow-hover)' : 'var(--card-shadow)',
-      height: '100%',
-      minHeight: 320,
-      display: 'flex', flexDirection: 'column',
-      transition: 'border-color 0.3s ease',
-    }}
+    <div
+      // The rotating class goes on the CARD itself, not the wrapper div
+      className={`card${active ? ' service-card-active' : ''}${rotating ? ' service-card-inner-rotating' : ''}`}
+      style={{
+        cursor: active ? 'pointer' : 'default',
+        borderColor: (hovered && active) ? 'var(--accent)' : 'var(--border)',
+        background: 'var(--surface)',
+        boxShadow: active ? 'var(--card-shadow-hover)' : 'var(--card-shadow)',
+        height: '100%',
+        minHeight: 320,
+        display: 'flex', flexDirection: 'column',
+        transition: 'border-color 0.3s ease',
+        // Ensure content is visible and not clipped
+        overflow: 'visible',
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -230,8 +242,7 @@ function ServiceCard({ icon, tag, title, desc, linkText, href, active }) {
         width: 48, height: 48, borderRadius: 10,
         background: 'var(--accent-light)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: 'var(--accent)',
-        marginBottom: 20,
+        color: 'var(--accent)', marginBottom: 20,
       }}>{icon}</div>
       <div style={{
         fontSize: '0.75rem', fontWeight: 400, color: 'var(--accent)',
@@ -245,13 +256,11 @@ function ServiceCard({ icon, tag, title, desc, linkText, href, active }) {
         fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.65,
         marginBottom: 32, flexGrow: 1
       }}>{desc}</p>
-
       {active && (
         <Link href={href} style={{
           fontSize: '0.95rem', fontWeight: 400,
           color: hovered ? 'var(--accent-hover)' : 'var(--accent)',
-          transition: 'color 0.2s',
-          display: 'inline-block'
+          transition: 'color 0.2s', display: 'inline-block'
         }}>
           {linkText}
         </Link>
