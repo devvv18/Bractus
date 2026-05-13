@@ -24,6 +24,8 @@ export default function ScrollReveal() {
         section:not(:first-of-type) img,
         section:not(:first-of-type) p:not(.hero-text),
         section:not(:first-of-type) span.subtitle,
+        section:not(:first-of-type) .tag,
+        section:not(:first-of-type) span.tag,
         section:not(:first-of-type) button,
         section:not(:first-of-type) a.btn,
         .card,
@@ -34,6 +36,8 @@ export default function ScrollReveal() {
         // Tag element type so CSS can apply different delays
         if (el.matches('h1, h2, h3, h4')) {
           el.classList.add('reveal', 'reveal-heading')
+        } else if (el.matches('.tag, span.tag')) {
+          el.classList.add('reveal', 'reveal-tag')
         } else if (el.matches('img')) {
           el.classList.add('reveal', 'reveal-image')
         } else if (el.matches('button, a.btn')) {

@@ -197,13 +197,13 @@ export default function Hero() {
           display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
         }}>
           {/* Tag */}
-      <div className="anim-fade-up" style={{ marginBottom: 28, display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div className="anim-fade-up anim-delay-1" style={{ marginBottom: 28, display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
         <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
         <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
       </div>
 
           {/* Headline */}
-          <h1 className="anim-fade-up anim-delay-1" style={{
+          <h1 className="anim-fade-up" style={{
             fontSize: 'clamp(2.5rem, 5.5vw, 4.2rem)',
             fontWeight: 400,
             lineHeight: 1.15,
@@ -229,7 +229,7 @@ export default function Hero() {
           </p>
 
           {/* Badge row */}
-          <div className="anim-fade-up anim-delay-2" style={{
+          <div className="anim-fade-up anim-delay-3" style={{
             display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 40,
           }}>
             {BADGES.map(b => (
@@ -246,13 +246,13 @@ export default function Hero() {
           </div>
 
           {/* CTAs */}
-          <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 64 }}>
+          <div className="anim-fade-up anim-delay-4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 64 }}>
             <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
             <a href="/services" className="btn-outline">View Our Services</a>
           </div>
 
           {/* Stats */}
-          <div ref={statsRef} className="anim-fade-up anim-delay-4" style={{
+          <div ref={statsRef} className="anim-fade-up anim-delay-5" style={{
           display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
           padding: '28px 48px',
           borderRadius: 16,
