@@ -193,87 +193,167 @@ export default function Hero() {
 
       <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: 72 }}>
         <div style={{
-          maxWidth: 900, margin: '0 auto',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
+          display: 'flex', 
+          flexDirection: 'row', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          gap: 40,
+          flexWrap: 'wrap'
         }}>
-          {/* Tag */}
-      <div className="anim-fade-up anim-delay-1" style={{ marginBottom: 28, display: 'flex', gap: 20, flexWrap: 'wrap', justifyContent: 'center' }}>
-        <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
-        <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
-      </div>
-
-          {/* Headline */}
-          <h1 className="anim-fade-up" style={{
-            fontSize: 'clamp(2.5rem, 5.5vw, 4.2rem)',
-            fontWeight: 400,
-            lineHeight: 1.15,
-            marginBottom: 24,
+          {/* Content Column (Left) */}
+          <div style={{
+            flex: '1 1 500px',
+            textAlign: 'left',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start'
           }}>
-            We Build, Scale, and Modernize<br />
-            <span className="accent-text">Complex Software Systems</span>
-          </h1>
+            {/* Tag */}
+            <div className="anim-fade-up anim-delay-1" style={{ marginBottom: 28, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+              <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
+              <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
+            </div>
 
-          {/* Subtext */}
-          <p className="anim-fade-up anim-delay-2" style={{
-            fontSize: 'clamp(1rem, 2vw, 1.15rem)',
-            color: 'var(--text-secondary)',
-            lineHeight: 1.75,
-            maxWidth: 680,
-            marginBottom: 32,
-          }}>
-            Your all-in-one partner for digital transformation. Whether building
-            standard web applications to advanced DevOps, data pipelines, or reshaping
-            an outdated legacy system and architecting a cutting-edge AI platform from
-            the ground up, our cross-functional teams deliver scalable, high-performance
-            results. We provide the technical muscle to bring any digital vision to life.
-          </p>
+            {/* Headline */}
+            <h1 className="anim-fade-up" style={{
+              fontSize: 'clamp(2.5rem, 4.5vw, 4rem)',
+              fontWeight: 400,
+              lineHeight: 1.15,
+              marginBottom: 24,
+            }}>
+              We Build, Scale, and Modernize<br />
+              <span className="accent-text">Complex Software Systems</span>
+            </h1>
 
-          {/* Badge row */}
-          <div className="anim-fade-up anim-delay-3" style={{
-            display: 'flex', flexWrap: 'wrap', gap: 10, justifyContent: 'center', marginBottom: 40,
+            {/* Subtext */}
+            <p className="anim-fade-up anim-delay-2" style={{
+              fontSize: 'clamp(1rem, 1.8vw, 1.1rem)',
+              color: 'var(--text-secondary)',
+              lineHeight: 1.75,
+              maxWidth: 600,
+              marginBottom: 32,
+            }}>
+              Your all-in-one partner for digital transformation. Whether building
+              standard web applications to advanced DevOps, data pipelines, or reshaping
+              an outdated legacy system and architecting a cutting-edge AI platform from
+              the ground up, our cross-functional teams deliver scalable, high-performance
+              results.
+            </p>
+
+            {/* Badge row */}
+            <div className="anim-fade-up anim-delay-3" style={{
+              display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 40,
+            }}>
+              {BADGES.map(b => (
+                <span key={b} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '6px 16px', borderRadius: 100,
+                  border: '1px solid var(--border)',
+                  fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 400,
+                }}>
+                  <span style={{ color: 'var(--accent)', fontSize: 14 }}>✓</span>
+                  {b}
+                </span>
+              ))}
+            </div>
+
+            {/* CTAs */}
+            <div className="anim-fade-up anim-delay-4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
+              <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
+              <a href="/services" className="btn-outline">View Our Services</a>
+            </div>
+          </div>
+
+          {/* Visual Column (Right) */}
+          <div className="anim-fade-up anim-delay-2" style={{
+            flex: '1 1 450px',
+            position: 'relative',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: 500
           }}>
-            {BADGES.map(b => (
-              <span key={b} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '6px 16px', borderRadius: 100,
-                border: '1px solid var(--border)',
-                fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 400,
+            {/* The 3D Image with Auto-Theme Switch */}
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              borderRadius: 24,
+              overflow: 'hidden',
+              boxShadow: '0 30px 60px rgba(0,0,0,0.2)',
+              animation: 'slowZoom 12s ease-in-out infinite'
+            }}>
+              {/* Main 3D Image */}
+              <div style={{ position: 'relative', overflow: 'hidden' }}>
+                <img 
+                  src="/assets/hero-dark.png" 
+                  alt="Digital Connectivity"
+                  style={{ width: '100%', display: 'block', transform: 'scale(1.1)' }}
+                  className="hide-light"
+                />
+                <img 
+                  src="/assets/hero-light.png" 
+                  alt="Digital Connectivity"
+                  style={{ width: '100%', display: 'block', transform: 'scale(1.1)' }}
+                  className="show-light"
+                />
+                
+                {/* Light-Travel Shimmer Overlay */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0, left: 0, width: '100%', height: '100%',
+                  background: 'linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%)',
+                  backgroundSize: '300% 100%',
+                  animation: 'lightTravel 4s linear infinite',
+                  mixMode: 'overlay',
+                  pointerEvents: 'none',
+                  zIndex: 1
+                }} />
+              </div>
+
+              {/* Flowing Stats Overlay */}
+              <div ref={statsRef} style={{
+                position: 'absolute',
+                top: 0, left: 0, width: '100%', height: '100%',
+                pointerEvents: 'none'
               }}>
-                <span style={{ color: 'var(--accent)', fontSize: 14 }}>✓</span>
-                {b}
-              </span>
-            ))}
-          </div>
-
-          {/* CTAs */}
-          <div className="anim-fade-up anim-delay-4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 64 }}>
-            <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
-            <a href="/services" className="btn-outline">View Our Services</a>
-          </div>
-
-          {/* Stats */}
-          <div ref={statsRef} className="anim-fade-up anim-delay-5" style={{
-          display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
-          padding: '28px 48px',
-          borderRadius: 16,
-          background: 'var(--accent)',
-          boxShadow: '0 8px 32px rgba(47,84,150,0.18)',
-          width: '100%', maxWidth: 720,
-          marginTop: 8,
-          }}>
-          {STATS.map(({ suffix, label }, i) => (
-          <div key={label} style={{ textAlign: 'center' }}>
-          <div style={{
-          fontFamily: 'Nunito, sans-serif',
-          fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
-          fontWeight: 700, color: '#fff',
-          }}>{counts[`c${i}`]}{suffix}</div>
-          <div style={{
-          fontSize: '0.75rem', color: 'rgba(255,255,255,0.75)',
-          textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4,
-          }}>{label}</div>
-          </div>
-          ))}
+                {STATS.map(({ suffix, label }, i) => (
+                  <div key={label} style={{
+                    position: 'absolute',
+                    textAlign: 'center',
+                    animation: `drift ${6 + i}s ease-in-out infinite`,
+                    top: i === 0 ? '22%' : i === 1 ? '62%' : i === 2 ? '38%' : '78%',
+                    left: i === 0 ? '18%' : i === 1 ? '12%' : i === 2 ? '62%' : '58%',
+                    zIndex: 2,
+                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                  }}>
+                    <div 
+                      className="stat-number"
+                      style={{
+                        fontFamily: 'Nunito, sans-serif',
+                        fontSize: '2.2rem',
+                        fontWeight: 800, 
+                        textShadow: '0 0 15px rgba(255,255,255,0.4)'
+                      }}
+                    >
+                      {counts[`c${i}`]}{suffix}
+                    </div>
+                    <div style={{
+                      fontSize: '0.8rem', 
+                      color: 'var(--text)',
+                      textTransform: 'uppercase', 
+                      letterSpacing: '0.12em', 
+                      fontWeight: 700,
+                      marginTop: -4,
+                      background: 'var(--surface)',
+                      padding: '4px 12px',
+                      borderRadius: '8px',
+                      opacity: 0.9,
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                    }}>{label}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
