@@ -65,7 +65,7 @@ function ParticleGrid() {
     // 3D Setup
     let particles = []
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-    const spacing = isMobile ? 18 : 22 // Even closer as requested
+    const spacing = isMobile ? 18 : 22 
     const focalLength = isMobile ? 300 : 400
     
     const getColors = () => {
@@ -91,7 +91,7 @@ function ParticleGrid() {
               y: (y - rows/2) * spacing,
               z: (z - depths/2) * spacing * (isMobile ? 3 : 4),
               color: colors[Math.floor(Math.random() * colors.length)],
-              size: isMobile ? 1.6 : 2.2 // Thicker base size
+              size: isMobile ? 1.6 : 2.2 
             })
           }
         }
@@ -139,7 +139,7 @@ function ParticleGrid() {
         const dy = py - mouseAbs.y
         const dist = Math.sqrt(dx * dx + dy * dy)
         
-        const repulsionRadius = isMobile ? 220 : 320 // Expanded repulsion
+        const repulsionRadius = isMobile ? 220 : 320 
         const repulsionPower = isMobile ? 25 : 40
         
         let shiftX = 0, shiftY = 0
@@ -152,7 +152,7 @@ function ParticleGrid() {
         const fpx = px + shiftX
         const fpy = py + shiftY
         
-        const auraRadius = isMobile ? 120 : 180 // Expanded invisible hole
+        const auraRadius = isMobile ? 120 : 180 
         let opacity = globalOpacity
         
         const nDx = fpx - mouseAbs.x
@@ -168,17 +168,16 @@ function ParticleGrid() {
 
         if (fpx > 0 && fpx < width && fpy > 0 && fpy < height && opacity > 0.01) {
           const finalSize = p.size * scale
-          const dropHeight = finalSize * 2.2 // Shorter, rounder pill shape
+          const dropHeight = finalSize * 2.2 
 
           ctx.globalAlpha = Math.min(0.9, opacity)
           ctx.fillStyle = p.color
           
-          // Calculate angle to cursor
           const angle = Math.atan2(mouseAbs.y - fpy, mouseAbs.x - fpx)
 
           ctx.save()
           ctx.translate(fpx, fpy)
-          ctx.rotate(angle + Math.PI / 2) // Orient capsule toward cursor
+          ctx.rotate(angle + Math.PI / 2) 
           
           ctx.beginPath()
           ctx.roundRect(
@@ -236,9 +235,9 @@ export default function Hero() {
 
   const STATS = [
     { end: 120, suffix: '+', label: 'Clients Served' },
-    { end: 50,  suffix: '+', label: 'Projects Delivered' },
-    { end: 98,  suffix: '%', label: 'Satisfaction Rate' },
-    { end: 8,   suffix: '+', label: 'Years Experience' },
+    { end: 50, suffix: '+', label: 'Projects Delivered' },
+    { end: 98, suffix: '%', label: 'Satisfaction Rate' },
+    { end: 8, suffix: '+', label: 'Years Experience' },
   ]
 
   useEffect(() => {
@@ -288,10 +287,23 @@ export default function Hero() {
       }} />
 
       <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: 72 }}>
+
+        {/* Tags — centered across full width, above the two columns */}
+        <div className="anim-fade-up" style={{
+          display: 'flex',
+          gap: 20,
+          flexWrap: 'nowrap',
+          justifyContent: 'center',
+          marginBottom: 40
+        }}>
+          <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
+          <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
+        </div>
+
         <div style={{
-          display: 'flex', 
-          flexDirection: 'row', 
-          alignItems: 'center', 
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
           justifyContent: 'space-between',
           gap: 40,
           flexWrap: 'wrap'
@@ -304,11 +316,6 @@ export default function Hero() {
             flexDirection: 'column',
             alignItems: 'flex-start'
           }}>
-            <div className="anim-fade-up anim-delay-1" style={{ marginBottom: 28, display: 'flex', gap: 20, flexWrap: 'wrap' }}>
-              <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
-              <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
-            </div>
-
             <h1 className="anim-fade-up" style={{
               fontSize: 'clamp(2.5rem, 4.5vw, 4rem)',
               fontWeight: 400,
@@ -356,13 +363,13 @@ export default function Hero() {
           </div>
 
           {/* Visual Column (Right) */}
-          <div className="anim-fade-up anim-delay-2" style={{
+          <div className="anim-fade-up anim-delay-1" style={{
             flex: '1 1 450px',
             position: 'relative',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: 500
+            alignItems: 'flex-start',
+            minHeight: 600
           }}>
             <div style={{
               position: 'relative',
@@ -370,21 +377,24 @@ export default function Hero() {
               borderRadius: 24,
               overflow: 'hidden',
               boxShadow: '0 30px 60px rgba(0,0,0,0.2)',
-              animation: 'slowZoom 12s ease-in-out infinite'
+              animation: 'slowZoom 12s ease-in-out infinite',
+              marginTop: '-20px'
             }}>
               <div style={{ position: 'relative', overflow: 'hidden' }}>
-                <img 
-                  src="/assets/hero-dark.png" 
+                <img
+                  src="/assets/hero-dark.png"
                   alt="Digital Connectivity"
                   style={{ width: '100%', display: 'block', transform: 'scale(1.1)' }}
                   className="hide-light"
                 />
-                <img 
-                  src="/assets/hero-light.png" 
+                <img
+                  src="/assets/hero-light.png"
                   alt="Digital Connectivity"
                   style={{ width: '100%', display: 'block', transform: 'scale(1.1)' }}
                   className="show-light"
                 />
+
+                {/* Light-Travel Shimmer Overlay */}
                 <div style={{
                   position: 'absolute',
                   top: 0, left: 0, width: '100%', height: '100%',
@@ -406,35 +416,42 @@ export default function Hero() {
                   <div key={label} style={{
                     position: 'absolute',
                     textAlign: 'center',
-                    animation: `drift ${6 + i}s ease-in-out infinite`,
-                    top: i === 0 ? '22%' : i === 1 ? '62%' : i === 2 ? '38%' : '78%',
-                    left: i === 0 ? '18%' : i === 1 ? '12%' : i === 2 ? '62%' : '58%',
+                    // Precise docking positions to feel integrated with the 3D wires
+                    top: i === 0 ? '12%' : i === 1 ? '55%' : i === 2 ? '28%' : '72%',
+                    left: i === 0 ? '15%' : i === 1 ? '5%' : i === 2 ? '60%' : '55%',
                     zIndex: 2,
-                    filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.2))'
+                    // Glass Node Styling
+                    background: 'rgba(var(--bg-rgb), 0.6)',
+                    backdropFilter: 'blur(10px)',
+                    WebkitBackdropFilter: 'blur(10px)',
+                    padding: '12px 20px',
+                    borderRadius: '20px',
+                    border: '1px solid var(--border)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                    transition: 'transform 0.3s ease',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 2
                   }}>
-                    <div 
+                    <div
                       className="stat-number"
                       style={{
                         fontFamily: 'Nunito, sans-serif',
-                        fontSize: '2.2rem',
-                        fontWeight: 800, 
-                        textShadow: '0 0 15px rgba(255,255,255,0.4)'
+                        fontSize: '2rem',
+                        fontWeight: 800,
+                        lineHeight: 1,
+                        marginBottom: 4
                       }}
                     >
                       {counts[`c${i}`]}{suffix}
                     </div>
                     <div style={{
-                      fontSize: '0.8rem', 
-                      color: 'var(--text)',
-                      textTransform: 'uppercase', 
-                      letterSpacing: '0.12em', 
+                      fontSize: '0.72rem',
+                      color: 'var(--text-secondary)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.12em',
                       fontWeight: 700,
-                      marginTop: -4,
-                      background: 'var(--surface)',
-                      padding: '4px 12px',
-                      borderRadius: '8px',
-                      opacity: 0.9,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                     }}>{label}</div>
                   </div>
                 ))}
