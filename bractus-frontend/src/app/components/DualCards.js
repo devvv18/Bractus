@@ -44,27 +44,51 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       const cxLeft = isMobile ? w / 2 : w * 0.25
       const cxRight = isMobile ? w / 2 : w * 0.75
       
-      // Calculate vertical centers for stacked mobile cards
-      // Shifted up to 'frame' the text (0.18/0.68) for the perfect halo effect
       const cyLeft = isMobile ? h * 0.18 : h / 2
       const cyRight = isMobile ? h * 0.68 : h / 2
 
-      // Draw Shape 1: Code
+      // Draw Shape 1: Massive Custom < / > 
       octx.clearRect(0, 0, w, h)
-      const fontSize = Math.min(w, h) * (isMobile ? 0.45 : 0.4) // Bold mobile shapes
-      octx.font = `300 ${fontSize}px system-ui, sans-serif`
-      octx.textBaseline = 'middle'
-      octx.textAlign = 'center'
-      octx.fillText('< / >', cxLeft, cyLeft)
+      octx.lineCap = 'round'
+      octx.lineJoin = 'round'
+      octx.lineWidth = 26 // Even thicker as requested
+      octx.strokeStyle = '#fff'
+
+      // Much larger scale for desktop/mobile
+      const sW = Math.min(w, h) * (isMobile ? 0.35 : 0.28) 
+      const sH = Math.min(w, h) * (isMobile ? 0.28 : 0.25)
+      
+      // Draw '<' (Far left, larger)
+      octx.beginPath()
+      octx.moveTo(cxLeft - sW * 1.5, cyLeft)
+      octx.lineTo(cxLeft - sW * 0.6, cyLeft - sH * 1.2)
+      octx.moveTo(cxLeft - sW * 1.5, cyLeft)
+      octx.lineTo(cxLeft - sW * 0.6, cyLeft + sH * 1.2)
+      octx.stroke()
+
+      // Draw '/' (Long diagonal spanning almost full height)
+      octx.beginPath()
+      octx.moveTo(cxLeft - sW * 0.3, cyLeft + sH * 1.8)
+      octx.lineTo(cxLeft + sW * 0.3, cyLeft - sH * 1.8)
+      octx.stroke()
+
+      // Draw '>' (Far right, larger)
+      octx.beginPath()
+      octx.moveTo(cxLeft + sW * 1.5, cyLeft)
+      octx.lineTo(cxLeft + sW * 0.6, cyLeft - sH * 1.2)
+      octx.moveTo(cxLeft + sW * 1.5, cyLeft)
+      octx.lineTo(cxLeft + sW * 0.6, cyLeft + sH * 1.2)
+      octx.stroke()
+
       const dataLeft = octx.getImageData(0, 0, w, h).data
 
       // Draw Shape 2: Honeycomb
       octx.clearRect(0, 0, w, h)
-      const hexR = Math.min(w, h) * (isMobile ? 0.045 : 0.05) // Larger honeycomb pattern
+      const hexR = Math.min(w, h) * (isMobile ? 0.045 : 0.05) 
       const hexW = Math.sqrt(3) * hexR
       const hexH = 2 * hexR
       const ySpacing = hexH * 0.75
-      octx.lineWidth = 8 // Much thicker line for better sampling
+      octx.lineWidth = 14 // Thicker honeycomb too
       octx.lineJoin = 'round'
       for (let r = -4; r <= 4; r++) {
         for (let c = -4; c <= 4; c++) {
@@ -81,8 +105,21 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       }
       const dataRight = octx.getImageData(0, 0, w, h).data
 
+      const getColors = () => {
+        if (typeof window === 'undefined') return ['rgba(46, 84, 150, 0.9)', 'rgba(99, 139, 242, 0.9)', 'rgba(16, 185, 129, 0.9)']
+        const styles = getComputedStyle(document.documentElement)
+        const accent = styles.getPropertyValue('--accent').trim() || '#2E5496'
+        return [
+          accent,        // Theme Blue
+          '#638BF2',     // Magic Blue
+          '#10b981'      // Magic Green
+        ]
+      }
+
       const newParticles = []
-      const spacing = 7
+      const spacing = 5 // Denser sampling for thicker lines
+      const colors = getColors()
+
       for (let y = 0; y < h; y += spacing) {
         for (let x = 0; x < w; x += spacing) {
           const isL = dataLeft[(y * w + x) * 4 + 3] > 128
@@ -97,7 +134,8 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
               isLeft: isL,
               randomWander: Math.random() * 100,
               // Speed factor for 'organic' boom
-              speedFactor: 0.5 + Math.random() * 0.5
+              speedFactor: 0.5 + Math.random() * 0.5,
+              color: colors[Math.floor(Math.random() * colors.length)]
             })
           }
         }
@@ -116,12 +154,20 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
         let tx = p.baseX
         let ty = p.baseY
 
-        const active = isMobile || (p.isLeft && hoverRef.current.left) || (!p.isLeft && hoverRef.current.right)
+        const active = (p.isLeft && hoverRef.current.left) || (!p.isLeft && hoverRef.current.right)
         
         if (active) {
           tx = p.targetX
           ty = p.targetY
-          ctx.fillStyle = 'rgba(46, 84, 150, 0.9)'
+
+          // Very slow, subtle "hovering" motion for the </> shape only
+          if (p.isLeft) {
+            const hoverTime = timeRef.current * 0.5
+            tx += Math.sin(hoverTime + p.randomWander) * 4
+            ty += Math.cos(hoverTime + p.randomWander) * 4
+          }
+          
+          ctx.fillStyle = p.color
           
           // DIRECT EASING (No double movement/vibration)
           p.x += (tx - p.x) * 0.08 * p.speedFactor
@@ -129,7 +175,8 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
           p.vx = 0 // Kill existing velocity for absolute precision
           p.vy = 0
         } else {
-          ctx.fillStyle = 'rgba(100, 120, 150, 0.6)'
+          ctx.fillStyle = p.color
+          ctx.globalAlpha = 0.3
           
           // Organic Spring Physics for background
           tx += Math.sin(timeRef.current + p.randomWander) * 4
@@ -146,6 +193,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
         ctx.beginPath()
         ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2)
         ctx.fill()
+        ctx.globalAlpha = 1.0
       }
       animationFrameId = requestAnimationFrame(render)
     }
