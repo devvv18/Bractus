@@ -32,48 +32,66 @@ function ParticleGrid() {
     }
 
     let mouse = { x: 0, y: 0 }
+    let mouseAbs = { x: -1000, y: -1000 }
     let targetRotation = { x: 0, y: 0 }
     let currentRotation = { x: 0, y: 0 }
+    let mouseActive = false
+    let globalOpacity = 0
 
-    const handleMouseMove = (e) => {
-      mouse.x = (e.clientX / window.innerWidth) * 2 - 1
-      mouse.y = (e.clientY / window.innerHeight) * 2 - 1
-      targetRotation.y = mouse.x * 0.5
-      targetRotation.x = -mouse.y * 0.5
+    const handleInteraction = (clientX, clientY) => {
+      mouseActive = true
+      const rect = canvas.getBoundingClientRect()
+      mouseAbs.x = clientX - rect.left
+      mouseAbs.y = clientY - rect.top
+
+      mouse.x = (clientX / window.innerWidth) * 2 - 1
+      mouse.y = (clientY / window.innerHeight) * 2 - 1
+      
+      const isMobile = window.innerWidth < 768
+      const tiltMult = isMobile ? 0.2 : 0.4
+      targetRotation.y = mouse.x * tiltMult
+      targetRotation.x = -mouse.y * tiltMult
+    }
+
+    const handleMouseMove = (e) => handleInteraction(e.clientX, e.clientY)
+    const handleTouchMove = (e) => {
+      if (e.touches[0]) handleInteraction(e.touches[0].clientX, e.touches[0].clientY)
     }
 
     window.addEventListener('resize', setSize)
     window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('touchmove', handleTouchMove, { passive: false })
 
     // 3D Setup
     let particles = []
-    const spacing = 45 // Structured spacing like the 2D version
-    const focalLength = 400
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+    const spacing = isMobile ? 18 : 22 // Even closer as requested
+    const focalLength = isMobile ? 300 : 400
     
     const getColors = () => {
-      if (typeof window === 'undefined') return ['#2F5496', '#638BF2', '#10b981']
+      if (typeof window === 'undefined') return ['#1E40AF', '#166534', '#991B1B']
       const styles = getComputedStyle(document.documentElement)
-      const accent = styles.getPropertyValue('--accent').trim() || '#2F5496'
-      return [accent, '#638BF2', '#10b981']
+      const accent = styles.getPropertyValue('--accent').trim() || '#1E40AF'
+      return [accent, '#166534', '#991B1B']
     }
 
     const initParticles = () => {
       particles = []
       const colors = getColors()
-      const cols = 15
-      const rows = 12
-      const depths = 4 // Multiple layers for 3D depth
+      const isMobile = window.innerWidth < 768
+      const cols = isMobile ? 18 : 28 
+      const rows = isMobile ? 28 : 20
+      const depths = isMobile ? 2 : 3 
 
       for (let z = 0; z < depths; z++) {
         for (let x = 0; x < cols; x++) {
           for (let y = 0; y < rows; y++) {
             particles.push({
-              // Center the grid locally before projection
               x: (x - cols/2) * spacing,
               y: (y - rows/2) * spacing,
-              z: (z - depths/2) * spacing * 2.5, // Spread layers further for better parallax
+              z: (z - depths/2) * spacing * (isMobile ? 3 : 4),
               color: colors[Math.floor(Math.random() * colors.length)],
-              size: 1.4
+              size: isMobile ? 1.6 : 2.2 // Thicker base size
             })
           }
         }
@@ -84,10 +102,14 @@ function ParticleGrid() {
 
     const render = () => {
       ctx.clearRect(0, 0, width, height)
+      const isMobile = window.innerWidth < 768
 
-      // Smooth rotation easing - ONLY driven by mouse
       currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05
       currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05
+
+      if (mouseActive) {
+        globalOpacity += (0.6 - globalOpacity) * 0.05
+      }
 
       const rotY = currentRotation.y
       const rotX = currentRotation.x
@@ -97,14 +119,12 @@ function ParticleGrid() {
       const cosY = Math.cos(rotY)
       const sinY = Math.sin(rotY)
 
-      const cx = width * 0.3
-      const cy = height / 2
+      const cx = isMobile ? width * 0.5 : width * 0.3
+      const cy = isMobile ? height * 0.4 : height / 2
 
       const sortedParticles = [...particles].map(p => {
-        // Rotate Y
         let x = p.x * cosY - p.z * sinY
         let z = p.x * sinY + p.z * cosY
-        // Rotate X
         let y = p.y * cosX - z * sinX
         z = p.y * sinX + z * cosX
         return { ...p, rx: x, ry: y, rz: z }
@@ -115,17 +135,61 @@ function ParticleGrid() {
         const px = p.rx * scale + cx
         const py = p.ry * scale + cy
         
-        // Depth based diminishing: Front is dark/vibrant (max 0.9), Back is faded (min 0.02)
-        // Range of rz is approx [-200, 200]
-        const opacity = (250 - p.rz) / 500 
-        const finalSize = p.size * scale
+        const dx = px - mouseAbs.x
+        const dy = py - mouseAbs.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        
+        const repulsionRadius = isMobile ? 220 : 320 // Expanded repulsion
+        const repulsionPower = isMobile ? 25 : 40
+        
+        let shiftX = 0, shiftY = 0
+        if (dist < repulsionRadius) {
+          const force = (1 - dist / repulsionRadius) * repulsionPower
+          shiftX = (dx / dist) * force
+          shiftY = (dy / dist) * force
+        }
 
-        if (px > 0 && px < width && py > 0 && py < height) {
-          ctx.globalAlpha = Math.max(0.02, Math.min(0.9, opacity))
+        const fpx = px + shiftX
+        const fpy = py + shiftY
+        
+        const auraRadius = isMobile ? 120 : 180 // Expanded invisible hole
+        let opacity = globalOpacity
+        
+        const nDx = fpx - mouseAbs.x
+        const nDy = fpy - mouseAbs.y
+        const nDist = Math.sqrt(nDx * nDx + nDy * nDy)
+
+        if (nDist < auraRadius) {
+          opacity *= Math.pow(nDist / auraRadius, 2)
+        }
+        
+        const depthFactor = Math.max(0, Math.min(1, (250 - p.rz) / 500))
+        opacity *= Math.pow(depthFactor, isMobile ? 2 : 4)
+
+        if (fpx > 0 && fpx < width && fpy > 0 && fpy < height && opacity > 0.01) {
+          const finalSize = p.size * scale
+          const dropHeight = finalSize * 2.2 // Shorter, rounder pill shape
+
+          ctx.globalAlpha = Math.min(0.9, opacity)
           ctx.fillStyle = p.color
+          
+          // Calculate angle to cursor
+          const angle = Math.atan2(mouseAbs.y - fpy, mouseAbs.x - fpx)
+
+          ctx.save()
+          ctx.translate(fpx, fpy)
+          ctx.rotate(angle + Math.PI / 2) // Orient capsule toward cursor
+          
           ctx.beginPath()
-          ctx.arc(px, py, finalSize, 0, Math.PI * 2)
+          ctx.roundRect(
+            -finalSize / 2, 
+            -dropHeight / 2, 
+            finalSize, 
+            dropHeight, 
+            finalSize / 2
+          )
           ctx.fill()
+          ctx.restore()
         }
       }
       animationFrameId = requestAnimationFrame(render)
@@ -136,9 +200,12 @@ function ParticleGrid() {
     return () => {
       window.removeEventListener('resize', setSize)
       window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('touchmove', handleTouchMove)
       cancelAnimationFrame(animationFrameId)
     }
   }, [])
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   return (
     <canvas
@@ -150,9 +217,12 @@ function ParticleGrid() {
         pointerEvents: 'none',
         zIndex: 0,
         opacity: 0.8,
-        // Horizontal mask to focus effect on left half
-        WebkitMaskImage: 'linear-gradient(to right, black 40%, rgba(0,0,0,0.1) 80%, transparent)',
-        maskImage: 'linear-gradient(to right, black 40%, rgba(0,0,0,0.1) 80%, transparent)',
+        WebkitMaskImage: isMobile 
+          ? 'radial-gradient(circle, black 60%, transparent 95%)'
+          : 'linear-gradient(to right, black 40%, rgba(0,0,0,0.1) 80%, transparent)',
+        maskImage: isMobile 
+          ? 'radial-gradient(circle, black 60%, transparent 95%)'
+          : 'linear-gradient(to right, black 40%, rgba(0,0,0,0.1) 80%, transparent)',
       }}
     />
   )
