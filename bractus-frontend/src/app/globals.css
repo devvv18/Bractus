@@ -53,6 +53,7 @@ button {
   --nav-shadow: 0 1px 0 #e2e8f0;
   --footer-bg: #1a1a2e;
   --footer-text: #94a3b8;
+  --bg-rgb: 255, 255, 255;
   --overlay: rgba(255, 255, 255, 0.6);
 }
 
@@ -79,6 +80,7 @@ button {
   --nav-shadow: 0 1px 0 #334155;
   --footer-bg: #0b1120;
   --footer-text: #64748b;
+  --bg-rgb: 15, 23, 42;
   --overlay: rgba(15, 23, 42, 0.6);
 }
 
