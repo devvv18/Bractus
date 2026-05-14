@@ -82,9 +82,9 @@ export function Founder() {
                 {/* Floating Quote Over Image */}
                 <div style={{
                   position: 'absolute', bottom: 0, left: 0, right: 0,
-                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.85) 45%, transparent 70%)',
+                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.90) 60%, transparent 85%)',
                   display: 'flex', flexDirection: 'column',justifyContent: 'flex-end',
-                  padding: '80px 32px 36px', color: '#fff'
+                  padding: '80px 32px 60px', color: '#fff'
                 }}>
                   <p style={{
                     fontSize: '0.9rem', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 16,
