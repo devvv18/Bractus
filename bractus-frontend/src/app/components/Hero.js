@@ -313,18 +313,23 @@ export default function Hero() {
         filter: 'blur(80px)',
       }} />
 
-      <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: 72 }}>
+      <div className="container" style={{ 
+        position: 'relative', 
+        zIndex: 1, 
+        paddingTop: isMobile ? 40 : 72,
+        paddingBottom: isMobile ? 40 : 0
+      }}>
 
         {/* Tags — centered across full width, above the two columns */}
         <div className="anim-fade-up" style={{
           display: 'flex',
-          gap: 20,
-          flexWrap: 'nowrap',
+          gap: isMobile ? 10 : 20,
+          flexWrap: 'wrap', // Mobile-friendly wrap
           justifyContent: 'center',
-          marginBottom: 40
+          marginBottom: isMobile ? 30 : 40
         }}>
-          <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
-          <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
+          <span className="tag" style={{ fontSize: isMobile ? '0.7rem' : '0.8rem' }}>✦ COMPREHENSIVE IT SOLUTIONS</span>
+          <span className="tag" style={{ fontSize: isMobile ? '0.7rem' : '0.8rem' }}>✦ END-TO-END TECHNOLOGY PARTNER</span>
         </div>
 
         <div style={{
@@ -332,16 +337,16 @@ export default function Hero() {
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 40,
+          gap: isMobile ? 30 : 40,
           flexWrap: 'wrap'
         }}>
           {/* Content Column (Left) */}
           <div style={{
             flex: '1 1 500px',
-            textAlign: 'left',
+            textAlign: isMobile ? 'center' : 'left', // Center text on mobile
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'flex-start'
+            alignItems: isMobile ? 'center' : 'flex-start'
           }}>
             <h1 className="anim-fade-up" style={{
               fontSize: 'clamp(2.5rem, 4.5vw, 4rem)',
@@ -396,7 +401,7 @@ export default function Hero() {
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'flex-start',
-            minHeight: 600
+            minHeight: isMobile ? 400 : 600
           }}>
             <div style={{
               position: 'relative',
@@ -405,7 +410,7 @@ export default function Hero() {
               overflow: 'hidden',
               boxShadow: '0 30px 60px rgba(0,0,0,0.2)',
               animation: 'slowZoom 12s ease-in-out infinite',
-              marginTop: '-20px'
+              marginTop: isMobile ? 0 : '-20px'
             }}>
               <div style={{ position: 'relative', overflow: 'hidden' }}>
                 <img
