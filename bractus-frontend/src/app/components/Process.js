@@ -46,8 +46,14 @@ export function HowWeWork() {
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: 24,
         }}>
-          {STEPS.map(({ num, title, desc }) => (
-            <div key={num} className="card" style={{ textAlign: 'center', padding: '36px 28px' }}>
+          {STEPS.map(({ num, title, desc }, i) => (
+            <div key={num}
+              className={`card reveal ${i === 0 ? 'reveal-left' : i === 2 ? 'reveal-right' : 'reveal-text'}`}
+              style={{
+                textAlign: 'center',
+                padding: '36px 28px',
+                transitionDelay: `${i * 0.15}s`
+              }}>
               <div style={{
                 fontFamily: 'Nunito, sans-serif',
                 fontSize: '3.5rem', fontWeight: 400,

@@ -59,28 +59,28 @@ export default function Services() {
   const [rotatingCards, setRotatingCards] = useState(new Set())
 
   // Auto-scroll every 5 seconds
+  // Master Sequence: 1. Spin (2.2s) -> 2. Pause (2s) -> 3. Switch Card
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % SERVICES.length)
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [])
-
-  // 360° rotation for background cards every 5 seconds, in sync with currentIndex
-  useEffect(() => {
-    const total = SERVICES.length
+    // 1. Trigger the Spin for current background cards
     const rotating = new Set()
+    const total = SERVICES.length
     SERVICES.forEach((_, index) => {
       let diff = index - currentIndex
       if (diff > Math.floor(total / 2)) diff -= total
       else if (diff < -Math.floor(total / 2)) diff += total
-      // Rotate the 4 background cards (diff ±1 and ±2)
-      if (diff !== 0 && Math.abs(diff) <= 2) {
+      if (diff !== 0 && Math.abs(diff) === 1) {
         rotating.add(index)
       }
     })
     setRotatingCards(rotating)
-    const timer = setTimeout(() => setRotatingCards(new Set()), 1800)
+
+    // 2. Wait for Spin (2.2s) + Pause (2s) = 4.2s
+    // Then move to the next card
+    const timer = setTimeout(() => {
+      setRotatingCards(new Set()) // Reset rotation
+      setCurrentIndex((prev) => (prev + 1) % SERVICES.length)
+    }, 4200)
+
     return () => clearTimeout(timer)
   }, [currentIndex])
 
@@ -103,13 +103,13 @@ export default function Services() {
     if (diff === 0) {
       translateX = 0; scale = 1; opacity = 1; zIndex = 30
     } else if (diff === 1) {
-      translateX = '70%'; scale = 0.85; opacity = 1; zIndex = 20; pointerEvents = 'none'
+      translateX = '45%'; scale = 0.88; opacity = 0.4; zIndex = 20; pointerEvents = 'none'
     } else if (diff === -1) {
-      translateX = '-70%'; scale = 0.85; opacity = 1; zIndex = 20; pointerEvents = 'none'
+      translateX = '-45%'; scale = 0.88; opacity = 0.4; zIndex = 20; pointerEvents = 'none'
     } else if (diff === 2) {
-      translateX = '125%'; scale = 0.7; opacity = 1; zIndex = 10; pointerEvents = 'none'
+      translateX = '85%'; scale = 0.76; opacity = 0; zIndex = 10; pointerEvents = 'none'
     } else if (diff === -2) {
-      translateX = '-125%'; scale = 0.7; opacity = 1; zIndex = 10; pointerEvents = 'none'
+      translateX = '-85%'; scale = 0.76; opacity = 0; zIndex = 10; pointerEvents = 'none'
     } else {
       translateX = '0%'; scale = 0.6; opacity = 0; zIndex = 5; pointerEvents = 'none'
     }
@@ -135,9 +135,9 @@ export default function Services() {
       <style>{`
         @keyframes cardJump {
           0%   { transform: translateY(0); }
-          30%  { transform: translateY(-18px); }
-          60%  { transform: translateY(-8px); }
-          80%  { transform: translateY(-14px); }
+          30%  { transform: translateY(-32px); }
+          60%  { transform: translateY(-12px); }
+          80%  { transform: translateY(-24px); }
           100% { transform: translateY(0); }
         }
         @keyframes cardRotate360 {
@@ -145,10 +145,16 @@ export default function Services() {
           100% { transform: rotateY(360deg); }
         }
         .service-card-active:hover {
-          animation: cardJump 0.6s ease forwards;
+          animation: cardJump 0.8s ease-out forwards;
         }
-        .service-card-inner-rotating {
-          animation: cardRotate360 2.2s linear forwards;
+        .rotation-wrapper {
+          width: 100%;
+          height: 100%;
+          transform-style: preserve-3d;
+          transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .rotation-wrapper.rotating {
+          animation: cardRotate360 2.2s ease-in-out forwards;
         }
       `}</style>
 
@@ -192,11 +198,12 @@ export default function Services() {
                   key={index}
                   style={getCardStyle(index)}
                 >
-                  <ServiceCard
-                    {...service}
-                    active={index === currentIndex}
-                    rotating={isRotating}
-                  />
+                  <div className={`rotation-wrapper ${isRotating ? 'rotating' : ''}`}>
+                    <ServiceCard
+                      {...service}
+                      active={index === currentIndex}
+                    />
+                  </div>
                 </div>
               )
             })}
@@ -222,7 +229,7 @@ function ServiceCard({ icon, tag, title, desc, linkText, href, active, rotating 
   return (
     <div
       // The rotating class goes on the CARD itself, not the wrapper div
-      className={`card${active ? ' service-card-active' : ''}${rotating ? ' service-card-inner-rotating' : ''}`}
+      className={`card${active ? ' service-card-active' : ''}`}
       style={{
         cursor: active ? 'pointer' : 'default',
         borderColor: (hovered && active) ? 'var(--accent)' : 'var(--border)',
