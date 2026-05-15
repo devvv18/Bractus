@@ -23,12 +23,14 @@ export function ToolsAndPartners() {
         <div style={{
           display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center',
         }}>
-          {TOOLS.map(t => (
+          {TOOLS.map((t, i) => (
             <span key={t} style={{
               padding: '6px 16px', borderRadius: 100,
               border: '1px solid var(--border)',
               fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400,
-              transition: 'all 0.2s', cursor: 'default',
+              transition: 'all 0.2s, opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+              cursor: 'default',
+              transitionDelay: `${i * 0.05}s`,
             }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
@@ -211,8 +213,8 @@ export function GetInTouch() {
     e.preventDefault()
     setLoading(true)
 
-    const type = window.location.hash.includes('type=org') ? 'org' : 
-                 window.location.hash.includes('type=dev') ? 'dev' : 'general';
+    const type = window.location.hash.includes('type=org') ? 'org' :
+      window.location.hash.includes('type=dev') ? 'dev' : 'general';
 
     let subject = '';
     let bodyText = '';
@@ -220,34 +222,34 @@ export function GetInTouch() {
     if (type === 'dev') {
       subject = `Engineering Support & Collaboration`;
       bodyText = `Hi Bractus Team,\n\n` +
-                 `I am reaching out to get some dedicated engineering support for my current project.\n\n` +
-                 `Here is a quick overview of what I am working on:\n` +
-                 `My Project: ${form.message}\n` +
-                 `Current Tech Stack: [Fill your tech stack]\n\n` +
-                 `I am looking for a reliable technical partner to help me push this across the finish line. Please let me know your availability for a quick introductory call to discuss how we might collaborate.\n\n` +
-                 `Best,\n` +
-                 `${form.name}\n` +
-                 `[Link to your project/website]`;
+        `I am reaching out to get some dedicated engineering support for my current project.\n\n` +
+        `Here is a quick overview of what I am working on:\n` +
+        `My Project: ${form.message}\n` +
+        `Current Tech Stack: [Fill your tech stack]\n\n` +
+        `I am looking for a reliable technical partner to help me push this across the finish line. Please let me know your availability for a quick introductory call to discuss how we might collaborate.\n\n` +
+        `Best,\n` +
+        `${form.name}\n` +
+        `[Link to your project/website]`;
     } else if (type === 'org') {
       subject = `Engineering & Development Services`;
       bodyText = `Hi Bractus Team,\n\n` +
-                 `I am reaching out on behalf of ${form.company || '[Your Company]'}. We are currently looking for a reliable technology partner to help us scale our engineering capabilities and execute our digital roadmap.\n\n` +
-                 `We are primarily looking for expertise in:\n` +
-                 `${form.message || '[e.g., Legacy System Modernization / Cloud Infrastructure / Building a new AI tool from scratch]'}\n\n` +
-                 `We need a dedicated team that can take technical ownership and deliver secure, high-performance results.\n\n` +
-                 `I would love to schedule a brief discovery call this week to discuss our upcoming initiatives and see if Bractus is the right fit to support our growth. Let me know what your schedule looks like over the next few days.\n\n` +
-                 `Best regards,\n` +
-                 `${form.name}\n` +
-                 `[Your Job Title]\n` +
-                 `${form.company || '[Your Company]'}`;
+        `I am reaching out on behalf of ${form.company || '[Your Company]'}. We are currently looking for a reliable technology partner to help us scale our engineering capabilities and execute our digital roadmap.\n\n` +
+        `We are primarily looking for expertise in:\n` +
+        `${form.message || '[e.g., Legacy System Modernization / Cloud Infrastructure / Building a new AI tool from scratch]'}\n\n` +
+        `We need a dedicated team that can take technical ownership and deliver secure, high-performance results.\n\n` +
+        `I would love to schedule a brief discovery call this week to discuss our upcoming initiatives and see if Bractus is the right fit to support our growth. Let me know what your schedule looks like over the next few days.\n\n` +
+        `Best regards,\n` +
+        `${form.name}\n` +
+        `[Your Job Title]\n` +
+        `${form.company || '[Your Company]'}`;
     } else {
       subject = `Inquiry: ${form.service || 'General'} - ${form.company || form.name}`;
       bodyText = `Hello Bractus Team,\n\n` +
-                 `I am reaching out to discuss ${form.service || 'your services'}.\n\n` +
-                 `${form.message}\n\n` +
-                 `Best regards,\n` +
-                 `${form.name}\n` +
-                 `${form.company ? form.company : ''}`;
+        `I am reaching out to discuss ${form.service || 'your services'}.\n\n` +
+        `${form.message}\n\n` +
+        `Best regards,\n` +
+        `${form.name}\n` +
+        `${form.company ? form.company : ''}`;
     }
 
     const mailtoLink = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;

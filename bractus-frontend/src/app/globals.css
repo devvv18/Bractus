@@ -318,48 +318,104 @@ h6 {
    ANIMATIONS
    ═══════════════════════════════════════════════════ */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes waveBobble {
-  0% { transform: rotate(0deg); }
-  25% { transform: rotate(10deg); }
-  50% { transform: rotate(-5deg); }
-  75% { transform: rotate(8deg); }
-  100% { transform: rotate(0deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(10deg);
+  }
+
+  50% {
+    transform: rotate(-5deg);
+  }
+
+  75% {
+    transform: rotate(8deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 @keyframes float {
-  0% { transform: translateY(0px) translateX(0px); }
-  50% { transform: translateY(-10px) translateX(5px); }
-  100% { transform: translateY(0px) translateX(0px); }
+  0% {
+    transform: translateY(0px) translateX(0px);
+  }
+
+  50% {
+    transform: translateY(-10px) translateX(5px);
+  }
+
+  100% {
+    transform: translateY(0px) translateX(0px);
+  }
 }
 
 @keyframes drift {
-  0% { transform: translate(0, 0); opacity: 0.7; }
-  50% { transform: translate(15px, -10px); opacity: 1; }
-  100% { transform: translate(0, 0); opacity: 0.7; }
+  0% {
+    transform: translate(0, 0);
+    opacity: 0.7;
+  }
+
+  50% {
+    transform: translate(15px, -10px);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(0, 0);
+    opacity: 0.7;
+  }
 }
 
 @keyframes slowZoom {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes lightTravel {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* Theme-specific stat colors */
 .stat-number {
-  color: var(--accent); /* Dark blue in light mode */
+  color: var(--accent);
+  /* Dark blue in light mode */
   transition: color 0.3s ease;
 }
+
 [data-theme="dark"] .stat-number {
-  color: #00ffff; /* Glowing cyan in dark mode */
+  color: #00ffff;
+  /* Glowing cyan in dark mode */
 }
 
 /* ═══════════════════════════════════════════════════
@@ -367,36 +423,50 @@ h6 {
    ═══════════════════════════════════════════════════ */
 .reveal {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: translateY(32px);
+  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
 .reveal.visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
 .reveal.reveal-heading {
   transition-delay: 0s;
 }
 
-.reveal.reveal-tag {
+.reveal.reveal-image {
+  transform: translateY(40px) scale(0.96);
   transition-delay: 0.1s;
 }
 
-.reveal.reveal-image {
-  transform: translateY(30px) scale(0.98);
-  transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-  transition-delay: 0.1s;
+.reveal.reveal-tag {
+  transition-delay: 0.15s;
 }
 
 .reveal.reveal-text {
-  transition-delay: 0.2s;
+  transition-delay: 0.25s;
 }
 
 .reveal.reveal-button {
-  transition-delay: 0.3s;
+  transition-delay: 0.4s;
+}
+
+/* Horizontal Reveals */
+.reveal.reveal-right {
+  transform: translateX(40px) translateY(32px);
+}
+
+.reveal.reveal-left {
+  transform: translateX(-40px) translateY(32px);
+}
+
+.reveal.reveal-right.visible,
+.reveal.reveal-left.visible {
+  transform: translateX(0) translateY(0);
 }
 
 @keyframes fadeIn {
@@ -442,7 +512,8 @@ h6 {
   }
 
   .show-mobile {
-    display: inline !important; /* Changed to inline for text spans */
+    display: inline !important;
+    /* Changed to inline for text spans */
   }
 }
 
@@ -456,6 +527,7 @@ h6 {
 [data-theme="light"] .hide-light {
   display: none !important;
 }
+
 [data-theme="dark"] .show-light {
   display: none !important;
 }
