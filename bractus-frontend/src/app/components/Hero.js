@@ -163,11 +163,15 @@ function ParticleGrid() {
           opacity *= Math.pow(nDist / auraRadius, 2)
         }
         
-        const depthFactor = Math.max(0, Math.min(1, (250 - p.rz) / 500))
-        opacity *= Math.pow(depthFactor, isMobile ? 2 : 4)
+        // Aggressive Depth Fading: Fades out MUCH faster as it goes back
+        // 0 is front, 250+ is back
+        const depthFactor = Math.max(0, Math.min(1, (180 - p.rz) / 350))
+        opacity *= Math.pow(depthFactor, isMobile ? 4 : 8)
 
-        if (fpx > 0 && fpx < width && fpy > 0 && fpy < height && opacity > 0.01) {
-          const finalSize = p.size * scale
+        if (fpx > 0 && fpx < width && fpy > 0 && fpy < height && opacity > 0.02) {
+          const perspectiveScale = p.size * scale
+          // Extra size falloff for depth to clean up the back
+          const finalSize = perspectiveScale * Math.pow(depthFactor, 2)
           const dropHeight = finalSize * 2.2 
 
           ctx.globalAlpha = Math.min(0.9, opacity)
