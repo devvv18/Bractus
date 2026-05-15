@@ -64,26 +64,27 @@ export function Founder() {
           </div>
 
           {/* Right Column: Image & Quote */}
-          <div style={{ position: 'relative' , marginTop: 20, marginLeft: '-50px'}}>
-            <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 24, border: 'none' }}>
+          <div style={{ position: 'relative', marginTop: 20, marginLeft: '-50px' }}>
+            <div style={{ padding: 0, overflow: 'hidden', borderRadius: 24 }}>
               {/* Founder Image Placeholder */}
-              <div style={{ 
+              <div style={{
                 width: '100%',
                 height: '650px',
-                minHeight: '650px', 
+                minHeight: '650px',
                 flexShrink: 0,
-                margin: '0 auto', 
-                background: 'linear-gradient(135deg, var(--bg-alt) 0%, var(--accent-light) 100%)', 
+                margin: '0 auto',
+                background: 'transparent',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 position: 'relative'
-                }}>
-                <img src="/founder-portrait.png" alt="Kunal Khanna" style={{ width: '100%', height: '650px',minHeight: '650px', objectFit: 'cover',objectPosition: 'top', opacity: 0.85 , borderRadius: '24px 24px 0 0' }} />
-                
+              }}>
+                <img src="/founder-portrait.png" alt="Kunal Khanna" style={{ width: '100%', height: '650px', minHeight: '650px', objectFit: 'cover', objectPosition: 'top', opacity: 0.85, borderRadius: '24px 24px 0 0' }} />
+
                 {/* Floating Quote Over Image */}
                 <div style={{
+                  display: 'none',
                   position: 'absolute', bottom: 0, left: 0, right: 0,
                   background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.90) 60%, transparent 85%)',
-                  display: 'flex', flexDirection: 'column',justifyContent: 'flex-end',
+                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
                   padding: '80px 32px 60px', color: '#fff'
                 }}>
                   <p style={{
@@ -99,13 +100,6 @@ export function Founder() {
                 </div>
               </div>
             </div>
-            
-            {/* Visual Decorative Element */}
-            <div style={{
-              position: 'absolute', top: -20, right: -20, width: 120, height: 120,
-              background: 'var(--accent-glow)', borderRadius: '50%', zIndex: -1, filter: 'blur(50px)',
-              opacity: 0.6
-            }} />
           </div>
         </div>
       </div>
@@ -127,13 +121,13 @@ export function Testimonials() {
       <div className="container">
         {/* Client Logos Section */}
         <div style={{ marginBottom: 80, textAlign: 'center' }}>
-          <p style={{ 
-            fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', 
-            textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 32 
+          <p style={{
+            fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)',
+            textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: 32
           }}>Trusted by growth-stage & mid-market leaders</p>
-          <div style={{ 
-            display: 'flex', flexWrap: 'wrap', justifyContent: 'center', 
-            gap: 'clamp(40px, 8vw, 100px)', alignItems: 'center', opacity: 0.6 
+          <div style={{
+            display: 'flex', flexWrap: 'wrap', justifyContent: 'center',
+            gap: 'clamp(40px, 8vw, 100px)', alignItems: 'center', opacity: 0.6
           }}>
             {CLIENTS.map(c => (
               <div key={c.name} style={{ display: 'flex', alignItems: 'center', gap: 10, filter: 'grayscale(1)' }}>
@@ -217,7 +211,7 @@ function FaqItem({ q, a }) {
       padding: 0, overflow: 'hidden', cursor: 'pointer',
       borderColor: open ? 'var(--accent)' : 'var(--border)',
     }}
-    onClick={() => setOpen(o => !o)}
+      onClick={() => setOpen(o => !o)}
     >
       <div style={{
         padding: '18px 24px',

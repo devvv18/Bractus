@@ -372,6 +372,33 @@ export default function Hero() {
             </div>
           </div>
         </div>
+
+        {/* Stats Section */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 65, marginBottom: 40 }}>
+          <div ref={statsRef} className="anim-fade-up anim-delay-4" style={{
+            display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
+            padding: '28px 48px',
+            borderRadius: 20,
+            background: 'var(--accent)',
+            boxShadow: '0 12px 32px rgba(47,84,150,0.15)',
+            width: '100%', maxWidth: 850,
+          }}>
+            {STATS.map(({ suffix, label }, i) => (
+              <div key={label} style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontFamily: 'Nunito, sans-serif',
+                  fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
+                  fontWeight: 800, color: '#fff',
+                }}>{counts[`c${i}`]}{suffix}</div>
+                <div style={{
+                  fontSize: '0.7rem', color: 'rgba(255,255,255,0.8)',
+                  textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: 4,
+                  fontWeight: 600
+                }}>{label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   )
