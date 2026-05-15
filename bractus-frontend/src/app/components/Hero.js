@@ -28,87 +28,168 @@ function ParticleGrid() {
       height = rect.height
       canvas.width = width
       canvas.height = height
-      initGrid()
+      initParticles()
     }
 
-    let mouse = { x: -1000, y: -1000 }
-    const handleMouseMove = (e) => {
+    let mouse = { x: 0, y: 0 }
+    let mouseAbs = { x: -1000, y: -1000 }
+    let targetRotation = { x: 0, y: 0 }
+    let currentRotation = { x: 0, y: 0 }
+    let mouseActive = false
+    let globalOpacity = 0
+
+    const handleInteraction = (clientX, clientY) => {
+      mouseActive = true
       const rect = canvas.getBoundingClientRect()
-      mouse.x = e.clientX - rect.left
-      mouse.y = e.clientY - rect.top
+      mouseAbs.x = clientX - rect.left
+      mouseAbs.y = clientY - rect.top
+
+      mouse.x = (clientX / window.innerWidth) * 2 - 1
+      mouse.y = (clientY / window.innerHeight) * 2 - 1
+      
+      const isMobile = window.innerWidth < 768
+      const tiltMult = isMobile ? 0.2 : 0.4
+      targetRotation.y = mouse.x * tiltMult
+      targetRotation.x = -mouse.y * tiltMult
     }
 
-    const handleMouseLeave = () => {
-      mouse.x = -1000
-      mouse.y = -1000
+    const handleMouseMove = (e) => handleInteraction(e.clientX, e.clientY)
+    const handleTouchMove = (e) => {
+      if (e.touches[0]) handleInteraction(e.touches[0].clientX, e.touches[0].clientY)
     }
 
     window.addEventListener('resize', setSize)
     window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseout', handleMouseLeave)
+    window.addEventListener('touchmove', handleTouchMove, { passive: false })
 
-    // Grid Setup
-    const spacing = 35
-    let dots = []
+    // 3D Setup
+    let particles = []
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+    const spacing = isMobile ? 18 : 22 
+    const focalLength = isMobile ? 300 : 400
+    
+    const getColors = () => {
+      if (typeof window === 'undefined') return ['#1E40AF', '#166534', '#991B1B']
+      const styles = getComputedStyle(document.documentElement)
+      const accent = styles.getPropertyValue('--accent').trim() || '#1E40AF'
+      return [accent, '#166534', '#991B1B']
+    }
 
-    const initGrid = () => {
-      dots = []
-      for (let x = -spacing; x < width + spacing; x += spacing) {
-        for (let y = -spacing; y < height + spacing; y += spacing) {
-          dots.push({
-            ox: x, oy: y,
-            x: x, y: y,
-            vx: 0, vy: 0
-          })
+    const initParticles = () => {
+      particles = []
+      const colors = getColors()
+      const isMobile = window.innerWidth < 768
+      const cols = isMobile ? 18 : 28 
+      const rows = isMobile ? 28 : 20
+      const depths = isMobile ? 2 : 3 
+
+      for (let z = 0; z < depths; z++) {
+        for (let x = 0; x < cols; x++) {
+          for (let y = 0; y < rows; y++) {
+            particles.push({
+              x: (x - cols/2) * spacing,
+              y: (y - rows/2) * spacing,
+              z: (z - depths/2) * spacing * (isMobile ? 3 : 4),
+              color: colors[Math.floor(Math.random() * colors.length)],
+              size: isMobile ? 1.6 : 2.2 
+            })
+          }
         }
       }
     }
 
     setSize()
 
-    const getAccentColor = () => {
-      if (typeof window === 'undefined') return '#2F5496'
-      const styles = getComputedStyle(document.documentElement)
-      return styles.getPropertyValue('--accent').trim() || '#2F5496'
-    }
-
     const render = () => {
       ctx.clearRect(0, 0, width, height)
-      ctx.fillStyle = getAccentColor()
+      const isMobile = window.innerWidth < 768
 
-      for (let i = 0; i < dots.length; i++) {
-        let dot = dots[i]
+      currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05
+      currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05
 
-        let dx = mouse.x - dot.x
-        let dy = mouse.y - dot.y
-        let distance = Math.sqrt(dx * dx + dy * dy)
+      if (mouseActive) {
+        globalOpacity += (0.6 - globalOpacity) * 0.05
+      }
 
-        let forceRadius = 180
+      const rotY = currentRotation.y
+      const rotX = currentRotation.x
 
-        if (distance < forceRadius) {
-          let force = (forceRadius - distance) / forceRadius
-          let angle = Math.atan2(dy, dx)
-          dot.vx -= Math.cos(angle) * force * 1.2
-          dot.vy -= Math.sin(angle) * force * 1.2
+      const cosX = Math.cos(rotX)
+      const sinX = Math.sin(rotX)
+      const cosY = Math.cos(rotY)
+      const sinY = Math.sin(rotY)
+
+      const cx = isMobile ? width * 0.5 : width * 0.3
+      const cy = isMobile ? height * 0.4 : height / 2
+
+      const sortedParticles = [...particles].map(p => {
+        let x = p.x * cosY - p.z * sinY
+        let z = p.x * sinY + p.z * cosY
+        let y = p.y * cosX - z * sinX
+        z = p.y * sinX + z * cosX
+        return { ...p, rx: x, ry: y, rz: z }
+      }).sort((a, b) => b.rz - a.rz)
+
+      for (let p of sortedParticles) {
+        const scale = focalLength / (focalLength + p.rz)
+        const px = p.rx * scale + cx
+        const py = p.ry * scale + cy
+        
+        const dx = px - mouseAbs.x
+        const dy = py - mouseAbs.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        
+        const repulsionRadius = isMobile ? 220 : 320 
+        const repulsionPower = isMobile ? 25 : 40
+        
+        let shiftX = 0, shiftY = 0
+        if (dist < repulsionRadius) {
+          const force = (1 - dist / repulsionRadius) * repulsionPower
+          shiftX = (dx / dist) * force
+          shiftY = (dy / dist) * force
         }
 
-        dot.vx += (dot.ox - dot.x) * 0.04
-        dot.vy += (dot.oy - dot.y) * 0.04
+        const fpx = px + shiftX
+        const fpy = py + shiftY
+        
+        const auraRadius = isMobile ? 120 : 180 
+        let opacity = globalOpacity
+        
+        const nDx = fpx - mouseAbs.x
+        const nDy = fpy - mouseAbs.y
+        const nDist = Math.sqrt(nDx * nDx + nDy * nDy)
 
-        dot.vx *= 0.84
-        dot.vy *= 0.84
+        if (nDist < auraRadius) {
+          opacity *= Math.pow(nDist / auraRadius, 2)
+        }
+        
+        const depthFactor = Math.max(0, Math.min(1, (250 - p.rz) / 500))
+        opacity *= Math.pow(depthFactor, isMobile ? 2 : 4)
 
-        dot.x += dot.vx
-        dot.y += dot.vy
+        if (fpx > 0 && fpx < width && fpy > 0 && fpy < height && opacity > 0.01) {
+          const finalSize = p.size * scale
+          const dropHeight = finalSize * 2.2 
 
-        let speed = Math.abs(dot.vx) + Math.abs(dot.vy)
-        let isDisturbed = speed > 0.3
-        let size = 1.5 // Consistent dot radius
+          ctx.globalAlpha = Math.min(0.9, opacity)
+          ctx.fillStyle = p.color
+          
+          const angle = Math.atan2(mouseAbs.y - fpy, mouseAbs.x - fpx)
 
-        ctx.globalAlpha = isDisturbed ? 0.6 : 0.15
-        ctx.beginPath()
-        ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2)
-        ctx.fill()
+          ctx.save()
+          ctx.translate(fpx, fpy)
+          ctx.rotate(angle + Math.PI / 2) 
+          
+          ctx.beginPath()
+          ctx.roundRect(
+            -finalSize / 2, 
+            -dropHeight / 2, 
+            finalSize, 
+            dropHeight, 
+            finalSize / 2
+          )
+          ctx.fill()
+          ctx.restore()
+        }
       }
       animationFrameId = requestAnimationFrame(render)
     }
@@ -118,10 +199,12 @@ function ParticleGrid() {
     return () => {
       window.removeEventListener('resize', setSize)
       window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseout', handleMouseLeave)
+      window.removeEventListener('touchmove', handleTouchMove)
       cancelAnimationFrame(animationFrameId)
     }
   }, [])
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   return (
     <canvas
@@ -132,8 +215,13 @@ function ParticleGrid() {
         width: '100%', height: '100%',
         pointerEvents: 'none',
         zIndex: 0,
-        WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.12) 30%, black 75%)',
-        maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.12) 30%, black 75%)',
+        opacity: 0.8,
+        WebkitMaskImage: isMobile 
+          ? 'radial-gradient(circle, black 60%, transparent 95%)'
+          : 'linear-gradient(to right, black 40%, rgba(0,0,0,0.1) 80%, transparent)',
+        maskImage: isMobile 
+          ? 'radial-gradient(circle, black 60%, transparent 95%)'
+          : 'linear-gradient(to right, black 40%, rgba(0,0,0,0.1) 80%, transparent)',
       }}
     />
   )
@@ -158,18 +246,25 @@ export default function Hero() {
         animated.current = true
         STATS.forEach(({ end }, i) => {
           let start = 0
-          const step = Math.ceil(end / (1500 / 16))
+          const duration = 1500
+          const frameDuration = 1000 / 60
+          const totalFrames = Math.round(duration / frameDuration)
+          const step = end / totalFrames
+          
+          let currentFrame = 0
           const timer = setInterval(() => {
-            start += step
-            if (start >= end) { start = end; clearInterval(timer) }
+            currentFrame++
+            start = Math.min(end, Math.ceil(step * currentFrame))
             setCounts(prev => ({ ...prev, [`c${i}`]: start }))
-          }, 16)
+            if (currentFrame >= totalFrames) clearInterval(timer)
+          }, frameDuration)
         })
       }
     }, { threshold: 0.4 })
     if (statsRef.current) observer.observe(statsRef.current)
     return () => observer.disconnect()
   }, [])
+
   return (
     <section style={{
       position: 'relative',
@@ -221,8 +316,6 @@ export default function Hero() {
             flexDirection: 'column',
             alignItems: 'flex-start'
           }}>
-
-            {/* Headline */}
             <h1 className="anim-fade-up" style={{
               fontSize: 'clamp(2.5rem, 4.5vw, 4rem)',
               fontWeight: 400,
@@ -233,7 +326,6 @@ export default function Hero() {
               <span className="accent-text">Complex Software Systems</span>
             </h1>
 
-            {/* Subtext */}
             <p className="anim-fade-up anim-delay-2" style={{
               fontSize: 'clamp(1rem, 1.8vw, 1.1rem)',
               color: 'var(--text-secondary)',
@@ -248,7 +340,6 @@ export default function Hero() {
               results.
             </p>
 
-            {/* Badge row */}
             <div className="anim-fade-up anim-delay-3" style={{
               display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 40,
             }}>
@@ -265,7 +356,6 @@ export default function Hero() {
               ))}
             </div>
 
-            {/* CTAs */}
             <div className="anim-fade-up anim-delay-4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
               <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
               <a href="/services" className="btn-outline">View Our Services</a>
@@ -281,7 +371,6 @@ export default function Hero() {
             alignItems: 'flex-start',
             minHeight: 600
           }}>
-            {/* The 3D Image with Auto-Theme Switch */}
             <div style={{
               position: 'relative',
               width: '100%',
@@ -291,7 +380,6 @@ export default function Hero() {
               animation: 'slowZoom 12s ease-in-out infinite',
               marginTop: '-20px'
             }}>
-              {/* Main 3D Image */}
               <div style={{ position: 'relative', overflow: 'hidden' }}>
                 <img
                   src="/assets/hero-dark.png"
@@ -319,7 +407,6 @@ export default function Hero() {
                 }} />
               </div>
 
-              {/* Flowing Stats Overlay */}
               <div ref={statsRef} style={{
                 position: 'absolute',
                 top: 0, left: 0, width: '100%', height: '100%',
@@ -400,6 +487,20 @@ export default function Hero() {
           </div>
         </div>
       </div>
+      <style>{`
+        @keyframes drift {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(10px, -15px); }
+        }
+        @keyframes lightTravel {
+          0% { background-position: -100% 0; }
+          100% { background-position: 200% 0; }
+        }
+        @keyframes slowZoom {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+      `}</style>
     </section>
   )
 }

@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Logo from './Logo'
 
 const FOOTER_LINKS = {
   Services: [
@@ -35,18 +36,9 @@ export default function Footer() {
       }} className="footer-grid">
         {/* Brand col */}
         <div>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, textDecoration: 'none' }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 8,
-              background: 'var(--accent)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Nunito, sans-serif', fontWeight: 400, fontSize: 16, color: '#fff',
-            }}>B</div>
-            <span style={{
-              fontFamily: 'Nunito, sans-serif', fontWeight: 400,
-              fontSize: '1.15rem', color: '#f1f5f9',
-            }}>BRACTUS</span>
-          </Link>
+          <div style={{ marginBottom: 20 }}>
+            <Logo variant="footer" />
+          </div>
           <p style={{
             color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7,
             maxWidth: 320, marginBottom: 24,

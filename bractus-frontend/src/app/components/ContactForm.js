@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
 
@@ -76,6 +76,130 @@ export function EcosystemBanner() {
   )
 }
 
+function ParticleGrid() {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    let animationFrameId
+
+    let width = window.innerWidth
+    let height = window.innerHeight
+
+    const setSize = () => {
+      const rect = canvas.parentElement.getBoundingClientRect()
+      width = rect.width
+      height = rect.height
+      canvas.width = width
+      canvas.height = height
+      initGrid()
+    }
+
+    let mouse = { x: -1000, y: -1000 }
+    const handleMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect()
+      mouse.x = e.clientX - rect.left
+      mouse.y = e.clientY - rect.top
+    }
+
+    const handleMouseLeave = () => {
+      mouse.x = -1000
+      mouse.y = -1000
+    }
+
+    window.addEventListener('resize', setSize)
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseout', handleMouseLeave)
+
+    const spacing = 40
+    let dots = []
+
+    const getColors = () => {
+      if (typeof window === 'undefined') return ['#2F5496', '#638BF2', '#10b981']
+      const styles = getComputedStyle(document.documentElement)
+      const accent = styles.getPropertyValue('--accent').trim() || '#2F5496'
+      return [accent, '#638BF2', '#10b981']
+    }
+
+    const initGrid = () => {
+      dots = []
+      const colors = getColors()
+      for (let x = -spacing; x < width + spacing; x += spacing) {
+        for (let y = -spacing; y < height + spacing; y += spacing) {
+          dots.push({
+            ox: x, oy: y,
+            x: x, y: y,
+            vx: 0, vy: 0,
+            color: colors[Math.floor(Math.random() * colors.length)]
+          })
+        }
+      }
+    }
+
+    setSize()
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height)
+      for (let i = 0; i < dots.length; i++) {
+        let dot = dots[i]
+        let dx = mouse.x - dot.x
+        let dy = mouse.y - dot.y
+        let distance = Math.sqrt(dx * dx + dy * dy)
+        let forceRadius = 140
+
+        if (distance < forceRadius) {
+          // Repel force (Original Effect)
+          let force = (forceRadius - distance) / forceRadius
+          let angle = Math.atan2(dy, dx)
+          dot.vx -= Math.cos(angle) * force * 1.2
+          dot.vy -= Math.sin(angle) * force * 1.2
+        }
+
+        dot.vx += (dot.ox - dot.x) * 0.03
+        dot.vy += (dot.oy - dot.y) * 0.03
+        dot.vx *= 0.9
+        dot.vy *= 0.9
+        dot.x += dot.vx
+        dot.y += dot.vy
+
+        let speed = Math.abs(dot.vx) + Math.abs(dot.vy)
+        let size = 1.2 + (speed * 0.4)
+
+        ctx.globalAlpha = distance < forceRadius ? 0.7 : 0.1
+        ctx.fillStyle = dot.color
+        ctx.beginPath()
+        ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      animationFrameId = requestAnimationFrame(render)
+    }
+
+    render()
+    return () => {
+      window.removeEventListener('resize', setSize)
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseout', handleMouseLeave)
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0, left: 0,
+        width: '100%', height: '100%',
+        pointerEvents: 'none',
+        zIndex: 0,
+        opacity: 0.6,
+      }}
+    />
+  )
+}
+
 export function GetInTouch() {
   const [form, setForm] = useState({ name: '', email: '', company: '', service: '', message: '' })
   const [sent, setSent] = useState(false)
@@ -144,8 +268,9 @@ export function GetInTouch() {
   }
 
   return (
-    <section id="contact" className="section" style={{ background: 'var(--bg)' }}>
-      <div className="container">
+    <section id="contact" className="section" style={{ background: 'var(--bg)', position: 'relative', overflow: 'hidden' }}>
+      <ParticleGrid />
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div id="contact-form" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
