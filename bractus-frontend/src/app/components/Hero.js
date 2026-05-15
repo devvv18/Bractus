@@ -35,6 +35,8 @@ function ParticleGrid() {
     let mouseAbs = { x: -1000, y: -1000 }
     let targetRotation = { x: 0, y: 0 }
     let currentRotation = { x: 0, y: 0 }
+    let targetCenter = { x: 0, y: 0 }
+    let currentCenter = { x: 0, y: 0 }
     let mouseActive = false
     let globalOpacity = 0
 
@@ -51,6 +53,12 @@ function ParticleGrid() {
       const tiltMult = isMobile ? 0.2 : 0.4
       targetRotation.y = mouse.x * tiltMult
       targetRotation.x = -mouse.y * tiltMult
+
+      // Increased vertical range (180) so it can go till bottom
+      const moveMultX = isMobile ? 30 : 60
+      const moveMultY = isMobile ? 80 : 180
+      targetCenter.x = mouse.x * moveMultX
+      targetCenter.y = mouse.y * moveMultY
     }
 
     const handleMouseMove = (e) => handleInteraction(e.clientX, e.clientY)
@@ -69,32 +77,37 @@ function ParticleGrid() {
     const focalLength = isMobile ? 300 : 400
     
     const getColors = () => {
-      if (typeof window === 'undefined') return ['#1E40AF', '#166534', '#991B1B']
+      if (typeof window === 'undefined') return ['#1E40AF', '#166534']
       const styles = getComputedStyle(document.documentElement)
       const accent = styles.getPropertyValue('--accent').trim() || '#1E40AF'
-      return [accent, '#166534', '#991B1B']
+      return [accent, '#166534']
     }
 
     const initParticles = () => {
       particles = []
       const colors = getColors()
       const isMobile = window.innerWidth < 768
-      const cols = isMobile ? 18 : 28 
-      const rows = isMobile ? 28 : 20
-      const depths = isMobile ? 2 : 3 
+      const numParticles = isMobile ? 600 : 1200
+      const sphereRadius = isMobile ? 180 : 250
+      
+      // Fibonacci Sphere Algorithm for even distribution
+      const phi = Math.PI * (3 - Math.sqrt(5)) // Golden angle
 
-      for (let z = 0; z < depths; z++) {
-        for (let x = 0; x < cols; x++) {
-          for (let y = 0; y < rows; y++) {
-            particles.push({
-              x: (x - cols/2) * spacing,
-              y: (y - rows/2) * spacing,
-              z: (z - depths/2) * spacing * (isMobile ? 3 : 4),
-              color: colors[Math.floor(Math.random() * colors.length)],
-              size: isMobile ? 1.6 : 2.2 
-            })
-          }
-        }
+      for (let i = 0; i < numParticles; i++) {
+        const y = 1 - (i / (numParticles - 1)) * 2 // y goes from 1 to -1
+        const radius = Math.sqrt(1 - y * y) // radius at y
+        const theta = phi * i // golden angle increment
+
+        const x = Math.cos(theta) * radius
+        const z = Math.sin(theta) * radius
+
+        particles.push({
+          x: x * sphereRadius,
+          y: y * sphereRadius,
+          z: z * sphereRadius,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: isMobile ? 1.6 : 2.2 
+        })
       }
     }
 
@@ -103,9 +116,14 @@ function ParticleGrid() {
     const render = () => {
       ctx.clearRect(0, 0, width, height)
       const isMobile = window.innerWidth < 768
+      const time = Date.now() * 0.002 // For slimy movement
 
       currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05
       currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05
+      
+      // Dialed back speed for a more fluid feel
+      currentCenter.x += (targetCenter.x - currentCenter.x) * 0.08
+      currentCenter.y += (targetCenter.y - currentCenter.y) * 0.08
 
       if (mouseActive) {
         globalOpacity += (0.6 - globalOpacity) * 0.05
@@ -119,14 +137,21 @@ function ParticleGrid() {
       const cosY = Math.cos(rotY)
       const sinY = Math.sin(rotY)
 
-      const cx = isMobile ? width * 0.5 : width * 0.3
-      const cy = isMobile ? height * 0.4 : height / 2
+      // Anchor to left-half and more centered vertically to allow travel
+      const cx = (isMobile ? width * 0.5 : width * 0.25) + currentCenter.x
+      const cy = (isMobile ? height * 0.4 : height * 0.45) + currentCenter.y
 
       const sortedParticles = [...particles].map(p => {
-        let x = p.x * cosY - p.z * sinY
-        let z = p.x * sinY + p.z * cosY
-        let y = p.y * cosX - z * sinX
-        z = p.y * sinX + z * cosX
+        // Slimy Deformation: Wobble the radius based on position and time
+        const distortion = Math.sin(p.x * 0.02 + time) * Math.cos(p.y * 0.02 + time) * 15
+        const sx = p.x + distortion
+        const sy = p.y + distortion
+        const sz = p.z + distortion
+
+        let x = sx * cosY - sz * sinY
+        let z = sx * sinY + sz * cosY
+        let y = sy * cosX - z * sinX
+        z = sy * sinX + z * cosX
         return { ...p, rx: x, ry: y, rz: z }
       }).sort((a, b) => b.rz - a.rz)
 
@@ -139,7 +164,7 @@ function ParticleGrid() {
         const dy = py - mouseAbs.y
         const dist = Math.sqrt(dx * dx + dy * dy)
         
-        const repulsionRadius = isMobile ? 220 : 320 
+        const repulsionRadius = isMobile ? 250 : 400 // Expanded repulsion
         const repulsionPower = isMobile ? 25 : 40
         
         let shiftX = 0, shiftY = 0
@@ -152,7 +177,7 @@ function ParticleGrid() {
         const fpx = px + shiftX
         const fpy = py + shiftY
         
-        const auraRadius = isMobile ? 120 : 180 
+        const auraRadius = isMobile ? 150 : 250 // Expanded invisible hole
         let opacity = globalOpacity
         
         const nDx = fpx - mouseAbs.x
@@ -163,8 +188,6 @@ function ParticleGrid() {
           opacity *= Math.pow(nDist / auraRadius, 2)
         }
         
-        // Aggressive Depth Fading: Fades out MUCH faster as it goes back
-        // 0 is front, 250+ is back
         const depthFactor = Math.max(0, Math.min(1, (180 - p.rz) / 350))
         opacity *= Math.pow(depthFactor, isMobile ? 4 : 8)
 
@@ -222,10 +245,10 @@ function ParticleGrid() {
         opacity: 0.8,
         WebkitMaskImage: isMobile 
           ? 'radial-gradient(circle, black 60%, transparent 95%)'
-          : 'linear-gradient(to right, black 40%, rgba(0,0,0,0.1) 80%, transparent)',
+          : 'linear-gradient(to right, black 35%, rgba(0,0,0,0.1) 70%, transparent)',
         maskImage: isMobile 
           ? 'radial-gradient(circle, black 60%, transparent 95%)'
-          : 'linear-gradient(to right, black 40%, rgba(0,0,0,0.1) 80%, transparent)',
+          : 'linear-gradient(to right, black 35%, rgba(0,0,0,0.1) 70%, transparent)',
       }}
     />
   )
