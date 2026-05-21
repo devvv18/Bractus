@@ -97,17 +97,13 @@ function ServiceColumn({ icon, title, items, href }) {
         {items.map((item, i) => (
           <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: 'var(--accent)', fontSize: '1.1rem' }}>•</span>
-            <Link href={href} style={{
+            <span style={{
               fontSize: '0.88rem',
               color: 'var(--text-secondary)',
-              textDecoration: 'none',
-              transition: 'color 0.2s',
-            }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
-            >
+              fontFamily: 'Nunito, sans-serif'
+            }}>
               {item}
-            </Link>
+            </span>
           </li>
         ))}
       </ul>
