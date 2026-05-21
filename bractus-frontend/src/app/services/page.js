@@ -81,23 +81,16 @@ function ServiceColumn({ icon, title, items, href }) {
       </div>
 
       {/* Title */}
-      <Link href={href} style={{ textDecoration: 'none' }}>
-        <h3 style={{
-          fontSize: '1.05rem',
-          fontWeight: 700,
-          color: 'var(--text)',
-          lineHeight: 1.3,
-          marginBottom: 20,
-          cursor: 'pointer',
-          transition: 'color 0.2s',
-          fontFamily: 'Nunito, sans-serif'
-        }}
-          onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--text)'}
-        >
-          {title}
-        </h3>
-      </Link>
+      <h3 style={{
+        fontSize: '1.05rem',
+        fontWeight: 700,
+        color: 'var(--text)',
+        lineHeight: 1.3,
+        marginBottom: 20,
+        fontFamily: 'Nunito, sans-serif'
+      }}>
+        {title}
+      </h3>
 
       {/* Sub items as bullets */}
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
