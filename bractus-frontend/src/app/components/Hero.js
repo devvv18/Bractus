@@ -259,6 +259,16 @@ export default function Hero() {
   const statsRef = useRef(null)
   const [counts, setCounts] = useState({ c0: 0, c1: 0, c2: 0, c3: 0 })
   const animated = useRef(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const STATS = [
     { end: 120, suffix: '+', label: 'Clients Served' },
@@ -498,7 +508,7 @@ export default function Hero() {
             display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
             padding: '28px 48px',
             borderRadius: 20,
-            background: 'var(--accent)',
+            background: 'linear-gradient(135deg, var(--accent) 0%, #1e40af 55%, #0B111E 100%)',
             boxShadow: '0 12px 32px rgba(47,84,150,0.15)',
             width: '100%', maxWidth: 850,
           }}>

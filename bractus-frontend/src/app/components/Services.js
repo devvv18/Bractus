@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 
 const SERVICES = [
@@ -55,37 +55,13 @@ const SERVICES = [
 
 export default function Services() {
   const [currentIndex, setCurrentIndex] = useState(0)
-  // rotatingCards: set of indices currently doing 360 spin
-  const [rotatingCards, setRotatingCards] = useState(new Set())
 
-  // Auto-scroll every 5 seconds
-  // Master Sequence: 1. Spin (2.2s) -> 2. Pause (2s) -> 3. Switch Card
-  useEffect(() => {
-    // 1. Trigger the Spin for current background cards
-    const rotating = new Set()
-    const total = SERVICES.length
-    SERVICES.forEach((_, index) => {
-      let diff = index - currentIndex
-      if (diff > Math.floor(total / 2)) diff -= total
-      else if (diff < -Math.floor(total / 2)) diff += total
-      if (diff !== 0 && Math.abs(diff) === 1) {
-        rotating.add(index)
-      }
-    })
-    setRotatingCards(rotating)
-
-    // 2. Wait for Spin (2.2s) + Pause (2s) = 4.2s
-    // Then move to the next card
-    const timer = setTimeout(() => {
-      setRotatingCards(new Set()) // Reset rotation
-      setCurrentIndex((prev) => (prev + 1) % SERVICES.length)
-    }, 4200)
-
-    return () => clearTimeout(timer)
-  }, [currentIndex])
-
-  const next = () => setCurrentIndex((i) => (i + 1) % SERVICES.length)
-  const prev = () => setCurrentIndex((i) => (i - 1 + SERVICES.length) % SERVICES.length)
+  const next = () => {
+    setCurrentIndex((i) => (i + 1) % SERVICES.length)
+  }
+  const prev = () => {
+    setCurrentIndex((i) => (i - 1 + SERVICES.length) % SERVICES.length)
+  }
 
   const getCardStyle = (index) => {
     const total = SERVICES.length
@@ -100,16 +76,17 @@ export default function Services() {
     let zIndex = 10
     let pointerEvents = 'auto'
 
+    // Multi-dimensional coordinates adjusted so 5 cards fit perfectly in viewport simultaneously
     if (diff === 0) {
       translateX = 0; scale = 1; opacity = 1; zIndex = 30
     } else if (diff === 1) {
-      translateX = '45%'; scale = 0.88; opacity = 0.4; zIndex = 20; pointerEvents = 'none'
+      translateX = '35%'; scale = 0.88; opacity = 0.55; zIndex = 20; pointerEvents = 'none'
     } else if (diff === -1) {
-      translateX = '-45%'; scale = 0.88; opacity = 0.4; zIndex = 20; pointerEvents = 'none'
+      translateX = '-35%'; scale = 0.88; opacity = 0.55; zIndex = 20; pointerEvents = 'none'
     } else if (diff === 2) {
-      translateX = '85%'; scale = 0.76; opacity = 0; zIndex = 10; pointerEvents = 'none'
+      translateX = '70%'; scale = 0.76; opacity = 0.2; zIndex = 10; pointerEvents = 'none'
     } else if (diff === -2) {
-      translateX = '-85%'; scale = 0.76; opacity = 0; zIndex = 10; pointerEvents = 'none'
+      translateX = '-70%'; scale = 0.76; opacity = 0.2; zIndex = 10; pointerEvents = 'none'
     } else {
       translateX = '0%'; scale = 0.6; opacity = 0; zIndex = 5; pointerEvents = 'none'
     }
@@ -131,30 +108,26 @@ export default function Services() {
   }
 
   return (
-    <section id="services" className="section" style={{ background: 'var(--bg)', overflowX: 'visible' }}>
+    <section id="services" className="section" style={{ background: 'var(--bg)', overflowX: 'visible', position: 'relative' }}>
+      {/* Immersive 3D CSS Styles */}
       <style>{`
-        @keyframes cardJump {
-          0%   { transform: translateY(0); }
-          30%  { transform: translateY(-32px); }
-          60%  { transform: translateY(-12px); }
-          80%  { transform: translateY(-24px); }
-          100% { transform: translateY(0); }
+        @keyframes backgroundSpin {
+          0% { transform: rotateY(0deg); }
+          15%, 100% { transform: rotateY(360deg); }
         }
-        @keyframes cardRotate360 {
-          0%   { transform: rotateY(0deg); }
-          100% { transform: rotateY(360deg); }
+        .service-card-active {
+          transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
         }
         .service-card-active:hover {
-          animation: cardJump 0.8s ease-out forwards;
+          transform: translateY(-24px) translateZ(30px) !important;
+          box-shadow: 0 35px 70px -10px rgba(30, 64, 175, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+          border-color: var(--accent) !important;
         }
         .rotation-wrapper {
           width: 100%;
           height: 100%;
           transform-style: preserve-3d;
           transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-        .rotation-wrapper.rotating {
-          animation: cardRotate360 2.2s ease-in-out forwards;
         }
       `}</style>
 
@@ -187,18 +160,40 @@ export default function Services() {
           width: '100vw',
           left: '50%',
           transform: 'translateX(-50%)',
+          margin: '0 auto',
+          height: 480,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          overflowX: 'visible',
           perspective: '1200px',
         }}>
           {/* overflow: visible so side cards are not clipped */}
           <div style={{ position: 'relative', height: 380, width: '100%', overflow: 'visible' }}>
             {SERVICES.map((service, index) => {
-              const isRotating = rotatingCards.has(index)
+              const isBackground = index !== currentIndex
+              
+              // Pure-CSS infinite 360 spin periodic keyframes with cascaded index delays
+              const spinAnimation = isBackground
+                ? 'backgroundSpin 5s infinite cubic-bezier(0.4, 0, 0.2, 1)'
+                : 'none'
+              const spinDelay = `${index * 1.25}s`
+
               return (
                 <div
                   key={index}
                   style={getCardStyle(index)}
                 >
-                  <div className={`rotation-wrapper ${isRotating ? 'rotating' : ''}`}>
+                  <div 
+                    className="rotation-wrapper"
+                    style={{
+                      animation: spinAnimation,
+                      animationDelay: spinDelay,
+                      transformStyle: 'preserve-3d',
+                      width: '100%',
+                      height: '100%'
+                    }}
+                  >
                     <ServiceCard
                       {...service}
                       active={index === currentIndex}
@@ -209,7 +204,7 @@ export default function Services() {
             })}
           </div>
 
-          {/* Only arrows — centred under carousel */}
+          {/* Only arrows — centred under carousel (circles/dots completely removed) */}
           <div style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             gap: 56,
@@ -224,50 +219,72 @@ export default function Services() {
   )
 }
 
-function ServiceCard({ icon, tag, title, desc, linkText, href, active, rotating }) {
+function ServiceCard({ icon, tag, title, desc, linkText, href, active }) {
   const [hovered, setHovered] = useState(false)
+
+  const innerStyle = {
+    cursor: active ? 'pointer' : 'default',
+    borderColor: (hovered && active) ? 'var(--accent)' : 'var(--border)',
+    background: 'var(--surface)',
+    boxShadow: active ? 'var(--card-shadow-hover)' : 'var(--card-shadow)',
+    height: '100%',
+    minHeight: 320,
+    display: 'flex', flexDirection: 'column',
+    transition: 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s ease',
+    overflow: 'visible',
+    position: 'relative'
+  }
+
   return (
     <div
-      // The rotating class goes on the CARD itself, not the wrapper div
       className={`card${active ? ' service-card-active' : ''}`}
-      style={{
-        cursor: active ? 'pointer' : 'default',
-        borderColor: (hovered && active) ? 'var(--accent)' : 'var(--border)',
-        background: 'var(--surface)',
-        boxShadow: active ? 'var(--card-shadow-hover)' : 'var(--card-shadow)',
-        height: '100%',
-        minHeight: 320,
-        display: 'flex', flexDirection: 'column',
-        transition: 'border-color 0.3s ease',
-        // Ensure content is visible and not clipped
-        overflow: 'visible',
-      }}
+      style={innerStyle}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <div style={{
-        width: 48, height: 48, borderRadius: 10,
+        width: 48, 
+        height: 48, 
+        borderRadius: 10,
         background: 'var(--accent-light)',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        color: 'var(--accent)', marginBottom: 20,
+        color: 'var(--accent)', 
+        marginBottom: 20,
+        transition: 'all 0.3s'
       }}>{icon}</div>
+      
       <div style={{
-        fontSize: '0.75rem', fontWeight: 400, color: 'var(--accent)',
-        textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 8,
+        fontSize: '0.75rem', 
+        fontWeight: 400, 
+        color: 'var(--accent)',
+        textTransform: 'uppercase', 
+        letterSpacing: '0.1em', 
+        marginBottom: 8,
       }}>{tag}</div>
+      
       <h3 style={{
-        fontFamily: 'Nunito, sans-serif', fontSize: '1.4rem',
-        fontWeight: 400, marginBottom: 12, lineHeight: 1.3
+        fontFamily: 'Nunito, sans-serif', 
+        fontSize: '1.4rem',
+        fontWeight: 400, 
+        marginBottom: 12, 
+        lineHeight: 1.3,
+        color: '#fff',
       }}>{title}</h3>
+      
       <p style={{
-        fontSize: '0.95rem', color: 'var(--text-secondary)', lineHeight: 1.65,
-        marginBottom: 32, flexGrow: 1
+        fontSize: '0.95rem', 
+        color: 'var(--text-secondary)', 
+        lineHeight: 1.65,
+        marginBottom: 32, 
+        flexGrow: 1,
       }}>{desc}</p>
+      
       {active && (
         <Link href={href} style={{
           fontSize: '0.95rem', fontWeight: 400,
           color: hovered ? 'var(--accent-hover)' : 'var(--accent)',
-          transition: 'color 0.2s', display: 'inline-block'
+          transition: 'color 0.2s', display: 'inline-block',
+          textDecoration: 'none'
         }}>
           {linkText}
         </Link>
@@ -277,10 +294,17 @@ function ServiceCard({ icon, tag, title, desc, linkText, href, active, rotating 
 }
 
 const navBtnStyle = {
-  width: 44, height: 44, borderRadius: '50%',
-  background: 'var(--surface)', border: '1.5px solid var(--border)',
-  color: 'var(--text)', fontSize: '1.2rem',
-  display: 'flex', alignItems: 'center', justifyContent: 'center',
-  cursor: 'pointer', transition: 'all 0.2s',
+  width: 44,
+  height: 44,
+  borderRadius: '50%',
+  background: 'var(--surface)',
+  border: '1.5px solid var(--border)',
+  color: 'var(--text)',
+  fontSize: '1.2rem',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  cursor: 'pointer',
+  transition: 'all 0.2s',
   boxShadow: 'var(--card-shadow)'
 }
