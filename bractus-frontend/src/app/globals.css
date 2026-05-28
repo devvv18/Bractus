@@ -55,7 +55,11 @@ button {
   --footer-text: #94a3b8;
   --bg-rgb: 255, 255, 255;
   --overlay: rgba(255, 255, 255, 0.6);
+  --stats-bg: linear-gradient(135deg, var(--accent) 0%, #4A7BE4 50%, #a8c5f8 100%);
+  --stats-text: #ffffff;
+  --stats-shadow: 0 12px 32px rgba(47, 84, 150, 0.15);
 }
+
 
 /* ═══════════════════════════════════════════════════
    DARK PALETTE
@@ -82,7 +86,11 @@ button {
   --footer-text: #64748b;
   --bg-rgb: 15, 23, 42;
   --overlay: rgba(15, 23, 42, 0.6);
+  --stats-bg: linear-gradient(135deg, var(--accent) 0%, #1e40af 50%, #0b1120 100%);
+  --stats-text: #ffffff;
+  --stats-shadow: 0 12px 32px rgba(15, 23, 42, 0.4);
 }
+
 
 /* ═══════════════════════════════════════════════════
    BASE TYPOGRAPHY

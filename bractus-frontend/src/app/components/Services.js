@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+
 
 const SERVICES = [
   {
@@ -63,63 +64,171 @@ export default function Services() {
     setCurrentIndex((i) => (i - 1 + SERVICES.length) % SERVICES.length)
   }
 
-  const getCardStyle = (index) => {
+  // Auto-play interval: rotates cards every 5 seconds.
+  // Resets timer on manual navigation for premium UX feel.
+  useEffect(() => {
+    const timer = setInterval(() => {
+      next()
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [currentIndex])
+
+  const getCardClassName = (index) => {
     const total = SERVICES.length
     let diff = index - currentIndex
 
     if (diff > Math.floor(total / 2)) diff -= total
     else if (diff < -Math.floor(total / 2)) diff += total
 
-    let translateX = 0
-    let scale = 1
-    let opacity = 1
-    let zIndex = 10
-    let pointerEvents = 'auto'
-
-    // Multi-dimensional coordinates adjusted so 5 cards fit perfectly in viewport simultaneously
-    if (diff === 0) {
-      translateX = 0; scale = 1; opacity = 1; zIndex = 30
-    } else if (diff === 1) {
-      translateX = '35%'; scale = 0.88; opacity = 0.55; zIndex = 20; pointerEvents = 'none'
-    } else if (diff === -1) {
-      translateX = '-35%'; scale = 0.88; opacity = 0.55; zIndex = 20; pointerEvents = 'none'
-    } else if (diff === 2) {
-      translateX = '70%'; scale = 0.76; opacity = 0.2; zIndex = 10; pointerEvents = 'none'
-    } else if (diff === -2) {
-      translateX = '-70%'; scale = 0.76; opacity = 0.2; zIndex = 10; pointerEvents = 'none'
-    } else {
-      translateX = '0%'; scale = 0.6; opacity = 0; zIndex = 5; pointerEvents = 'none'
-    }
-
-    return {
-      position: 'absolute',
-      left: '50%',
-      marginLeft: -190, // half of maxWidth 380
-      width: '100%',
-      maxWidth: 380,
-      transform: `translateX(${translateX}) scale(${scale})`,
-      opacity,
-      zIndex,
-      pointerEvents,
-      transition: 'all 0.6s cubic-bezier(0.25, 1, 0.5, 1)',
-      overflow: 'visible',
-      transformOrigin: 'center center',
-    }
+    if (diff === 0) return 'carousel-card card-active'
+    if (diff === 1) return 'carousel-card card-right-1'
+    if (diff === -1) return 'carousel-card card-left-1'
+    if (diff === 2) return 'carousel-card card-right-2'
+    if (diff === -2) return 'carousel-card card-left-2'
+    return 'carousel-card card-hidden'
   }
 
   return (
     <section id="services" className="section" style={{ background: 'var(--bg)', overflowX: 'visible', position: 'relative' }}>
       {/* Immersive 3D CSS Styles */}
       <style>{`
+        .carousel-card {
+          position: absolute;
+          left: 50%;
+          transform-style: preserve-3d;
+          transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+          overflow: visible;
+          transform-origin: center center;
+          width: 260px;
+          margin-left: -130px;
+          cursor: pointer;
+        }
+        @media (min-width: 600px) {
+          .carousel-card {
+            width: 280px;
+            margin-left: -140px;
+          }
+        }
+        @media (min-width: 900px) {
+          .carousel-card {
+            width: 310px;
+            margin-left: -155px;
+          }
+        }
+        @media (min-width: 1200px) {
+          .carousel-card {
+            width: 380px;
+            margin-left: -190px;
+          }
+        }
+
+        /* Active Card Style */
+        .card-active {
+          transform: translateX(0) scale(1);
+          opacity: 1;
+          z-index: 30;
+          pointer-events: auto;
+        }
+
+        /* Left 1 */
+        .card-left-1 {
+          transform: translateX(-120px) scale(0.88);
+          opacity: 0.55;
+          z-index: 20;
+        }
+        @media (min-width: 600px) {
+          .card-left-1 { transform: translateX(-180px) scale(0.88); }
+        }
+        @media (min-width: 900px) {
+          .card-left-1 { transform: translateX(-240px) scale(0.88); }
+        }
+        @media (min-width: 1200px) {
+          .card-left-1 { transform: translateX(-310px) scale(0.88); }
+        }
+
+        /* Right 1 */
+        .card-right-1 {
+          transform: translateX(120px) scale(0.88);
+          opacity: 0.55;
+          z-index: 20;
+        }
+        @media (min-width: 600px) {
+          .card-right-1 { transform: translateX(180px) scale(0.88); }
+        }
+        @media (min-width: 900px) {
+          .card-right-1 { transform: translateX(240px) scale(0.88); }
+        }
+        @media (min-width: 1200px) {
+          .card-right-1 { transform: translateX(310px) scale(0.88); }
+        }
+
+        /* Left 2 */
+        .card-left-2 {
+          transform: translateX(-220px) scale(0.76);
+          opacity: 0;
+          z-index: 10;
+        }
+        @media (min-width: 600px) {
+          .card-left-2 { transform: translateX(-320px) scale(0.76); opacity: 0.12; }
+        }
+        @media (min-width: 900px) {
+          .card-left-2 { transform: translateX(-420px) scale(0.76); opacity: 0.15; }
+        }
+        @media (min-width: 1200px) {
+          .card-left-2 { transform: translateX(-540px) scale(0.76); opacity: 0.2; }
+        }
+
+        /* Right 2 */
+        .card-right-2 {
+          transform: translateX(220px) scale(0.76);
+          opacity: 0;
+          z-index: 10;
+        }
+        @media (min-width: 600px) {
+          .card-right-2 { transform: translateX(320px) scale(0.76); opacity: 0.12; }
+        }
+        @media (min-width: 900px) {
+          .card-right-2 { transform: translateX(420px) scale(0.76); opacity: 0.15; }
+        }
+        @media (min-width: 1200px) {
+          .card-right-2 { transform: translateX(540px) scale(0.76); opacity: 0.2; }
+        }
+
+        /* Hidden */
+        .card-hidden {
+          transform: translateX(0) scale(0.6);
+          opacity: 0;
+          z-index: 5;
+        }
+
+        @keyframes cardJump {
+          0% {
+            transform: translateY(0) translateZ(0);
+          }
+          30% {
+            transform: translateY(-38px) translateZ(45px);
+          }
+          55% {
+            transform: translateY(-16px) translateZ(20px);
+          }
+          75% {
+            transform: translateY(-28px) translateZ(35px);
+          }
+          100% {
+            transform: translateY(-24px) translateZ(30px);
+          }
+        }
+
         @keyframes backgroundSpin {
           0% { transform: rotateY(0deg); }
-          15%, 100% { transform: rotateY(360deg); }
+          20%, 100% { transform: rotateY(360deg); }
         }
+
         .service-card-active {
           transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1) !important;
         }
         .service-card-active:hover {
-          transform: translateY(-24px) translateZ(30px) !important;
+          animation: cardJump 0.65s cubic-bezier(0.25, 1, 0.5, 1) both;
           box-shadow: 0 35px 70px -10px rgba(30, 64, 175, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
           border-color: var(--accent) !important;
         }
@@ -129,7 +238,11 @@ export default function Services() {
           transform-style: preserve-3d;
           transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
+        .carousel-card:not(.card-active) .rotation-wrapper {
+          animation: backgroundSpin 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+        }
       `}</style>
+
 
       <div className="container">
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
@@ -157,37 +270,29 @@ export default function Services() {
 
         <div style={{
           position: 'relative',
-          width: '100vw',
-          left: '50%',
-          transform: 'translateX(-50%)',
+          width: '100%',
           margin: '0 auto',
           height: 480,
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          overflowX: 'visible',
+          overflow: 'visible',
           perspective: '1200px',
         }}>
           {/* overflow: visible so side cards are not clipped */}
           <div style={{ position: 'relative', height: 380, width: '100%', overflow: 'visible' }}>
             {SERVICES.map((service, index) => {
-              const isBackground = index !== currentIndex
-              
-              // Pure-CSS infinite 360 spin periodic keyframes with cascaded index delays
-              const spinAnimation = isBackground
-                ? 'backgroundSpin 5s infinite cubic-bezier(0.4, 0, 0.2, 1)'
-                : 'none'
-              const spinDelay = `${index * 1.25}s`
+              const spinDelay = `${index * 0.8}s`
 
               return (
                 <div
                   key={index}
-                  style={getCardStyle(index)}
+                  className={getCardClassName(index)}
+                  onClick={() => setCurrentIndex(index)}
                 >
                   <div 
                     className="rotation-wrapper"
                     style={{
-                      animation: spinAnimation,
                       animationDelay: spinDelay,
                       transformStyle: 'preserve-3d',
                       width: '100%',
@@ -268,7 +373,7 @@ function ServiceCard({ icon, tag, title, desc, linkText, href, active }) {
         fontWeight: 400, 
         marginBottom: 12, 
         lineHeight: 1.3,
-        color: '#fff',
+        color: 'var(--text)',
       }}>{title}</h3>
       
       <p style={{

@@ -508,8 +508,8 @@ export default function Hero() {
             display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
             padding: '28px 48px',
             borderRadius: 20,
-            background: 'linear-gradient(135deg, var(--accent) 0%, #1e40af 55%, #0B111E 100%)',
-            boxShadow: '0 12px 32px rgba(47,84,150,0.15)',
+            background: 'var(--stats-bg)',
+            boxShadow: 'var(--stats-shadow)',
             width: '100%', maxWidth: 850,
           }}>
             {STATS.map(({ suffix, label }, i) => (
@@ -517,10 +517,10 @@ export default function Hero() {
                 <div style={{
                   fontFamily: 'Nunito, sans-serif',
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
-                  fontWeight: 800, color: '#fff',
+                  fontWeight: 800, color: 'var(--stats-text)',
                 }}>{counts[`c${i}`]}{suffix}</div>
                 <div style={{
-                  fontSize: '0.7rem', color: 'rgba(255,255,255,0.8)',
+                  fontSize: '0.7rem', color: 'rgba(255,255,255,0.85)',
                   textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: 4,
                   fontWeight: 600
                 }}>{label}</div>
