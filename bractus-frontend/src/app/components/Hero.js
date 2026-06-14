@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const BADGES = [
   'Website & Applications',
@@ -7,7 +7,7 @@ const BADGES = [
   'Full-Stack Engineering',
   'System Architecture',
   'Cloud & DevOps',
-  'Data Engineering'
+  'Data Engineering',
 ]
 
 function ParticleGrid() {
@@ -20,6 +20,7 @@ function ParticleGrid() {
     let animationFrameId
 
     let width = window.innerWidth
+    let autoTime = 0 // for autonomous drift across full width
     let height = window.innerHeight
 
     const setSize = () => {
@@ -28,92 +29,199 @@ function ParticleGrid() {
       height = rect.height
       canvas.width = width
       canvas.height = height
-      initGrid()
+      initParticles()
     }
 
-    let mouse = { x: -1000, y: -1000 }
-    const handleMouseMove = (e) => {
+    let mouse = { x: 0, y: 0 }
+    let mouseAbs = { x: -1000, y: -1000 }
+    let targetRotation = { x: 0, y: 0 }
+    let currentRotation = { x: 0, y: 0 }
+    let targetCenter = { x: 0, y: 0 }
+    let currentCenter = { x: 0, y: 0 }
+    let mouseActive = false
+    let globalOpacity = 0
+
+    const handleInteraction = (clientX, clientY) => {
+      mouseActive = true
       const rect = canvas.getBoundingClientRect()
-      mouse.x = e.clientX - rect.left
-      mouse.y = e.clientY - rect.top
+      mouseAbs.x = clientX - rect.left
+      mouseAbs.y = clientY - rect.top
+
+      mouse.x = (clientX / window.innerWidth) * 2 - 1
+      mouse.y = (clientY / window.innerHeight) * 2 - 1
+      
+      const isMobile = window.innerWidth < 768
+      const tiltMult = isMobile ? 0.2 : 0.4
+      targetRotation.y = mouse.x * tiltMult
+      targetRotation.x = -mouse.y * tiltMult
+
+      // Full width range: mouse drives sphere from extreme left to extreme right
+      const moveMultX = isMobile ? (width * 0.3) : (width * 0.35)
+      const moveMultY = isMobile ? 80 : 180
+      targetCenter.x = mouse.x * moveMultX
+      targetCenter.y = mouse.y * moveMultY
     }
 
-    const handleMouseLeave = () => {
-      mouse.x = -1000
-      mouse.y = -1000
+    const handleMouseMove = (e) => handleInteraction(e.clientX, e.clientY)
+    const handleTouchMove = (e) => {
+      if (e.touches[0]) handleInteraction(e.touches[0].clientX, e.touches[0].clientY)
     }
 
     window.addEventListener('resize', setSize)
     window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('mouseout', handleMouseLeave)
+    window.addEventListener('touchmove', handleTouchMove, { passive: false })
 
-    // Grid Setup
-    const spacing = 42 // Cleaner grid, zero clutter
-    let dots = []
+    // 3D Setup
+    let particles = []
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+    const spacing = isMobile ? 18 : 22 
+    const focalLength = isMobile ? 300 : 400
+    
+    const getColors = () => {
+      if (typeof window === 'undefined') return ['#1E40AF', '#166534']
+      const styles = getComputedStyle(document.documentElement)
+      const accent = styles.getPropertyValue('--accent').trim() || '#1E40AF'
+      return [accent, '#166534']
+    }
 
-    const initGrid = () => {
-      dots = []
-      // add padding to ensure dots fill edges
-      for (let x = -spacing; x < width + spacing; x += spacing) {
-        for (let y = -spacing; y < height + spacing; y += spacing) {
-          dots.push({
-            ox: x, oy: y,
-            x: x, y: y,
-            vx: 0, vy: 0
-          })
-        }
+    const initParticles = () => {
+      particles = []
+      const colors = getColors()
+      const isMobile = window.innerWidth < 768
+      const numParticles = isMobile ? 600 : 1200
+      const sphereRadius = isMobile ? 180 : 250
+      
+      // Fibonacci Sphere Algorithm for even distribution
+      const phi = Math.PI * (3 - Math.sqrt(5)) // Golden angle
+
+      for (let i = 0; i < numParticles; i++) {
+        const y = 1 - (i / (numParticles - 1)) * 2 // y goes from 1 to -1
+        const radius = Math.sqrt(1 - y * y) // radius at y
+        const theta = phi * i // golden angle increment
+
+        const x = Math.cos(theta) * radius
+        const z = Math.sin(theta) * radius
+
+        particles.push({
+          x: x * sphereRadius,
+          y: y * sphereRadius,
+          z: z * sphereRadius,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          size: isMobile ? 1.6 : 2.2 
+        })
       }
     }
 
     setSize()
 
-    // Grab CSS var natively
-    const getAccentColor = () => {
-      if (typeof window === 'undefined') return '#2F5496'
-      const styles = getComputedStyle(document.documentElement)
-      return styles.getPropertyValue('--accent').trim() || '#2F5496'
-    }
-
     const render = () => {
       ctx.clearRect(0, 0, width, height)
-      ctx.fillStyle = getAccentColor()
+      const isMobile = window.innerWidth < 768
+      const time = Date.now() * 0.002 // For slimy movement
+      autoTime += 0.003 // slow autonomous drift speed
 
-      for (let i = 0; i < dots.length; i++) {
-        let dot = dots[i]
+      currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05
+      currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05
+      
+      // Dialed back speed for a more fluid feel
+      currentCenter.x += (targetCenter.x - currentCenter.x) * 0.08
+      currentCenter.y += (targetCenter.y - currentCenter.y) * 0.08
 
-        let dx = mouse.x - dot.x
-        let dy = mouse.y - dot.y
-        let distance = Math.sqrt(dx * dx + dy * dy)
+      if (mouseActive) {
+        globalOpacity += (0.6 - globalOpacity) * 0.05
+      }
 
-        let forceRadius = 180
+      const rotY = currentRotation.y
+      const rotX = currentRotation.x
 
-        if (distance < forceRadius) {
-          // Repel force
-          let force = (forceRadius - distance) / forceRadius
-          let angle = Math.atan2(dy, dx)
-          dot.vx -= Math.cos(angle) * force * 1.2
-          dot.vy -= Math.sin(angle) * force * 1.2
+      const cosX = Math.cos(rotX)
+      const sinX = Math.sin(rotX)
+      const cosY = Math.cos(rotY)
+      const sinY = Math.sin(rotY)
+
+      // Autonomous drift: sphere glides from extreme left to extreme right continuously
+      // sin(autoTime) goes -1 to +1, mapping to full width travel
+      const autoDriftX = isMobile ? 0 : Math.sin(autoTime) * (width * 0.35)
+      const baseCx = isMobile ? width * 0.5 : width * 0.5 // center as base
+      const cx = baseCx + autoDriftX + currentCenter.x
+      const cy = (isMobile ? height * 0.4 : height * 0.45) + currentCenter.y
+
+      const sortedParticles = [...particles].map(p => {
+        // Slimy Deformation: Wobble the radius based on position and time
+        const distortion = Math.sin(p.x * 0.02 + time) * Math.cos(p.y * 0.02 + time) * 15
+        const sx = p.x + distortion
+        const sy = p.y + distortion
+        const sz = p.z + distortion
+
+        let x = sx * cosY - sz * sinY
+        let z = sx * sinY + sz * cosY
+        let y = sy * cosX - z * sinX
+        z = sy * sinX + z * cosX
+        return { ...p, rx: x, ry: y, rz: z }
+      }).sort((a, b) => b.rz - a.rz)
+
+      for (let p of sortedParticles) {
+        const scale = focalLength / (focalLength + p.rz)
+        const px = p.rx * scale + cx
+        const py = p.ry * scale + cy
+        
+        const dx = px - mouseAbs.x
+        const dy = py - mouseAbs.y
+        const dist = Math.sqrt(dx * dx + dy * dy)
+        
+        const repulsionRadius = isMobile ? 250 : 400 // Expanded repulsion
+        const repulsionPower = isMobile ? 25 : 40
+        
+        let shiftX = 0, shiftY = 0
+        if (dist < repulsionRadius) {
+          const force = (1 - dist / repulsionRadius) * repulsionPower
+          shiftX = (dx / dist) * force
+          shiftY = (dy / dist) * force
         }
 
-        // Spring force pulling back to origin
-        dot.vx += (dot.ox - dot.x) * 0.02
-        dot.vy += (dot.oy - dot.y) * 0.02
+        const fpx = px + shiftX
+        const fpy = py + shiftY
+        
+        const auraRadius = isMobile ? 150 : 250 // Expanded invisible hole
+        let opacity = globalOpacity
+        
+        const nDx = fpx - mouseAbs.x
+        const nDy = fpy - mouseAbs.y
+        const nDist = Math.sqrt(nDx * nDx + nDy * nDy)
 
-        // Friction
-        dot.vx *= 0.92
-        dot.vy *= 0.92
+        if (nDist < auraRadius) {
+          opacity *= Math.pow(nDist / auraRadius, 2)
+        }
+        
+        const depthFactor = Math.max(0, Math.min(1, (180 - p.rz) / 350))
+        opacity *= Math.pow(depthFactor, isMobile ? 4 : 8)
 
-        dot.x += dot.vx
-        dot.y += dot.vy
+        if (fpx > 0 && fpx < width && fpy > 0 && fpy < height && opacity > 0.02) {
+          const perspectiveScale = p.size * scale
+          // Extra size falloff for depth to clean up the back
+          const finalSize = perspectiveScale * Math.pow(depthFactor, 2)
+          const dropHeight = finalSize * 2.2 
 
-        let speed = Math.abs(dot.vx) + Math.abs(dot.vy)
-        let isDisturbed = speed > 0.3
-        let size = 1.5 // Consistent dot radius
+          ctx.globalAlpha = Math.min(0.9, opacity)
+          ctx.fillStyle = p.color
+          
+          const angle = Math.atan2(mouseAbs.y - fpy, mouseAbs.x - fpx)
 
-        ctx.globalAlpha = isDisturbed ? 0.6 : 0.15
-        ctx.beginPath()
-        ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2)
-        ctx.fill()
+          ctx.save()
+          ctx.translate(fpx, fpy)
+          ctx.rotate(angle + Math.PI / 2) 
+          
+          ctx.beginPath()
+          ctx.roundRect(
+            -finalSize / 2, 
+            -dropHeight / 2, 
+            finalSize, 
+            dropHeight, 
+            finalSize / 2
+          )
+          ctx.fill()
+          ctx.restore()
+        }
       }
       animationFrameId = requestAnimationFrame(render)
     }
@@ -123,10 +231,12 @@ function ParticleGrid() {
     return () => {
       window.removeEventListener('resize', setSize)
       window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('mouseout', handleMouseLeave)
+      window.removeEventListener('touchmove', handleTouchMove)
       cancelAnimationFrame(animationFrameId)
     }
   }, [])
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   return (
     <canvas
@@ -137,8 +247,9 @@ function ParticleGrid() {
         width: '100%', height: '100%',
         pointerEvents: 'none',
         zIndex: 0,
-        WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.12) 30%, black 75%)',
-        maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,0.12) 30%, black 75%)',
+        opacity: 0.8,
+        WebkitMaskImage: 'radial-gradient(ellipse 55% 60% at 50% 50%, black 55%, transparent 100%)',
+        maskImage: 'radial-gradient(ellipse 55% 60% at 50% 50%, black 55%, transparent 100%)',
       }}
     />
   )
@@ -146,6 +257,52 @@ function ParticleGrid() {
 
 export default function Hero() {
   const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
+  const statsRef = useRef(null)
+  const [counts, setCounts] = useState({ c0: 0, c1: 0, c2: 0, c3: 0 })
+  const animated = useRef(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
+
+  const STATS = [
+    { end: 120, suffix: '+', label: 'Clients Served' },
+    { end: 50, suffix: '+', label: 'Projects Delivered' },
+    { end: 98, suffix: '%', label: 'Satisfaction Rate' },
+    { end: 8, suffix: '+', label: 'Years Experience' },
+  ]
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !animated.current) {
+        animated.current = true
+        STATS.forEach(({ end }, i) => {
+          let start = 0
+          const duration = 1500
+          const frameDuration = 1000 / 60
+          const totalFrames = Math.round(duration / frameDuration)
+          const step = end / totalFrames
+          
+          let currentFrame = 0
+          const timer = setInterval(() => {
+            currentFrame++
+            start = Math.min(end, Math.ceil(step * currentFrame))
+            setCounts(prev => ({ ...prev, [`c${i}`]: start }))
+            if (currentFrame >= totalFrames) clearInterval(timer)
+          }, frameDuration)
+        })
+      }
+    }, { threshold: 0.4 })
+    if (statsRef.current) observer.observe(statsRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <section style={{
       position: 'relative',
@@ -154,10 +311,8 @@ export default function Hero() {
       background: 'var(--bg)',
       overflow: 'hidden',
     }}>
-      {/* Dynamic Cursor Canvas */}
       <ParticleGrid />
 
-      {/* Accent glow */}
       <div style={{
         position: 'absolute',
         width: 600, height: 600,
@@ -169,96 +324,133 @@ export default function Hero() {
         filter: 'blur(80px)',
       }} />
 
-      <div className="container" style={{ position: 'relative', zIndex: 1, paddingTop: 72 }}>
-        <div style={{
-          maxWidth: 900, margin: '0 auto',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center'
+      <div className="container" style={{ 
+        position: 'relative', 
+        zIndex: 1, 
+        paddingTop: isMobile ? 40 : 72,
+        paddingBottom: isMobile ? 40 : 0
+      }}>
+
+        {/* Tags — centered across full width, above the two columns */}
+        <div className="anim-fade-up" style={{
+          display: 'flex',
+          gap: isMobile ? 10 : 20,
+          flexWrap: 'wrap', // Mobile-friendly wrap
+          justifyContent: 'center',
+          marginBottom: isMobile ? 30 : 40
         }}>
-          {/* Tag */}
-          <div className="anim-fade-up" style={{ marginBottom: 32, display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
-            <span className="tag">✦ COMPREHENSIVE IT SOLUTIONS</span>
-            <span className="tag">✦ END-TO-END TECHNOLOGY PARTNER</span>
+          <span className="tag" style={{ fontSize: isMobile ? '0.7rem' : '0.8rem' }}>✦ COMPREHENSIVE IT SOLUTIONS</span>
+          <span className="tag" style={{ fontSize: isMobile ? '0.7rem' : '0.8rem' }}>✦ END-TO-END TECHNOLOGY PARTNER</span>
+        </div>
+
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          maxWidth: 850,
+          margin: '0 auto',
+          gap: isMobile ? 30 : 40,
+        }}>
+          {/* Content Column (Centered) */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+          }}>
+            <h1 className="anim-fade-up" style={{
+              fontSize: 'clamp(2.5rem, 4.5vw, 4rem)',
+              fontWeight: 400,
+              lineHeight: 1.15,
+              marginBottom: 24,
+            }}>
+              We Build, Scale, and Modernize<br />
+              <span className="accent-text">Complex Software Systems</span>
+            </h1>
+
+            <p className="anim-fade-up anim-delay-2" style={{
+              fontSize: 'clamp(1rem, 1.8vw, 1.1rem)',
+              color: 'var(--text-secondary)',
+              lineHeight: 1.75,
+              maxWidth: 750,
+              marginBottom: 32,
+            }}>
+              Your all-in-one partner for digital transformation. Whether building
+              standard web applications to advanced DevOps, data pipelines, or reshaping
+              an outdated legacy system and architecting a cutting-edge AI platform from
+              the ground up, our cross-functional teams deliver scalable, high-performance
+              results.
+            </p>
+
+            <div className="anim-fade-up anim-delay-3" style={{
+              display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 40,
+              justifyContent: 'center',
+            }}>
+              {BADGES.map(b => (
+                <span key={b} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  padding: '6px 16px', borderRadius: 100,
+                  border: '1px solid var(--border)',
+                  fontSize: '0.82rem', color: 'var(--text-secondary)', fontWeight: 400,
+                }}>
+                  <span style={{ color: 'var(--accent)', fontSize: 14 }}>✓</span>
+                  {b}
+                </span>
+              ))}
+            </div>
+
+            <div className="anim-fade-up anim-delay-4" style={{ 
+              display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32,
+              justifyContent: 'center',
+            }}>
+              <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
+              <a href="/services" className="btn-outline">View Our Services</a>
+            </div>
           </div>
+        </div>
 
-          {/* Headline with responsive line breaks */}
-          <h1 className="anim-fade-up anim-delay-1" style={{
-            fontSize: 'clamp(1.65rem, 5.2vw, 4.2rem)',
-            fontWeight: 400,
-            lineHeight: 1.2,
-            marginBottom: 32,
-            maxWidth: '90vw'
+        {/* Stats Section */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 65, marginBottom: 40 }}>
+          <div ref={statsRef} className="anim-fade-up anim-delay-4" style={{
+            display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
+            padding: '28px 48px',
+            borderRadius: 20,
+            background: 'var(--stats-bg)',
+            boxShadow: 'var(--stats-shadow)',
+            width: '100%', maxWidth: 850,
           }}>
-            We Build, Scale, and Modernize<br />
-            <span className="accent-text">Complex Software Systems</span>
-          </h1>
-
-          {/* Subtext */}
-          <p className="anim-fade-up anim-delay-2" style={{
-            fontSize: 'clamp(1rem, 2vw, 1.12rem)',
-            color: 'var(--text-secondary)',
-            lineHeight: 1.75,
-            maxWidth: 800,
-            marginBottom: 40,
-          }}>
-            Your all-in-one partner for digital transformation. Whether building standard web applications to advanced DevOps, data pipelines, or reshaping an outdated legacy system and architecting a cutting-edge AI platform from the ground up, our cross-functional teams deliver scalable, high-performance results. We provide the technical muscle to bring any digital vision to life.
-          </p>
-
-          {/* Badge row */}
-          <div className="anim-fade-up anim-delay-2" style={{
-            display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center', marginBottom: 48,
-          }}>
-            {BADGES.map(b => (
-              <span key={b} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                padding: '8px 20px', borderRadius: 100,
-                border: '1px solid var(--border)',
-                fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 400,
-              }}>
-                <span style={{ color: 'var(--accent)', fontSize: 14 }}>✓</span>
-                {b}
-              </span>
-            ))}
-          </div>
-
-          {/* CTAs */}
-          <div className="anim-fade-up anim-delay-3" style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 80 }}>
-            <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
-            <a href="#services" className="btn-outline">View Our Services</a>
-          </div>
-
-          {/* Stats Row - Responsive Grid */}
-          <div className="anim-fade-up anim-delay-4" style={{
-            display: 'flex', 
-            gap: 'clamp(24px, 5vw, 60px)', 
-            justifyContent: 'center',
-            flexWrap: 'wrap', // Allow wrapping on mobile
-            paddingTop: 40,
-            borderTop: '1px solid var(--border)',
-            width: '100%', 
-            maxWidth: 800,
-            margin: '0 auto'
-          }}>
-            {[
-              { value: '120+', label: 'Clients Served' },
-              { value: '50+', label: 'Projects Delivered' },
-              { value: '98%', label: 'Satisfaction Rate' },
-              { value: '8+', label: 'Years Experience' },
-            ].map(({ value, label }) => (
-              <div key={label} style={{ minWidth: 140 }}>
+            {STATS.map(({ suffix, label }, i) => (
+              <div key={label} style={{ textAlign: 'center' }}>
                 <div style={{
                   fontFamily: 'Nunito, sans-serif',
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
-                  fontWeight: 400, color: 'var(--accent)',
-                }}>{value}</div>
+                  fontWeight: 800, color: 'var(--stats-text)',
+                }}>{counts[`c${i}`]}{suffix}</div>
                 <div style={{
-                  fontSize: '0.75rem', color: 'var(--text-muted)',
-                  textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 4,
+                  fontSize: '0.7rem', color: 'rgba(255,255,255,0.85)',
+                  textTransform: 'uppercase', letterSpacing: '0.15em', marginTop: 4,
+                  fontWeight: 600
                 }}>{label}</div>
               </div>
             ))}
           </div>
         </div>
       </div>
+      <style>{`
+        @keyframes drift {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(10px, -15px); }
+        }
+        @keyframes lightTravel {
+          0% { background-position: -100% 0; }
+          100% { background-position: 200% 0; }
+        }
+        @keyframes slowZoom {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+      `}</style>
     </section>
   )
 }

@@ -8,22 +8,61 @@ export default function ScrollReveal() {
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
+        const isReReveal =
+          entry.target.classList.contains('reveal-right') ||
+          entry.target.classList.contains('reveal-left');
+
         if (entry.isIntersecting) {
           entry.target.classList.add('visible')
-          // Optional: stop observing once revealed so it doesn't animate out/in continuously
-          observer.unobserve(entry.target)
+          // Stop watching normal elements so they stay visible when scrolling up
+          if (!isReReveal) {
+            observer.unobserve(entry.target)
+          }
+        } else {
+          // Only remove visible class for tool chips to allow re-triggering
+          if (isReReveal) {
+            entry.target.classList.remove('visible')
+          }
         }
       })
-    }, { threshold: 0.05, rootMargin: '0px' })
+    }, { threshold: 0.01, rootMargin: '40px' })
 
-    // Give the DOM a tiny fraction of a second to render layout before binding
     const timeout = setTimeout(() => {
-      // Select elements we want to slide up dynamically (cards, headers, paragraphs)
-      // Exclude anything in the very first view (like hero sections) so they don't pop-in weirdly
-      const els = document.querySelectorAll('section:not(:first-of-type) h2, section:not(:first-of-type) p:not(.hero-text), .card, .accordion')
-      
+      const els = document.querySelectorAll(`
+        section:not(:first-of-type) h1,
+        section:not(:first-of-type) h2,
+        section:not(:first-of-type) h3,
+        section:not(:first-of-type) h4,
+        section:not(:first-of-type) img,
+        section:not(:first-of-type) p,
+        section:not(:first-of-type) span.subtitle,
+        section:not(:first-of-type) .tag,
+        section:not(:first-of-type) span.tag,
+        section:not(:first-of-type) button,
+        section:not(:first-of-type) a.btn,
+        section:not(:first-of-type) .btn-primary,
+        section:not(:first-of-type) .btn-outline,
+        section:not(:first-of-type) div > span:not(.tag),
+        .card,
+        .accordion,
+        .footer-link
+      `)
+
       els.forEach(el => {
-        el.classList.add('reveal')
+        if (el.matches('h1, h2, h3, h4')) {
+          el.classList.add('reveal', 'reveal-heading')
+        } else if (el.matches('.tag, span.tag, span.subtitle')) {
+          el.classList.add('reveal', 'reveal-tag')
+        } else if (el.matches('img')) {
+          el.classList.add('reveal', 'reveal-image')
+        } else if (el.matches('div > span:not(.tag)')) {
+          // Horizontal slide for tool chips
+          el.classList.add('reveal', 'reveal-right')
+        } else if (el.matches('button, a.btn, .btn-primary, .btn-outline')) {
+          el.classList.add('reveal', 'reveal-button')
+        } else {
+          el.classList.add('reveal', 'reveal-text')
+        }
         observer.observe(el)
       })
     }, 100)
@@ -32,7 +71,7 @@ export default function ScrollReveal() {
       clearTimeout(timeout)
       observer.disconnect()
     }
-  }, [pathname]) // Re-run if they change pages
+  }, [pathname])
 
   return null
 }

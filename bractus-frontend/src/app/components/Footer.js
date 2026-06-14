@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Logo from './Logo'
 
 const FOOTER_LINKS = {
   Services: [
@@ -35,18 +36,9 @@ export default function Footer() {
       }} className="footer-grid">
         {/* Brand col */}
         <div>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, textDecoration: 'none' }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 8,
-              background: 'var(--accent)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Nunito, sans-serif', fontWeight: 400, fontSize: 16, color: '#fff',
-            }}>B</div>
-            <span style={{
-              fontFamily: 'Nunito, sans-serif', fontWeight: 400,
-              fontSize: '1.15rem', color: '#f1f5f9',
-            }}>BRACTUS</span>
-          </Link>
+          <div style={{ marginBottom: 20 }}>
+            <Logo variant="footer" />
+          </div>
           <p style={{
             color: '#64748b', fontSize: '0.85rem', lineHeight: 1.7,
             maxWidth: 320, marginBottom: 24,
@@ -55,8 +47,8 @@ export default function Footer() {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
-            <a href={`mailto:hr@bractus.com`} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>hr@bractus.com</a>
-            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>+91 9667507343</span>
+            <a href={`mailto:info@bractus.com`} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>info@bractus.com</a>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>+91 8766328987</span>
             <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Delhi, India</span>
           </div>
 

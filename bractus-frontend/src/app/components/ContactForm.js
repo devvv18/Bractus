@@ -76,6 +76,131 @@ export function EcosystemBanner() {
   )
 }
 
+
+function ParticleGrid() {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    let animationFrameId
+
+    let width = window.innerWidth
+    let height = window.innerHeight
+
+    const setSize = () => {
+      const rect = canvas.parentElement.getBoundingClientRect()
+      width = rect.width
+      height = rect.height
+      canvas.width = width
+      canvas.height = height
+      initGrid()
+    }
+
+    let mouse = { x: -1000, y: -1000 }
+    const handleMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect()
+      mouse.x = e.clientX - rect.left
+      mouse.y = e.clientY - rect.top
+    }
+
+    const handleMouseLeave = () => {
+      mouse.x = -1000
+      mouse.y = -1000
+    }
+
+    window.addEventListener('resize', setSize)
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseout', handleMouseLeave)
+
+    const spacing = 40
+    let dots = []
+
+    const getColors = () => {
+      if (typeof window === 'undefined') return ['#013F4A', '#638BF2', '#078462']
+      const styles = getComputedStyle(document.documentElement)
+      const accent = styles.getPropertyValue('--accent').trim() || '#013F4A'
+      return [accent, '#638BF2', '#078462']
+    }
+
+    const initGrid = () => {
+      dots = []
+      const colors = getColors()
+      for (let x = -spacing; x < width + spacing; x += spacing) {
+        for (let y = -spacing; y < height + spacing; y += spacing) {
+          dots.push({
+            ox: x, oy: y,
+            x: x, y: y,
+            vx: 0, vy: 0,
+            color: colors[Math.floor(Math.random() * colors.length)]
+          })
+        }
+      }
+    }
+
+    setSize()
+
+    const render = () => {
+      ctx.clearRect(0, 0, width, height)
+      for (let i = 0; i < dots.length; i++) {
+        let dot = dots[i]
+        let dx = mouse.x - dot.x
+        let dy = mouse.y - dot.y
+        let distance = Math.sqrt(dx * dx + dy * dy)
+        let forceRadius = 140
+
+        if (distance < forceRadius) {
+          // Repel force (Original Effect)
+          let force = (forceRadius - distance) / forceRadius
+          let angle = Math.atan2(dy, dx)
+          dot.vx -= Math.cos(angle) * force * 1.2
+          dot.vy -= Math.sin(angle) * force * 1.2
+        }
+
+        dot.vx += (dot.ox - dot.x) * 0.03
+        dot.vy += (dot.oy - dot.y) * 0.03
+        dot.vx *= 0.9
+        dot.vy *= 0.9
+        dot.x += dot.vx
+        dot.y += dot.vy
+
+        let speed = Math.abs(dot.vx) + Math.abs(dot.vy)
+        let size = 1.2 + (speed * 0.4)
+
+        ctx.globalAlpha = distance < forceRadius ? 0.7 : 0.1
+        ctx.fillStyle = dot.color
+        ctx.beginPath()
+        ctx.arc(dot.x, dot.y, size, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      animationFrameId = requestAnimationFrame(render)
+    }
+
+    render()
+    return () => {
+      window.removeEventListener('resize', setSize)
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseout', handleMouseLeave)
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        top: 0, left: 0,
+        width: '100%', height: '100%',
+        pointerEvents: 'none',
+        zIndex: 0,
+        opacity: 0.6,
+      }}
+    />
+  )
+}
+
 export function GetInTouch() {
   const [form, setForm] = useState({ name: '', email: '', company: '', service: '', message: '' })
   const [sent, setSent] = useState(false)
@@ -170,8 +295,8 @@ export function GetInTouch() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
                 { label: 'Location:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>, text: 'Delhi, India' },
-                { label: 'Phone:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>, text: '+91 9667507343' },
-                { label: 'Mail:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>, text: 'hr@bractus.com' },
+                { label: 'Phone:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>, text: '+91 8766328987' },
+                { label: 'Mail:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>, text: 'info@bractus.com' },
               ].map(({ icon, text, label }) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{

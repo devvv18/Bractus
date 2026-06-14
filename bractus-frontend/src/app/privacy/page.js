@@ -70,7 +70,7 @@ export default function PrivacyPolicy() {
           <div>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 500, marginBottom: 20, color: 'var(--text)' }}>7. Contact Us</h2>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem' }}>
-              If you have questions or comments about this notice, you may email us at <a href="mailto:hr@bractus.com" style={{ color: 'var(--accent)', textDecoration: 'none' }}>hr@bractus.com</a>.
+              If you have questions or comments about this notice, you may email us at <a href="mailto:info@bractus.com" style={{ color: 'var(--accent)', textDecoration: 'none' }}>info@bractus.com</a>.
             </p>
           </div>
         </section>
