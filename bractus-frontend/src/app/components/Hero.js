@@ -20,6 +20,7 @@ function ParticleGrid() {
     let animationFrameId
 
     let width = window.innerWidth
+    let autoTime = 0 // for autonomous drift across full width
     let height = window.innerHeight
 
     const setSize = () => {
@@ -54,8 +55,8 @@ function ParticleGrid() {
       targetRotation.y = mouse.x * tiltMult
       targetRotation.x = -mouse.y * tiltMult
 
-      // Increased vertical range (180) so it can go till bottom
-      const moveMultX = isMobile ? 30 : 60
+      // Full width range: mouse drives sphere from extreme left to extreme right
+      const moveMultX = isMobile ? (width * 0.3) : (width * 0.35)
       const moveMultY = isMobile ? 80 : 180
       targetCenter.x = mouse.x * moveMultX
       targetCenter.y = mouse.y * moveMultY
@@ -117,6 +118,7 @@ function ParticleGrid() {
       ctx.clearRect(0, 0, width, height)
       const isMobile = window.innerWidth < 768
       const time = Date.now() * 0.002 // For slimy movement
+      autoTime += 0.003 // slow autonomous drift speed
 
       currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05
       currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05
@@ -137,8 +139,11 @@ function ParticleGrid() {
       const cosY = Math.cos(rotY)
       const sinY = Math.sin(rotY)
 
-      // Anchor to left-half and more centered vertically to allow travel
-      const cx = (isMobile ? width * 0.5 : width * 0.25) + currentCenter.x
+      // Autonomous drift: sphere glides from extreme left to extreme right continuously
+      // sin(autoTime) goes -1 to +1, mapping to full width travel
+      const autoDriftX = isMobile ? 0 : Math.sin(autoTime) * (width * 0.35)
+      const baseCx = isMobile ? width * 0.5 : width * 0.5 // center as base
+      const cx = baseCx + autoDriftX + currentCenter.x
       const cy = (isMobile ? height * 0.4 : height * 0.45) + currentCenter.y
 
       const sortedParticles = [...particles].map(p => {
@@ -243,12 +248,8 @@ function ParticleGrid() {
         pointerEvents: 'none',
         zIndex: 0,
         opacity: 0.8,
-        WebkitMaskImage: isMobile 
-          ? 'radial-gradient(circle, black 60%, transparent 95%)'
-          : 'linear-gradient(to right, black 35%, rgba(0,0,0,0.1) 70%, transparent)',
-        maskImage: isMobile 
-          ? 'radial-gradient(circle, black 60%, transparent 95%)'
-          : 'linear-gradient(to right, black 35%, rgba(0,0,0,0.1) 70%, transparent)',
+        WebkitMaskImage: 'radial-gradient(ellipse 55% 60% at 50% 50%, black 55%, transparent 100%)',
+        maskImage: 'radial-gradient(ellipse 55% 60% at 50% 50%, black 55%, transparent 100%)',
       }}
     />
   )
@@ -344,19 +345,19 @@ export default function Hero() {
 
         <div style={{
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'space-between',
+          textAlign: 'center',
+          maxWidth: 850,
+          margin: '0 auto',
           gap: isMobile ? 30 : 40,
-          flexWrap: 'wrap'
         }}>
-          {/* Content Column (Left) */}
+          {/* Content Column (Centered) */}
           <div style={{
-            flex: '1 1 500px',
-            textAlign: isMobile ? 'center' : 'left', // Center text on mobile
             display: 'flex',
             flexDirection: 'column',
-            alignItems: isMobile ? 'center' : 'flex-start'
+            alignItems: 'center',
+            textAlign: 'center',
           }}>
             <h1 className="anim-fade-up" style={{
               fontSize: 'clamp(2.5rem, 4.5vw, 4rem)',
@@ -372,7 +373,7 @@ export default function Hero() {
               fontSize: 'clamp(1rem, 1.8vw, 1.1rem)',
               color: 'var(--text-secondary)',
               lineHeight: 1.75,
-              maxWidth: 600,
+              maxWidth: 750,
               marginBottom: 32,
             }}>
               Your all-in-one partner for digital transformation. Whether building
@@ -384,6 +385,7 @@ export default function Hero() {
 
             <div className="anim-fade-up anim-delay-3" style={{
               display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 40,
+              justifyContent: 'center',
             }}>
               {BADGES.map(b => (
                 <span key={b} style={{
@@ -398,106 +400,12 @@ export default function Hero() {
               ))}
             </div>
 
-            <div className="anim-fade-up anim-delay-4" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32 }}>
+            <div className="anim-fade-up anim-delay-4" style={{ 
+              display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32,
+              justifyContent: 'center',
+            }}>
               <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary">Schedule a call</a>
               <a href="/services" className="btn-outline">View Our Services</a>
-            </div>
-          </div>
-
-          {/* Visual Column (Right) */}
-          <div className="anim-fade-up anim-delay-1" style={{
-            flex: '1 1 450px',
-            position: 'relative',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            minHeight: isMobile ? 400 : 600
-          }}>
-            <div style={{
-              position: 'relative',
-              width: '100%',
-              borderRadius: 24,
-              overflow: 'hidden',
-              boxShadow: '0 30px 60px rgba(0,0,0,0.2)',
-              animation: 'slowZoom 12s ease-in-out infinite',
-              marginTop: isMobile ? 0 : '-20px'
-            }}>
-              <div style={{ position: 'relative', overflow: 'hidden' }}>
-                <img
-                  src="/assets/hero-dark.png"
-                  alt="Digital Connectivity"
-                  style={{ width: '100%', display: 'block', transform: 'scale(1.1)' }}
-                  className="hide-light"
-                />
-                <img
-                  src="/assets/hero-light.png"
-                  alt="Digital Connectivity"
-                  style={{ width: '100%', display: 'block', transform: 'scale(1.1)' }}
-                  className="show-light"
-                />
-
-                {/* Light-Travel Shimmer Overlay */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0, left: 0, width: '100%', height: '100%',
-                  background: 'linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.4) 50%, transparent 60%)',
-                  backgroundSize: '300% 100%',
-                  animation: 'lightTravel 4s linear infinite',
-                  mixMode: 'overlay',
-                  pointerEvents: 'none',
-                  zIndex: 1
-                }} />
-              </div>
-
-              <div ref={statsRef} style={{
-                position: 'absolute',
-                top: 0, left: 0, width: '100%', height: '100%',
-                pointerEvents: 'none'
-              }}>
-                {STATS.map(({ suffix, label }, i) => (
-                  <div key={label} style={{
-                    position: 'absolute',
-                    textAlign: 'center',
-                    // Precise docking positions to feel integrated with the 3D wires
-                    top: i === 0 ? '12%' : i === 1 ? '55%' : i === 2 ? '28%' : '72%',
-                    left: i === 0 ? '15%' : i === 1 ? '5%' : i === 2 ? '60%' : '55%',
-                    zIndex: 2,
-                    // Glass Node Styling
-                    background: 'rgba(var(--bg-rgb), 0.6)',
-                    backdropFilter: 'blur(10px)',
-                    WebkitBackdropFilter: 'blur(10px)',
-                    padding: '12px 20px',
-                    borderRadius: '20px',
-                    border: '1px solid var(--border)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                    transition: 'transform 0.3s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: 2
-                  }}>
-                    <div
-                      className="stat-number"
-                      style={{
-                        fontFamily: 'Nunito, sans-serif',
-                        fontSize: '2rem',
-                        fontWeight: 800,
-                        lineHeight: 1,
-                        marginBottom: 4
-                      }}
-                    >
-                      {counts[`c${i}`]}{suffix}
-                    </div>
-                    <div style={{
-                      fontSize: '0.72rem',
-                      color: 'var(--text-secondary)',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.12em',
-                      fontWeight: 700,
-                    }}>{label}</div>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>

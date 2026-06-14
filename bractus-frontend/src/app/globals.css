@@ -55,7 +55,7 @@ button {
   --footer-text: #94a3b8;
   --bg-rgb: 255, 255, 255;
   --overlay: rgba(255, 255, 255, 0.6);
-  --stats-bg: linear-gradient(135deg, var(--accent) 0%, #2F5496 50%, #4A7BE4 100%);
+  --stats-bg: linear-gradient(135deg, #078462 0%, #045a50 50%, #013F4A 100%);
   --stats-text: #ffffff;
   --stats-shadow: 0 12px 32px rgba(1, 63, 74, 0.15);
 }
@@ -86,7 +86,7 @@ button {
   --footer-text: #64748b;
   --bg-rgb: 15, 23, 42;
   --overlay: rgba(15, 23, 42, 0.6);
-  --stats-bg: linear-gradient(135deg, var(--accent) 0%, #1e40af 50%, #0b1120 100%);
+  --stats-bg: linear-gradient(135deg, #078462 0%, #045a50 50%, #013F4A 100%);
   --stats-text: #ffffff;
   --stats-shadow: 0 12px 32px rgba(7, 132, 98, 0.4);
 }

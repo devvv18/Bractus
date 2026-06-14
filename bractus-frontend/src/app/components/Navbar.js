@@ -43,14 +43,17 @@ export default function Navbar() {
         transition: 'background 0.3s, box-shadow 0.3s',
       }}>
         {/* Logo */}
-        <Logo />
+        <div style={{ flex: '1 1 0%', display: 'flex', justifyContent: 'flex-start', minWidth: 0 }}>
+          <Logo />
+        </div>
 
         {/* Desktop links */}
-        <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
+        <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 32, justifyContent: 'center' }}>
           {NAV_LINKS.map(({ label, href }) => (
             <Link key={label} href={href} style={{
               color: 'var(--text-secondary)', fontSize: '0.88rem', fontWeight: 400,
               transition: 'color 0.2s',
+              whiteSpace: 'nowrap'
             }}
             onMouseEnter={e => e.target.style.color = 'var(--accent)'}
             onMouseLeave={e => e.target.style.color = 'var(--text-secondary)'}
@@ -59,8 +62,8 @@ export default function Navbar() {
         </div>
 
         {/* Right side */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary btn-sm hide-mobile" style={{ fontSize: '0.82rem', padding: '10px 22px' }}>Schedule a call</a>
+        <div style={{ flex: '1 1 0%', display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'flex-end' }}>
+          <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary btn-sm hide-mobile" style={{ fontSize: '0.82rem', padding: '10px 22px', whiteSpace: 'nowrap' }}>Schedule a call</a>
           
           <button onClick={toggle} className="theme-toggle-btn" aria-label="Toggle theme" title="Toggle Theme">
             {theme === 'light' ? (

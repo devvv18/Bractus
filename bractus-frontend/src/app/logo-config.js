@@ -6,18 +6,19 @@
  */
 export const logoConfig = {
   // Choose either 'text' or 'image'
-  type: 'text', 
+  type: 'image',
 
   // --- Image Logo Settings ---
-  // Path to your logo image file (should be placed in the public/ folder, e.g. public/logo.svg)
-  imageSrc: '/logo.svg', 
-  imageWidth: 36,
-  imageHeight: 36,
+  // Path to your logo image file (placed in the public/ folder)
+  imageSrc: '/bractus-logo.png',
+  imageWidth: 440,   // width in px — full logo with wordmark
+  imageHeight: 128,
 
-  // --- Text Logo Settings ---
-  letter: 'B',       // The single letter or character shown inside the colored square
-  text: 'BRACTUS',   // The text brand name displayed next to the square
+  // --- Text Logo Settings (fallback) ---
+  letter: 'B',
+  text: 'BRACTUS',
 
   // --- General Settings ---
-  showText: true,    // Whether to display the text next to the logo icon
+  // showText false because the image already includes the wordmark
+  showText: false,
 };
