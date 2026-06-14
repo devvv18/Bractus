@@ -11,8 +11,9 @@ export const logoConfig = {
   // --- Image Logo Settings ---
   // Path to your logo image file (placed in the public/ folder)
   imageSrc: '/bractus-logo.png',
-  imageWidth: 440,   // width in px — full logo with wordmark
-  imageHeight: 128,
+  imageWidth: 400,   // width in px — full logo with wordmark
+  imageHeight: 118,
+  imageMarginLeft: -130, // Shift left to align with page margin (cancels transparent border in logo PNG)
 
   // --- Text Logo Settings (fallback) ---
   letter: 'B',

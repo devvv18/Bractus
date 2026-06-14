@@ -539,3 +539,8 @@ h6 {
 [data-theme="dark"] .show-light {
   display: none !important;
 }
+
+/* Dark mode support for navbar logo */
+[data-theme="dark"] .logo-image-nav {
+  filter: brightness(0) invert(1);
+}

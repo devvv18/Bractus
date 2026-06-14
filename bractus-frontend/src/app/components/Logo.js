@@ -26,15 +26,27 @@ export default function Logo({ variant = 'nav' }) {
     >
       {type === 'image' ? (
         /* Image Logo */
-        <img 
-          src={imageSrc} 
-          alt={text} 
-          style={{ 
-            width: isFooter ? imageWidth - 2 : imageWidth, 
-            height: isFooter ? imageHeight - 2 : imageHeight, 
-            objectFit: 'contain' 
-          }}
-        />
+        (() => {
+          const finalWidth = imageWidth
+          const finalHeight = imageHeight
+          const finalMarginLeft = logoConfig.imageMarginLeft || 0
+          const filterStyle = isFooter ? 'brightness(0) invert(1)' : 'none'
+
+          return (
+            <img 
+              src={imageSrc} 
+              alt={text} 
+              className={isFooter ? '' : 'logo-image-nav'}
+              style={{ 
+                width: finalWidth, 
+                height: finalHeight, 
+                objectFit: 'contain',
+                marginLeft: finalMarginLeft,
+                filter: filterStyle
+              }}
+            />
+          )
+        })()
       ) : (
         /* Text/Letter Logo Icon */
         <div style={{
