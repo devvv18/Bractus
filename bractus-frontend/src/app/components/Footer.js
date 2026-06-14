@@ -26,7 +26,7 @@ export default function Footer() {
   return (
     <footer style={{
       background: 'var(--footer-bg)',
-      padding: 'clamp(48px, 7vw, 80px) clamp(20px, 5vw, 80px) 32px',
+      padding: 'clamp(24px, 4vw, 48px) clamp(20px, 5vw, 80px) 32px',
     }}>
       <div style={{
         maxWidth: 1200, margin: '0 auto',
@@ -36,7 +36,7 @@ export default function Footer() {
       }} className="footer-grid">
         {/* Brand col */}
         <div>
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: 12 }}>
             <Logo variant="footer" />
           </div>
           <p style={{

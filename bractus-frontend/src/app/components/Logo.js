@@ -30,6 +30,8 @@ export default function Logo({ variant = 'nav' }) {
           const finalWidth = imageWidth
           const finalHeight = imageHeight
           const finalMarginLeft = logoConfig.imageMarginLeft || 0
+          const finalMarginTop = logoConfig.imageMarginTop || 0
+          const finalMarginBottom = logoConfig.imageMarginBottom || 0
           const filterStyle = isFooter ? 'brightness(0) invert(1)' : 'none'
 
           return (
@@ -42,6 +44,8 @@ export default function Logo({ variant = 'nav' }) {
                 height: finalHeight, 
                 objectFit: 'contain',
                 marginLeft: finalMarginLeft,
+                marginTop: finalMarginTop,
+                marginBottom: finalMarginBottom,
                 filter: filterStyle
               }}
             />
