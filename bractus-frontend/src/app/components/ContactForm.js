@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 
 const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
 
@@ -23,14 +23,12 @@ export function ToolsAndPartners() {
         <div style={{
           display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center',
         }}>
-          {TOOLS.map((t, i) => (
+          {TOOLS.map(t => (
             <span key={t} style={{
               padding: '6px 16px', borderRadius: 100,
               border: '1px solid var(--border)',
               fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 400,
-              transition: 'all 0.2s, opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-              cursor: 'default',
-              transitionDelay: `${i * 0.05}s`,
+              transition: 'all 0.2s', cursor: 'default',
             }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
@@ -78,6 +76,7 @@ export function EcosystemBanner() {
   )
 }
 
+
 function ParticleGrid() {
   const canvasRef = useRef(null)
 
@@ -119,10 +118,10 @@ function ParticleGrid() {
     let dots = []
 
     const getColors = () => {
-      if (typeof window === 'undefined') return ['#2F5496', '#638BF2', '#10b981']
+      if (typeof window === 'undefined') return ['#013F4A', '#638BF2', '#078462']
       const styles = getComputedStyle(document.documentElement)
-      const accent = styles.getPropertyValue('--accent').trim() || '#2F5496'
-      return [accent, '#638BF2', '#10b981']
+      const accent = styles.getPropertyValue('--accent').trim() || '#013F4A'
+      return [accent, '#638BF2', '#078462']
     }
 
     const initGrid = () => {
@@ -213,8 +212,8 @@ export function GetInTouch() {
     e.preventDefault()
     setLoading(true)
 
-    const type = window.location.hash.includes('type=org') ? 'org' :
-      window.location.hash.includes('type=dev') ? 'dev' : 'general';
+    const type = window.location.hash.includes('type=org') ? 'org' : 
+                 window.location.hash.includes('type=dev') ? 'dev' : 'general';
 
     let subject = '';
     let bodyText = '';
@@ -222,34 +221,34 @@ export function GetInTouch() {
     if (type === 'dev') {
       subject = `Engineering Support & Collaboration`;
       bodyText = `Hi Bractus Team,\n\n` +
-        `I am reaching out to get some dedicated engineering support for my current project.\n\n` +
-        `Here is a quick overview of what I am working on:\n` +
-        `My Project: ${form.message}\n` +
-        `Current Tech Stack: [Fill your tech stack]\n\n` +
-        `I am looking for a reliable technical partner to help me push this across the finish line. Please let me know your availability for a quick introductory call to discuss how we might collaborate.\n\n` +
-        `Best,\n` +
-        `${form.name}\n` +
-        `[Link to your project/website]`;
+                 `I am reaching out to get some dedicated engineering support for my current project.\n\n` +
+                 `Here is a quick overview of what I am working on:\n` +
+                 `My Project: ${form.message}\n` +
+                 `Current Tech Stack: [Fill your tech stack]\n\n` +
+                 `I am looking for a reliable technical partner to help me push this across the finish line. Please let me know your availability for a quick introductory call to discuss how we might collaborate.\n\n` +
+                 `Best,\n` +
+                 `${form.name}\n` +
+                 `[Link to your project/website]`;
     } else if (type === 'org') {
       subject = `Engineering & Development Services`;
       bodyText = `Hi Bractus Team,\n\n` +
-        `I am reaching out on behalf of ${form.company || '[Your Company]'}. We are currently looking for a reliable technology partner to help us scale our engineering capabilities and execute our digital roadmap.\n\n` +
-        `We are primarily looking for expertise in:\n` +
-        `${form.message || '[e.g., Legacy System Modernization / Cloud Infrastructure / Building a new AI tool from scratch]'}\n\n` +
-        `We need a dedicated team that can take technical ownership and deliver secure, high-performance results.\n\n` +
-        `I would love to schedule a brief discovery call this week to discuss our upcoming initiatives and see if Bractus is the right fit to support our growth. Let me know what your schedule looks like over the next few days.\n\n` +
-        `Best regards,\n` +
-        `${form.name}\n` +
-        `[Your Job Title]\n` +
-        `${form.company || '[Your Company]'}`;
+                 `I am reaching out on behalf of ${form.company || '[Your Company]'}. We are currently looking for a reliable technology partner to help us scale our engineering capabilities and execute our digital roadmap.\n\n` +
+                 `We are primarily looking for expertise in:\n` +
+                 `${form.message || '[e.g., Legacy System Modernization / Cloud Infrastructure / Building a new AI tool from scratch]'}\n\n` +
+                 `We need a dedicated team that can take technical ownership and deliver secure, high-performance results.\n\n` +
+                 `I would love to schedule a brief discovery call this week to discuss our upcoming initiatives and see if Bractus is the right fit to support our growth. Let me know what your schedule looks like over the next few days.\n\n` +
+                 `Best regards,\n` +
+                 `${form.name}\n` +
+                 `[Your Job Title]\n` +
+                 `${form.company || '[Your Company]'}`;
     } else {
       subject = `Inquiry: ${form.service || 'General'} - ${form.company || form.name}`;
       bodyText = `Hello Bractus Team,\n\n` +
-        `I am reaching out to discuss ${form.service || 'your services'}.\n\n` +
-        `${form.message}\n\n` +
-        `Best regards,\n` +
-        `${form.name}\n` +
-        `${form.company ? form.company : ''}`;
+                 `I am reaching out to discuss ${form.service || 'your services'}.\n\n` +
+                 `${form.message}\n\n` +
+                 `Best regards,\n` +
+                 `${form.name}\n` +
+                 `${form.company ? form.company : ''}`;
     }
 
     const mailtoLink = `mailto:${contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
@@ -270,9 +269,8 @@ export function GetInTouch() {
   }
 
   return (
-    <section id="contact" className="section" style={{ background: 'var(--bg)', position: 'relative', overflow: 'hidden' }}>
-      <ParticleGrid />
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+    <section id="contact" className="section" style={{ background: 'var(--bg)' }}>
+      <div className="container">
         <div id="contact-form" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
@@ -297,8 +295,8 @@ export function GetInTouch() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {[
                 { label: 'Location:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>, text: 'Delhi, India' },
-                { label: 'Phone:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>, text: '+91 9667507343' },
-                { label: 'Mail:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>, text: 'hr@bractus.com' },
+                { label: 'Phone:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>, text: '+91 8766328987' },
+                { label: 'Mail:', icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>, text: 'info@bractus.com' },
               ].map(({ icon, text, label }) => (
                 <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                   <div style={{

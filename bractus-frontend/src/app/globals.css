@@ -41,25 +41,22 @@ button {
   --text: #1a1a2e;
   --text-secondary: #4a5568;
   --text-muted: #94a3b8;
-  --accent: #2F5496;
-  --accent-hover: #213C6D;
-  --accent-light: rgba(47, 84, 150, 0.10);
-  --accent-glow: rgba(47, 84, 150, 0.20);
+  --accent: #013F4A;
+  --accent-hover: #078462;
+  --accent-light: rgba(1, 63, 74, 0.10);
+  --accent-glow: rgba(1, 63, 74, 0.20);
   --border: #e2e8f0;
   --border-light: #f1f5f9;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   --card-shadow-hover: 0 10px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   --nav-bg: rgba(255, 255, 255, 0.92);
   --nav-shadow: 0 1px 0 #e2e8f0;
-  --footer-bg: #1a1a2e;
+  --footer-bg: #013F4A;
   --footer-text: #94a3b8;
-  --bg-rgb: 255, 255, 255;
-  --overlay: rgba(255, 255, 255, 0.6);
-  --stats-bg: linear-gradient(135deg, var(--accent) 0%, #4A7BE4 50%, #a8c5f8 100%);
+  --stats-bg: linear-gradient(135deg, var(--accent) 0%, #2F5496 50%, #4A7BE4 100%);
   --stats-text: #ffffff;
-  --stats-shadow: 0 12px 32px rgba(47, 84, 150, 0.15);
+  --stats-shadow: 0 12px 32px rgba(1, 63, 74, 0.15);
 }
-
 
 /* ═══════════════════════════════════════════════════
    DARK PALETTE
@@ -72,25 +69,22 @@ button {
   --text: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --accent: #4A7BE4;
-  --accent-hover: #638BF2;
-  --accent-light: rgba(74, 123, 228, 0.12);
-  --accent-glow: rgba(74, 123, 228, 0.25);
+  --accent: #078462;
+  --accent-hover: #0bb589;
+  --accent-light: rgba(7, 132, 98, 0.12);
+  --accent-glow: rgba(7, 132, 98, 0.25);
   --border: #334155;
   --border-light: #1e293b;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   --card-shadow-hover: 0 10px 40px rgba(0, 0, 0, 0.4);
   --nav-bg: rgba(15, 23, 42, 0.92);
   --nav-shadow: 0 1px 0 #334155;
-  --footer-bg: #0b1120;
+  --footer-bg: #013F4A;
   --footer-text: #64748b;
-  --bg-rgb: 15, 23, 42;
-  --overlay: rgba(15, 23, 42, 0.6);
   --stats-bg: linear-gradient(135deg, var(--accent) 0%, #1e40af 50%, #0b1120 100%);
   --stats-text: #ffffff;
-  --stats-shadow: 0 12px 32px rgba(15, 23, 42, 0.4);
+  --stats-shadow: 0 12px 32px rgba(7, 132, 98, 0.4);
 }
-
 
 /* ═══════════════════════════════════════════════════
    BASE TYPOGRAPHY
@@ -156,12 +150,8 @@ h6 {
 
 .btn-primary:hover {
   background: var(--accent-hover);
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 12px 28px var(--accent-glow);
-}
-
-.btn-primary:active {
-  transform: translateY(-1px) scale(0.98);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--accent-glow);
 }
 
 .btn-outline {
@@ -184,12 +174,8 @@ h6 {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--accent-light);
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 12px 28px var(--accent-glow);
-}
-
-.btn-outline:active {
-  transform: translateY(-1px) scale(0.98);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--accent-glow);
 }
 
 .btn-sm {
@@ -326,104 +312,16 @@ h6 {
    ANIMATIONS
    ═══════════════════════════════════════════════════ */
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes waveBobble {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  25% {
-    transform: rotate(10deg);
-  }
-
-  50% {
-    transform: rotate(-5deg);
-  }
-
-  75% {
-    transform: rotate(8deg);
-  }
-
-  100% {
-    transform: rotate(0deg);
-  }
-}
-
-@keyframes float {
-  0% {
-    transform: translateY(0px) translateX(0px);
-  }
-
-  50% {
-    transform: translateY(-10px) translateX(5px);
-  }
-
-  100% {
-    transform: translateY(0px) translateX(0px);
-  }
-}
-
-@keyframes drift {
-  0% {
-    transform: translate(0, 0);
-    opacity: 0.7;
-  }
-
-  50% {
-    transform: translate(15px, -10px);
-    opacity: 1;
-  }
-
-  100% {
-    transform: translate(0, 0);
-    opacity: 0.7;
-  }
-}
-
-@keyframes slowZoom {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.05);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes lightTravel {
-  0% {
-    background-position: -200% 0;
-  }
-
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-/* Theme-specific stat colors */
-.stat-number {
-  color: var(--accent);
-  /* Dark blue in light mode */
-  transition: color 0.3s ease;
-}
-
-[data-theme="dark"] .stat-number {
-  color: #00ffff;
-  /* Glowing cyan in dark mode */
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(10deg); }
+  50% { transform: rotate(-5deg); }
+  75% { transform: rotate(8deg); }
+  100% { transform: rotate(0deg); }
 }
 
 /* ═══════════════════════════════════════════════════
@@ -431,50 +329,14 @@ h6 {
    ═══════════════════════════════════════════════════ */
 .reveal {
   opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(24px);
+  transition: opacity 0.45s ease, transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
   will-change: opacity, transform;
 }
 
 .reveal.visible {
   opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.reveal.reveal-heading {
-  transition-delay: 0s;
-}
-
-.reveal.reveal-image {
-  transform: translateY(40px) scale(0.96);
-  transition-delay: 0.1s;
-}
-
-.reveal.reveal-tag {
-  transition-delay: 0.15s;
-}
-
-.reveal.reveal-text {
-  transition-delay: 0.25s;
-}
-
-.reveal.reveal-button {
-  transition-delay: 0.4s;
-}
-
-/* Horizontal Reveals */
-.reveal.reveal-right {
-  transform: translateX(40px) translateY(32px);
-}
-
-.reveal.reveal-left {
-  transform: translateX(-40px) translateY(32px);
-}
-
-.reveal.reveal-right.visible,
-.reveal.reveal-left.visible {
-  transform: translateX(0) translateY(0);
+  transform: translateY(0);
 }
 
 @keyframes fadeIn {
@@ -507,10 +369,6 @@ h6 {
   animation-delay: 0.4s;
 }
 
-.anim-delay-5 {
-  animation-delay: 0.5s;
-}
-
 /* ═══════════════════════════════════════════════════
    RESPONSIVE UTILITIES
    ═══════════════════════════════════════════════════ */
@@ -520,8 +378,7 @@ h6 {
   }
 
   .show-mobile {
-    display: inline !important;
-    /* Changed to inline for text spans */
+    display: inline !important; /* Changed to inline for text spans */
   }
 }
 
@@ -529,13 +386,4 @@ h6 {
   .show-mobile {
     display: none !important;
   }
-}
-
-/* Theme-based Image Switching */
-[data-theme="light"] .hide-light {
-  display: none !important;
-}
-
-[data-theme="dark"] .show-light {
-  display: none !important;
 }

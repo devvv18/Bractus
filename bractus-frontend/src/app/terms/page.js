@@ -74,7 +74,7 @@ export default function TermsOfService() {
           <div>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 500, marginBottom: 20, color: 'var(--text)' }}>8. Contact Information</h2>
             <p style={{ color: 'var(--text-secondary)', lineHeight: 1.8, fontSize: '1.05rem' }}>
-              For any questions regarding these Terms of Service, please contact us at <a href="mailto:hr@bractus.com" style={{ color: 'var(--accent)', textDecoration: 'none' }}>hr@bractus.com</a>.
+              For any questions regarding these Terms of Service, please contact us at <a href="mailto:info@bractus.com" style={{ color: 'var(--accent)', textDecoration: 'none' }}>info@bractus.com</a>.
             </p>
           </div>
         </section>

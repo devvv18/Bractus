@@ -81,40 +81,29 @@ function ServiceColumn({ icon, title, items, href }) {
       </div>
 
       {/* Title */}
-      <Link href={href} style={{ textDecoration: 'none' }}>
-        <h3 style={{
-          fontSize: '1.05rem',
-          fontWeight: 700,
-          color: 'var(--text)',
-          lineHeight: 1.3,
-          marginBottom: 20,
-          cursor: 'pointer',
-          transition: 'color 0.2s',
-          fontFamily: 'Nunito, sans-serif'
-        }}
-          onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--text)'}
-        >
-          {title}
-        </h3>
-      </Link>
+      <h3 style={{
+        fontSize: '1.05rem',
+        fontWeight: 700,
+        color: 'var(--text)',
+        lineHeight: 1.3,
+        marginBottom: 20,
+        fontFamily: 'Nunito, sans-serif'
+      }}>
+        {title}
+      </h3>
 
       {/* Sub items as bullets */}
       <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
         {items.map((item, i) => (
           <li key={i} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: 'var(--accent)', fontSize: '1.1rem' }}>•</span>
-            <Link href={href} style={{
+            <span style={{
               fontSize: '0.88rem',
               color: 'var(--text-secondary)',
-              textDecoration: 'none',
-              transition: 'color 0.2s',
-            }}
-              onMouseEnter={e => e.currentTarget.style.color = 'var(--accent)'}
-              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
-            >
+              fontFamily: 'Nunito, sans-serif'
+            }}>
               {item}
-            </Link>
+            </span>
           </li>
         ))}
       </ul>

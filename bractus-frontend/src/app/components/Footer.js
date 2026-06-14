@@ -47,8 +47,8 @@ export default function Footer() {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
-            <a href={`mailto:hr@bractus.com`} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>hr@bractus.com</a>
-            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>+91 9667507343</span>
+            <a href={`mailto:info@bractus.com`} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>info@bractus.com</a>
+            <span style={{ color: '#64748b', fontSize: '0.85rem' }}>+91 8766328987</span>
             <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Delhi, India</span>
           </div>
 
