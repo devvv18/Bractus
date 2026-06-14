@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useTheme } from '../context/ThemeContext'
+import Logo from './Logo'
 
 const NAV_LINKS = [
   { label: 'Services', href: '/services' },
@@ -41,18 +42,7 @@ export default function Navbar() {
         transition: 'background 0.3s, box-shadow 0.3s',
       }}>
         {/* Logo */}
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 8,
-            background: 'var(--accent)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontFamily: 'Nunito, sans-serif', fontWeight: 400, fontSize: 18, color: '#fff',
-          }}>B</div>
-          <span style={{
-            fontFamily: 'Nunito, sans-serif', fontWeight: 400,
-            fontSize: '1.25rem', color: 'var(--text)', letterSpacing: '-0.02em',
-          }}>BRACTUS</span>
-        </Link>
+        <Logo />
 
         {/* Desktop links */}
         <div className="hide-mobile" style={{ display: 'flex', alignItems: 'center', gap: 32 }}>

@@ -41,19 +41,21 @@ button {
   --text: #1a1a2e;
   --text-secondary: #4a5568;
   --text-muted: #94a3b8;
-  --accent: #2F5496;
-  --accent-hover: #213C6D;
-  --accent-light: rgba(47, 84, 150, 0.10);
-  --accent-glow: rgba(47, 84, 150, 0.20);
+  --accent: #013F4A;
+  --accent-hover: #078462;
+  --accent-light: rgba(1, 63, 74, 0.10);
+  --accent-glow: rgba(1, 63, 74, 0.20);
   --border: #e2e8f0;
   --border-light: #f1f5f9;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   --card-shadow-hover: 0 10px 40px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   --nav-bg: rgba(255, 255, 255, 0.92);
   --nav-shadow: 0 1px 0 #e2e8f0;
-  --footer-bg: #1a1a2e;
+  --footer-bg: #013F4A;
   --footer-text: #94a3b8;
-  --overlay: rgba(255, 255, 255, 0.6);
+  --stats-bg: linear-gradient(135deg, var(--accent) 0%, #2F5496 50%, #4A7BE4 100%);
+  --stats-text: #ffffff;
+  --stats-shadow: 0 12px 32px rgba(1, 63, 74, 0.15);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -67,19 +69,21 @@ button {
   --text: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --accent: #4A7BE4;
-  --accent-hover: #638BF2;
-  --accent-light: rgba(74, 123, 228, 0.12);
-  --accent-glow: rgba(74, 123, 228, 0.25);
+  --accent: #078462;
+  --accent-hover: #0bb589;
+  --accent-light: rgba(7, 132, 98, 0.12);
+  --accent-glow: rgba(7, 132, 98, 0.25);
   --border: #334155;
   --border-light: #1e293b;
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   --card-shadow-hover: 0 10px 40px rgba(0, 0, 0, 0.4);
   --nav-bg: rgba(15, 23, 42, 0.92);
   --nav-shadow: 0 1px 0 #334155;
-  --footer-bg: #0b1120;
+  --footer-bg: #013F4A;
   --footer-text: #64748b;
-  --overlay: rgba(15, 23, 42, 0.6);
+  --stats-bg: linear-gradient(135deg, var(--accent) 0%, #1e40af 50%, #0b1120 100%);
+  --stats-text: #ffffff;
+  --stats-shadow: 0 12px 32px rgba(7, 132, 98, 0.4);
 }
 
 /* ═══════════════════════════════════════════════════
