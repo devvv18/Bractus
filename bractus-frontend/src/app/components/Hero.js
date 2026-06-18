@@ -20,7 +20,7 @@ function ParticleGrid() {
     let animationFrameId
 
     let width = window.innerWidth
-    let autoTime = 0 // for autonomous drift across full width
+    let autoTime = 0
     let height = window.innerHeight
 
     const setSize = () => {
@@ -34,32 +34,56 @@ function ParticleGrid() {
 
     let mouse = { x: 0, y: 0 }
     let mouseAbs = { x: -1000, y: -1000 }
+    let prevMouseAbs = { x: -1000, y: -1000 }
+    let mouseVelocity = { x: 0, y: 0 }
+    let smoothVelocity = { x: 0, y: 0 }
     let targetRotation = { x: 0, y: 0 }
     let currentRotation = { x: 0, y: 0 }
-    let targetCenter = { x: 0, y: 0 }
-    let currentCenter = { x: 0, y: 0 }
+    let targetCx = -1
+    let targetCy = -1
+    let currentCx = -1
+    let currentCy = -1
+    let prevCx = -1
+    let prevCy = -1
+    // Smoothed sphere-center velocity for squash-and-stretch
+    let sphereVelX = 0
+    let sphereVelY = 0
     let mouseActive = false
-    let globalOpacity = 0
+    let globalOpacity = 0.6
+    let currentScatter = 0.0
+    let hasInteracted = false
+
+    // ── Trail history buffer for magic wand wake ──────────────────────
+    const TRAIL_LENGTH = 14
+    let trailHistory = []   // Array of { x, y, age } — last N cursor positions
 
     const handleInteraction = (clientX, clientY) => {
+      hasInteracted = true
       mouseActive = true
       const rect = canvas.getBoundingClientRect()
+      prevMouseAbs.x = mouseAbs.x
+      prevMouseAbs.y = mouseAbs.y
       mouseAbs.x = clientX - rect.left
       mouseAbs.y = clientY - rect.top
 
+      // Raw cursor velocity (pixels per event)
+      mouseVelocity.x = mouseAbs.x - prevMouseAbs.x
+      mouseVelocity.y = mouseAbs.y - prevMouseAbs.y
+
+      // Push to trail history
+      trailHistory.push({ x: mouseAbs.x, y: mouseAbs.y, age: 0 })
+      if (trailHistory.length > TRAIL_LENGTH) trailHistory.shift()
+
+      // ── Follow-offset: keep cursor OUTSIDE the sphere ────────────────
+      // Target is computed dynamically each frame in render(), not here.
+      // We only store the mouse position as the attraction point.
+
       mouse.x = (clientX / window.innerWidth) * 2 - 1
       mouse.y = (clientY / window.innerHeight) * 2 - 1
-      
       const isMobile = window.innerWidth < 768
-      const tiltMult = isMobile ? 0.2 : 0.4
+      const tiltMult = isMobile ? 0.15 : 0.35
       targetRotation.y = mouse.x * tiltMult
       targetRotation.x = -mouse.y * tiltMult
-
-      // Full width range: mouse drives sphere from extreme left to extreme right
-      const moveMultX = isMobile ? (width * 0.3) : (width * 0.35)
-      const moveMultY = isMobile ? 80 : 180
-      targetCenter.x = mouse.x * moveMultX
-      targetCenter.y = mouse.y * moveMultY
     }
 
     const handleMouseMove = (e) => handleInteraction(e.clientX, e.clientY)
@@ -74,14 +98,12 @@ function ParticleGrid() {
     // 3D Setup
     let particles = []
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-    const spacing = isMobile ? 18 : 22 
     const focalLength = isMobile ? 300 : 400
     
     const getColors = () => {
-      if (typeof window === 'undefined') return ['#1E40AF', '#166534']
-      const styles = getComputedStyle(document.documentElement)
-      const accent = styles.getPropertyValue('--accent').trim() || '#1E40AF'
-      return [accent, '#166534']
+      if (typeof window === 'undefined') return ['#93c5fd', '#078462']
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
+      return isDark ? ['#078462', '#1e40af'] : ['#93c5fd', '#078462']
     }
 
     const initParticles = () => {
@@ -92,133 +114,291 @@ function ParticleGrid() {
       const sphereRadius = isMobile ? 180 : 250
       
       // Fibonacci Sphere Algorithm for even distribution
-      const phi = Math.PI * (3 - Math.sqrt(5)) // Golden angle
+      const phi = Math.PI * (3 - Math.sqrt(5))
 
       for (let i = 0; i < numParticles; i++) {
-        const y = 1 - (i / (numParticles - 1)) * 2 // y goes from 1 to -1
-        const radius = Math.sqrt(1 - y * y) // radius at y
-        const theta = phi * i // golden angle increment
+        const y = 1 - (i / (numParticles - 1)) * 2
+        const radius = Math.sqrt(1 - y * y)
+        const theta = phi * i
 
         const x = Math.cos(theta) * radius
         const z = Math.sin(theta) * radius
 
+        // Outward scatter direction with some random variation
+        const scatterDirX = x + (Math.random() - 0.5) * 0.4
+        const scatterDirY = y + (Math.random() - 0.5) * 0.4
+        const scatterDirZ = z + (Math.random() - 0.5) * 0.4
+        const len = Math.sqrt(scatterDirX * scatterDirX + scatterDirY * scatterDirY + scatterDirZ * scatterDirZ)
+        const scatterLen = len > 0.01 ? len : 1
+
+        // Reduced scatter distance (tighter, cleaner cloud)
         particles.push({
           x: x * sphereRadius,
           y: y * sphereRadius,
           z: z * sphereRadius,
+          scatterX: (scatterDirX / scatterLen) * (Math.random() * (isMobile ? 30 : 50) + (isMobile ? 10 : 20)),
+          scatterY: (scatterDirY / scatterLen) * (Math.random() * (isMobile ? 30 : 50) + (isMobile ? 10 : 20)),
+          scatterZ: (scatterDirZ / scatterLen) * (Math.random() * (isMobile ? 30 : 50) + (isMobile ? 10 : 20)),
           color: colors[Math.floor(Math.random() * colors.length)],
-          size: isMobile ? 1.6 : 2.2 
+          size: isMobile ? 1.0 : 1.4,
+          // Per-particle displacement for fluid trail persistence
+          displaceX: 0,
+          displaceY: 0,
         })
       }
     }
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          initParticles()
+        }
+      })
+    })
+    observer.observe(document.documentElement, { attributes: true })
 
     setSize()
 
     const render = () => {
       ctx.clearRect(0, 0, width, height)
       const isMobile = window.innerWidth < 768
-      const time = Date.now() * 0.002 // For slimy movement
-      autoTime += 0.003 // slow autonomous drift speed
+      const time = Date.now() * 0.001
 
-      currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05
-      currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05
-      
-      // Dialed back speed for a more fluid feel
-      currentCenter.x += (targetCenter.x - currentCenter.x) * 0.08
-      currentCenter.y += (targetCenter.y - currentCenter.y) * 0.08
+      // ── Smooth cursor velocity (for speed-dependent effects) ────────
+      smoothVelocity.x += (mouseVelocity.x - smoothVelocity.x) * 0.12
+      smoothVelocity.y += (mouseVelocity.y - smoothVelocity.y) * 0.12
+      const cursorSpeed = Math.sqrt(smoothVelocity.x * smoothVelocity.x + smoothVelocity.y * smoothVelocity.y)
+      // Decay raw velocity toward zero each frame
+      mouseVelocity.x *= 0.82
+      mouseVelocity.y *= 0.82
 
-      if (mouseActive) {
-        globalOpacity += (0.6 - globalOpacity) * 0.05
+      // Age trail points
+      for (let t of trailHistory) t.age += 1
+
+      // ── Rotation smoothing ─────────────────────────────────────────
+      currentRotation.x += (targetRotation.x - currentRotation.x) * 0.025
+      currentRotation.y += (targetRotation.y - currentRotation.y) * 0.025
+
+      // ── Sphere position: follow-offset OR autonomous drift ─────────
+      const defaultCx = isMobile ? width * 0.5 : width * 0.65
+      const defaultCy = isMobile ? height * 0.38 : height * 0.45
+
+      if (!mouseActive) {
+        autoTime += 0.0012
+        targetCx = defaultCx + Math.sin(autoTime) * (isMobile ? 0 : width * 0.18)
+        targetCy = defaultCy + Math.cos(autoTime * 0.7) * 30
+      } else {
+        // ── Follow-offset: keep the cursor OUTSIDE the sphere ──────────
+        // Compute vector from sphere center → mouse
+        const safeCx = currentCx === -1 ? defaultCx : currentCx
+        const safeCy = currentCy === -1 ? defaultCy : currentCy
+        const dMx = mouseAbs.x - safeCx
+        const dMy = mouseAbs.y - safeCy
+        const dMdist = Math.sqrt(dMx * dMx + dMy * dMy)
+        const offsetDist = isMobile ? 220 : 320
+        if (dMdist > 0.1) {
+          // Sphere target = mouse minus the normalized direction * offset distance
+          // This makes the sphere orbit around the cursor at `offsetDist` px away
+          targetCx = mouseAbs.x - (dMx / dMdist) * offsetDist
+          targetCy = mouseAbs.y - (dMy / dMdist) * offsetDist
+        }
       }
+
+      if (currentCx === -1) { currentCx = targetCx === -1 ? defaultCx : targetCx }
+      if (currentCy === -1) { currentCy = targetCy === -1 ? defaultCy : targetCy }
+
+      // Store previous center for sphere velocity
+      prevCx = currentCx
+      prevCy = currentCy
+
+      currentCx += (targetCx - currentCx) * 0.04
+      currentCy += (targetCy - currentCy) * 0.035
+
+      const cx = currentCx
+      const cy = currentCy
+
+      // ── Track sphere center velocity for squash-and-stretch ────────
+      const rawSVx = currentCx - prevCx
+      const rawSVy = currentCy - prevCy
+      sphereVelX += (rawSVx - sphereVelX) * 0.2
+      sphereVelY += (rawSVy - sphereVelY) * 0.2
+      const sphereSpeed = Math.sqrt(sphereVelX * sphereVelX + sphereVelY * sphereVelY)
+
+      // Normalized sphere velocity direction
+      const svLen = sphereSpeed > 0.001 ? sphereSpeed : 1
+      const svNx = sphereVelX / svLen
+      const svNy = sphereVelY / svLen
+
+      // Stretch factor: clamp 0 → 0.45
+      const stretchFactor = Math.min(sphereSpeed * 0.015, 0.45)
+
+      // Normalized direction from sphere center → mouse (for teardrop pull)
+      const toCursorX = mouseAbs.x - cx
+      const toCursorY = mouseAbs.y - cy
+      const toCursorDist = Math.sqrt(toCursorX * toCursorX + toCursorY * toCursorY)
+      const tcNx = toCursorDist > 0.1 ? toCursorX / toCursorDist : 0
+      const tcNy = toCursorDist > 0.1 ? toCursorY / toCursorDist : 0
+
+      // Pull amount scales with cursor speed for elongated trailing tail
+      const pullAmt = Math.min(cursorSpeed * 0.008, 0.28)
+
+      // Sphere radius for teardrop weighting
+      const sphereR = isMobile ? 180 : 250
+
+      // ── Scatter factor based on cursor distance ────────────────────
+      let targetScatter = 0.0
+      if (hasInteracted) {
+        if (mouseActive) {
+          // If mouse is active, scatter decreases as the cursor gets closer
+          const minDist = isMobile ? 220 : 320
+          const maxDist = isMobile ? 450 : 650
+          const t = (toCursorDist - minDist) / (maxDist - minDist)
+          targetScatter = Math.max(0, Math.min(1, t))
+        } else {
+          targetScatter = 1.0 // Scatter when mouse is away after interaction
+        }
+      }
+      currentScatter += (targetScatter - currentScatter) * 0.035
+
+      // ── Dynamic CSS mask ───────────────────────────────────────────
+      const maskPctX = ((cx / width) * 100).toFixed(1)
+      const maskPctY = ((cy / height) * 100).toFixed(1)
+      const maskW = isMobile ? '70%' : '60%'
+      const maskH = isMobile ? '65%' : '65%'
+      const maskVal = `radial-gradient(ellipse ${maskW} ${maskH} at ${maskPctX}% ${maskPctY}%, black 45%, transparent 85%)`
+      canvas.style.webkitMaskImage = maskVal
+      canvas.style.maskImage = maskVal
+
+      // ── Opacity ────────────────────────────────────────────────────
+      const targetOpacity = mouseActive ? 0.75 : 0.6
+      globalOpacity += (targetOpacity - globalOpacity) * 0.035
 
       const rotY = currentRotation.y
       const rotX = currentRotation.x
-
       const cosX = Math.cos(rotX)
       const sinX = Math.sin(rotX)
       const cosY = Math.cos(rotY)
       const sinY = Math.sin(rotY)
 
-      // Autonomous drift: sphere glides from extreme left to extreme right continuously
-      // sin(autoTime) goes -1 to +1, mapping to full width travel
-      const autoDriftX = isMobile ? 0 : Math.sin(autoTime) * (width * 0.35)
-      const baseCx = isMobile ? width * 0.5 : width * 0.5 // center as base
-      const cx = baseCx + autoDriftX + currentCenter.x
-      const cy = (isMobile ? height * 0.4 : height * 0.45) + currentCenter.y
+      // ── Speed-dependent physics multipliers ────────────────────────
+      const speedNorm = Math.min(cursorSpeed / 25, 1)          // 0→1
+      const swirlMultiplier = 0.40 + speedNorm * 0.50
+      const repulsionBoost = 1.0 + speedNorm * 0.35
+      const elongationBoost = 1.0 + speedNorm * 1.0
 
-      const sortedParticles = [...particles].map(p => {
-        // Slimy Deformation: Wobble the radius based on position and time
-        const distortion = Math.sin(p.x * 0.02 + time) * Math.cos(p.y * 0.02 + time) * 15
-        const sx = p.x + distortion
-        const sy = p.y + distortion
-        const sz = p.z + distortion
+      // Fixed calm ripple — no speed-based vibration
+      const rippleAmp = 14
+      const rippleFreq = 0.02
 
-        let x = sx * cosY - sz * sinY
-        let z = sx * sinY + sz * cosY
-        let y = sy * cosX - z * sinX
-        z = sy * sinX + z * cosX
-        return { ...p, rx: x, ry: y, rz: z }
+      const sortedParticles = [...particles].map((p, idx) => {
+        // ── Dynamic wave rippling (scales with sphere velocity) ─────
+        const distortion = Math.sin(p.x * rippleFreq + time) *
+                           Math.cos(p.y * rippleFreq + time) * rippleAmp
+
+        // Gentle floating drift when scattered (using sine/cosine waves)
+        const scatterNoiseX = Math.sin(time * 0.4 + idx * 0.1) * 15
+        const scatterNoiseY = Math.cos(time * 0.35 + idx * 0.15) * 15
+        const scatterNoiseZ = Math.sin(time * 0.25 + idx * 0.08) * 15
+
+        const scX = (p.scatterX + scatterNoiseX) * currentScatter
+        const scY = (p.scatterY + scatterNoiseY) * currentScatter
+        const scZ = (p.scatterZ + scatterNoiseZ) * currentScatter
+
+        // ── Squash-and-Stretch transform (relative to sphere center) ─
+        let lx = p.x + distortion + scX
+        let ly = p.y + distortion + scY
+        const lz = p.z + distortion + scZ
+
+        if (stretchFactor > 0.002) {
+          // Project onto velocity axis and perpendicular axis
+          const proj = lx * svNx + ly * svNy
+          const perp = -lx * svNy + ly * svNx
+          // Stretch along velocity, squash perpendicular
+          const stretchScale = 1 + stretchFactor
+          const squashScale = 1 / (1 + stretchFactor * 0.7)
+          lx = proj * stretchScale * svNx - perp * squashScale * svNy
+          ly = proj * stretchScale * svNy + perp * squashScale * svNx
+        }
+
+        // ── Teardrop pull (toward cursor side of the sphere) ─────────
+        // Fade out pull when cursor is inside the sphere to prevent internal shape distortion
+        const pullInsideScale = Math.max(0, Math.min(1, toCursorDist / sphereR))
+        const activePullAmt = pullAmt * pullInsideScale
+        if (activePullAmt > 0.003 && mouseActive) {
+          const projCursor = lx * tcNx + ly * tcNy
+          // Non-linear weighting: front face pulls more than back
+          const pullFactor = Math.pow(Math.max(0, (projCursor / sphereR + 1) / 2), 2)
+          lx += tcNx * pullFactor * activePullAmt * sphereR
+          ly += tcNy * pullFactor * activePullAmt * sphereR
+        }
+
+        let x = lx * cosY - lz * sinY
+        let z = lx * sinY + lz * cosY
+        let y = ly * cosX - z * sinX
+        z = ly * sinX + z * cosX
+        return { ...p, rx: x, ry: y, rz: z, idx }
       }).sort((a, b) => b.rz - a.rz)
 
       for (let p of sortedParticles) {
-        const scale = focalLength / (focalLength + p.rz)
+        const den = focalLength + p.rz
+        if (den <= 10) continue // Skip particles behind the camera viewport
+        const scale = focalLength / den
         const px = p.rx * scale + cx
         const py = p.ry * scale + cy
-        
-        const dx = px - mouseAbs.x
-        const dy = py - mouseAbs.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        
-        const repulsionRadius = isMobile ? 250 : 400 // Expanded repulsion
-        const repulsionPower = isMobile ? 25 : 40
-        
-        let shiftX = 0, shiftY = 0
-        if (dist < repulsionRadius) {
-          const force = (1 - dist / repulsionRadius) * repulsionPower
-          shiftX = (dx / dist) * force
-          shiftY = (dy / dist) * force
-        }
 
-        const fpx = px + shiftX
-        const fpy = py + shiftY
-        
-        const auraRadius = isMobile ? 150 : 250 // Expanded invisible hole
+        // ── Primary cursor interaction & Trail wake ─────────────────
+        // Set shift to 0 so the cursor passes through without affecting the physical shape
+        let shiftX = 0, shiftY = 0
+
+        // ── Per-particle displacement smoothing ───────────────────────
+        const srcParticle = particles[p.idx]
+        srcParticle.displaceX += (shiftX - srcParticle.displaceX) * 0.18
+        srcParticle.displaceY += (shiftY - srcParticle.displaceY) * 0.18
+        srcParticle.displaceX *= 0.88
+        srcParticle.displaceY *= 0.88
+
+        const fpx = px + srcParticle.displaceX
+        const fpy = py + srcParticle.displaceY
+
+        // ── Aura exclusion zone (tighter: carve, not fade) ───────────
+        const auraRadius = isMobile ? 140 : 220
         let opacity = globalOpacity
-        
         const nDx = fpx - mouseAbs.x
         const nDy = fpy - mouseAbs.y
         const nDist = Math.sqrt(nDx * nDx + nDy * nDy)
-
         if (nDist < auraRadius) {
-          opacity *= Math.pow(nDist / auraRadius, 2)
+          opacity *= Math.pow(nDist / auraRadius, 2.5)
         }
-        
+
+        // ── Depth-based fade ─────────────────────────────────────────
         const depthFactor = Math.max(0, Math.min(1, (180 - p.rz) / 350))
         opacity *= Math.pow(depthFactor, isMobile ? 4 : 8)
 
         if (fpx > 0 && fpx < width && fpy > 0 && fpy < height && opacity > 0.02) {
-          const perspectiveScale = p.size * scale
-          // Extra size falloff for depth to clean up the back
-          const finalSize = perspectiveScale * Math.pow(depthFactor, 2)
-          const dropHeight = finalSize * 2.2 
+          // Shrink drops in the scattered state to look like fine stardust (up to 45% smaller)
+          const scatterSizeMultiplier = 1.0 - currentScatter * 0.45
+          const perspectiveScale = p.size * scale * scatterSizeMultiplier
+          // Ensure finalSize is strictly positive to prevent negative radius exceptions in roundRect
+          const finalSize = Math.max(0.1, perspectiveScale * Math.pow(depthFactor, 2))
+          const dropHeight = finalSize * (2.2 * elongationBoost)
 
           ctx.globalAlpha = Math.min(0.9, opacity)
           ctx.fillStyle = p.color
-          
-          const angle = Math.atan2(mouseAbs.y - fpy, mouseAbs.x - fpx)
+
+          // Orient capsule: displacement direction or toward cursor if idle
+          const dispMag = Math.sqrt(srcParticle.displaceX * srcParticle.displaceX + srcParticle.displaceY * srcParticle.displaceY)
+          let angle
+          if (dispMag > 1.5) {
+            angle = Math.atan2(srcParticle.displaceY, srcParticle.displaceX) + Math.PI / 2
+          } else {
+            angle = Math.atan2(mouseAbs.y - fpy, mouseAbs.x - fpx) + Math.PI / 2
+          }
 
           ctx.save()
           ctx.translate(fpx, fpy)
-          ctx.rotate(angle + Math.PI / 2) 
-          
+          ctx.rotate(angle)
           ctx.beginPath()
-          ctx.roundRect(
-            -finalSize / 2, 
-            -dropHeight / 2, 
-            finalSize, 
-            dropHeight, 
-            finalSize / 2
-          )
+          ctx.roundRect(-finalSize / 2, -dropHeight / 2, finalSize, dropHeight, finalSize / 2)
           ctx.fill()
           ctx.restore()
         }
@@ -232,11 +412,10 @@ function ParticleGrid() {
       window.removeEventListener('resize', setSize)
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('touchmove', handleTouchMove)
+      observer.disconnect()
       cancelAnimationFrame(animationFrameId)
     }
   }, [])
-
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
   return (
     <canvas
@@ -247,9 +426,7 @@ function ParticleGrid() {
         width: '100%', height: '100%',
         pointerEvents: 'none',
         zIndex: 0,
-        opacity: 0.8,
-        WebkitMaskImage: 'radial-gradient(ellipse 55% 60% at 50% 50%, black 55%, transparent 100%)',
-        maskImage: 'radial-gradient(ellipse 55% 60% at 50% 50%, black 55%, transparent 100%)',
+        opacity: 1,
       }}
     />
   )
