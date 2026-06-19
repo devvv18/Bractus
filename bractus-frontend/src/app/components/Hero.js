@@ -136,9 +136,9 @@ function ParticleGrid() {
           x: x * sphereRadius,
           y: y * sphereRadius,
           z: z * sphereRadius,
-          scatterX: (scatterDirX / scatterLen) * (Math.random() * (isMobile ? 30 : 50) + (isMobile ? 10 : 20)),
-          scatterY: (scatterDirY / scatterLen) * (Math.random() * (isMobile ? 30 : 50) + (isMobile ? 10 : 20)),
-          scatterZ: (scatterDirZ / scatterLen) * (Math.random() * (isMobile ? 30 : 50) + (isMobile ? 10 : 20)),
+          scatterX: (scatterDirX / scatterLen) * (Math.random() * (isMobile ? 15 : 25) + (isMobile ? 5 : 10)),
+          scatterY: (scatterDirY / scatterLen) * (Math.random() * (isMobile ? 15 : 25) + (isMobile ? 5 : 10)),
+          scatterZ: (scatterDirZ / scatterLen) * (Math.random() * (isMobile ? 15 : 25) + (isMobile ? 5 : 10)),
           color: colors[Math.floor(Math.random() * colors.length)],
           size: isMobile ? 1.0 : 1.4,
           // Per-particle displacement for fluid trail persistence
@@ -296,18 +296,33 @@ function ParticleGrid() {
                            Math.cos(p.y * rippleFreq + time) * rippleAmp
 
         // Gentle floating drift when scattered (using sine/cosine waves)
-        const scatterNoiseX = Math.sin(time * 0.4 + idx * 0.1) * 15
-        const scatterNoiseY = Math.cos(time * 0.35 + idx * 0.15) * 15
-        const scatterNoiseZ = Math.sin(time * 0.25 + idx * 0.08) * 15
+        const scatterNoiseX = Math.sin(time * 0.4 + idx * 0.1) * 6
+        const scatterNoiseY = Math.cos(time * 0.35 + idx * 0.15) * 6
+        const scatterNoiseZ = Math.sin(time * 0.25 + idx * 0.08) * 6
 
         const scX = (p.scatterX + scatterNoiseX) * currentScatter
         const scY = (p.scatterY + scatterNoiseY) * currentScatter
         const scZ = (p.scatterZ + scatterNoiseZ) * currentScatter
 
+        // ── Organic morphing shape ──────────────────────────────────
+        // Deforms the perfect sphere into a dynamic, morphing organic blob
+        const nx = p.x / sphereR
+        const ny = p.y / sphereR
+        const nz = p.z / sphereR
+
+        const morphTime = time * 0.9
+        const morphFreq = isMobile ? 0.005 : 0.0035
+        const morphVal = Math.sin(p.x * morphFreq + morphTime) * 
+                         Math.cos(p.y * morphFreq + morphTime * 0.7) +
+                         Math.sin(p.z * morphFreq + morphTime * 1.3) * 0.4
+
+        const morphAmp = isMobile ? 35 : 60
+        const organicDeform = morphVal * morphAmp
+
         // ── Squash-and-Stretch transform (relative to sphere center) ─
-        let lx = p.x + distortion + scX
-        let ly = p.y + distortion + scY
-        const lz = p.z + distortion + scZ
+        let lx = p.x + nx * organicDeform + distortion + scX
+        let ly = p.y + ny * organicDeform + distortion + scY
+        const lz = p.z + nz * organicDeform + distortion + scZ
 
         if (stretchFactor > 0.002) {
           // Project onto velocity axis and perpendicular axis
