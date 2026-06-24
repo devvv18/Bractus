@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import * as THREE from 'three'
 
 const BADGES = [
   'Website & Applications',
@@ -10,426 +11,732 @@ const BADGES = [
   'Data Engineering',
 ]
 
+// 1D Value Noise class for cursor drift (value noise)
+class ValueNoise1D {
+  constructor() {
+    this.MAX_VERTICES = 256;
+    this.MAX_VERTICES_MASK = this.MAX_VERTICES - 1;
+    this.amplitude = 1;
+    this.scale = 1;
+    this.r = [];
+    for (let e = 0; e < this.MAX_VERTICES; ++e) {
+      this.r.push(Math.random());
+    }
+  }
+  getVal(e) {
+    const t = e * this.scale;
+    const i = Math.floor(t);
+    const r = t - i;
+    const o = r * r * (3 - 2 * r);
+    const s = i % this.MAX_VERTICES_MASK;
+    const a = (s + 1) % this.MAX_VERTICES_MASK;
+    const l = this.lerp(this.r[s], this.r[a], o);
+    return l * this.amplitude;
+  }
+  lerp(e, t, i) {
+    return e * (1 - i) + t * i;
+  }
+}
+
+// O(N) Poisson-Disk Sampler to generate organic grid spacing
+function poissonDiskSample(width, height, minDistance, maxDistance, tries) {
+  const cellSize = minDistance / Math.sqrt(2);
+  const gridWidth = Math.ceil(width / cellSize);
+  const gridHeight = Math.ceil(height / cellSize);
+  const grid = new Int32Array(gridWidth * gridHeight);
+  const samplePoints = [];
+  const activeList = [];
+
+  function isValid(p) {
+    if (p[0] < 0 || p[0] >= width || p[1] < 0 || p[1] >= height) return false;
+    const cellX = Math.floor(p[0] / cellSize);
+    const cellY = Math.floor(p[1] / cellSize);
+    const minX = Math.max(0, cellX - 2);
+    const maxX = Math.min(gridWidth - 1, cellX + 2);
+    const minY = Math.max(0, cellY - 2);
+    const maxY = Math.min(gridHeight - 1, cellY + 2);
+
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        const index = grid[y * gridWidth + x] - 1;
+        if (index >= 0) {
+          const other = samplePoints[index];
+          const dx = p[0] - other[0];
+          const dy = p[1] - other[1];
+          if (dx * dx + dy * dy < minDistance * minDistance) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  function addPoint(p) {
+    samplePoints.push(p);
+    activeList.push(p);
+    const cellX = Math.floor(p[0] / cellSize);
+    const cellY = Math.floor(p[1] / cellSize);
+    grid[cellY * gridWidth + cellX] = samplePoints.length;
+  }
+
+  // Start with a random point
+  addPoint([Math.random() * width, Math.random() * height]);
+
+  while (activeList.length > 0) {
+    const activeIndex = Math.floor(Math.random() * activeList.length);
+    const p = activeList[activeIndex];
+    let found = false;
+
+    for (let i = 0; i < tries; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const radius = minDistance + Math.random() * (maxDistance - minDistance);
+      const candidate = [
+        p[0] + radius * Math.cos(theta),
+        p[1] + radius * Math.sin(theta)
+      ];
+
+      if (isValid(candidate)) {
+        addPoint(candidate);
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      activeList.splice(activeIndex, 1);
+    }
+  }
+  return samplePoints;
+}
+
+// GLSL Simplex Noise library for GPU simulation & rendering
+const SIMPLEX_NOISE_GLSL = `
+  vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+  vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+  float permute(float x){return floor(mod(((x*34.0)+1.0)*x, 289.0));}
+
+  vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+  float taylorInvSqrt(float r){return 1.79284291400159 - 0.85373472095314 * r;}
+
+  float snoise(vec2 v){
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+            -0.577350269189626, 0.024390243902439);
+    vec2 i  = floor(v + dot(v, C.yy) );
+    vec2 x0 = v -   i + dot(i, C.xx);
+    vec2 i1;
+    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+    i = mod(i, 289.0);
+    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+    + i.x + vec3(0.0, i1.x, 1.0 ));
+    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+      dot(x12.zw,x12.zw)), 0.0);
+    m = m*m ;
+    m = m*m ;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+    vec3 g;
+    g.x  = a0.x  * x0.x  + h.x  * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+  }
+
+  float snoise(vec3 v){
+    const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+    const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+
+    vec3 i  = floor(v + dot(v, C.yyy) );
+    vec3 x0 =   v - i + dot(i, C.xxx) ;
+
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min( g.xyz, l.zxy );
+    vec3 i2 = max( g.xyz, l.zxy );
+
+    vec3 x1 = x0 - i1 + 1.0 * C.xxx;
+    vec3 x2 = x0 - i2 + 2.0 * C.xxx;
+    vec3 x3 = x0 - 1. + 3.0 * C.xxx;
+
+    i = mod(i, 289.0 );
+    vec4 p = permute( permute( permute(
+              i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+            + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+            + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+
+    float n_ = 1.0/7.0;
+    vec3  ns = n_ * D.wyz - D.xzx;
+
+    vec4 j = p - 49.0 * floor(p * ns.z *ns.z);
+
+    vec4 x_ = floor(j * ns.z);
+    vec4 y_ = floor(j - 7.0 * x_ );
+
+    vec4 x = x_ *ns.x + ns.yyyy;
+    vec4 y = y_ *ns.x + ns.yyyy;
+    vec4 h = 1.0 - abs(x) - abs(y);
+
+    vec4 b0 = vec4( x.xy, y.xy );
+    vec4 b1 = vec4( x.zw, y.zw );
+
+    vec4 s0 = floor(b0)*2.0 + 1.0;
+    vec4 s1 = floor(b1)*2.0 + 1.0;
+    vec4 sh = -step(h, vec4(0.0));
+
+    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+
+    vec3 p0 = vec3(a0.xy,h.x);
+    vec3 p1 = vec3(a0.zw,h.y);
+    vec3 p2 = vec3(a1.xy,h.z);
+    vec3 p3 = vec3(a1.zw,h.w);
+
+    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+    p0 *= norm.x;
+    p1 *= norm.y;
+    p2 *= norm.z;
+    p3 *= norm.w;
+
+    vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+    m = m * m;
+    return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1),
+                                  dot(p2,x2), dot(p3,x3) ) );
+  }
+`;
+
+// GPGPU Simulation Fragment Shader
+const SIMULATION_FRAGMENT_SHADER = `
+precision highp float;
+uniform sampler2D uPosition;
+uniform sampler2D uPosRefs;
+uniform vec2 uRingPos;
+uniform float uTime;
+uniform float uDeltaTime;
+uniform float uRingRadius;
+
+uniform float uRingWidth;
+uniform float uRingWidth2;
+uniform float uRingDisplacement;
+
+${SIMPLEX_NOISE_GLSL}
+
+void main() {
+    vec2 simTexCoords = gl_FragCoord.xy / vec2(256.0, 256.0);
+    vec4 pFrame = texture2D(uPosition, simTexCoords);
+
+    float scale = pFrame.z;
+    float velocity = pFrame.w;
+    vec2 refPos = texture2D(uPosRefs, simTexCoords).xy;
+
+    float time = uTime * .5;
+    vec2 curentPos = refPos;
+
+    vec2 pos = pFrame.xy;
+    pos *= .8;
+
+    float dist = distance(curentPos.xy, uRingPos);
+    float noise0 = snoise(vec3(curentPos.xy * .2 + vec2(18.4924, 72.9744), time * 0.5));
+    float dist1 = distance(curentPos.xy + (noise0 * .005), uRingPos);
+
+    float t = smoothstep(uRingRadius - (uRingWidth * 2.), uRingRadius, dist) - smoothstep(uRingRadius, uRingRadius + uRingWidth, dist1);
+    float t2 = smoothstep(uRingRadius - (uRingWidth2 * 2.), uRingRadius, dist) - smoothstep(uRingRadius, uRingRadius + uRingWidth2, dist1);
+    float t3 = smoothstep(uRingRadius + uRingWidth2, uRingRadius, dist);
+
+    t = pow(t, 2.);
+    t2 = pow(t2, 3.);
+
+    t += t2 * 3.;
+    t += t3 * .4;
+    t += snoise(vec3(curentPos.xy * 30. + vec2(11.4924, 12.9744), time * 0.5)) * t3 * .5;
+
+    float nS = snoise(vec3(curentPos.xy * 2. + vec2(18.4924, 72.9744), time * 0.5));
+    t += pow((nS + 1.5) * .5, 2.) * .6;
+
+    // Mid scale noise
+    float noise1 = snoise(vec3(curentPos.xy * 4. + vec2(88.494, 32.4397), time * 0.35));
+    float noise2 = snoise(vec3(curentPos.xy * 4. + vec2(50.904, 120.947), time * 0.35));
+
+    // Close scale noise
+    float noise3 = snoise(vec3(curentPos.xy * 20. + vec2(18.4924, 72.9744), time * .5));
+    float noise4 = snoise(vec3(curentPos.xy * 20. + vec2(50.904, 120.947), time * .5));
+
+    vec2 disp = vec2(noise1, noise2) * .03;
+    disp += vec2(noise3, noise4) * .005;
+
+    // Sin waves
+    disp.x += sin((refPos.x * 20.) + (time * 4.)) * .02 * clamp(dist, 0., 1.);
+    disp.y += cos((refPos.y * 20.) + (time * 3.)) * .02 * clamp(dist, 0., 1.);
+
+    pos -= (uRingPos - (curentPos + disp)) * pow(t2, .75) * uRingDisplacement;
+
+    // Add scale
+    float scaleDiff = t - scale;
+    scaleDiff *= .2;
+    scale += scaleDiff;
+
+    // Final position
+    vec2 finalPos = curentPos + disp + (pos * .25);
+
+    velocity *= .5;
+    velocity += scale * .25;
+
+    gl_FragColor = vec4(finalPos, scale, velocity);
+}
+`;
+
+// Render Vertex Shader
+const RENDER_VERTEX_SHADER = `
+precision highp float;
+attribute vec4 seeds;
+
+uniform sampler2D uPosition;
+uniform float uTime;
+uniform float uParticleScale;
+uniform float uPixelRatio;
+uniform int uColorScheme;
+
+varying vec4 vSeeds;
+varying float vVelocity;
+varying vec2 vLocalPos;
+varying vec2 vScreenPos;
+varying float vScale;
+
+void main() {
+    vec4 pos = texture2D(uPosition, uv);
+    vSeeds = seeds;
+
+    vVelocity = pos.w;
+    vScale = pos.z;
+    vLocalPos = pos.xy;
+    vec4 viewSpace  = modelViewMatrix * vec4(vec3(pos.xy, 0.), 1.0);
+
+    gl_Position = projectionMatrix * viewSpace;
+    vScreenPos = gl_Position.xy;
+
+    gl_PointSize = ((vScale * 10.0) * (uPixelRatio * 0.5) * uParticleScale);
+}
+`;
+
+// Render Fragment Shader
+const RENDER_FRAGMENT_SHADER = `
+precision highp float;
+
+varying vec4 vSeeds;
+varying vec2 vScreenPos;
+varying vec2 vLocalPos;
+varying float vScale;
+varying float vVelocity;
+
+uniform vec3 uColor1;
+uniform vec3 uColor2;
+uniform vec3 uColor3;
+
+uniform vec2 uRingPos;
+uniform vec2 uRez;
+
+uniform float uAlpha;
+uniform float uTime;
+
+uniform int uColorScheme;
+
+${SIMPLEX_NOISE_GLSL}
+
+float sdRoundBox( in vec2 p, in vec2 b, in vec4 r )
+{
+    r.xy = (p.x>0.0)?r.xy : r.zw;
+    r.x  = (p.y>0.0)?r.x  : r.y;
+    vec2 q = abs(p)-b+r.x;
+    return min(max(q.x,q.y),0.0) + length(max(q,0.0)) - r.x;
+}
+
+vec2 rotate(vec2 v, float a) {
+    float s = sin(a);
+    float c = cos(a);
+    mat2 m = mat2(c, s, -s, c);
+    return m * v;
+}
+
+void main() {
+    float uBorderSize = 0.2;
+    float ratio = uRez.x / uRez.y;
+
+    // Noise
+    float noiseAngle = snoise(vec3(vLocalPos * 10. + vec2(18.4924, 72.9744), uTime * .85));
+    float noiseColor = snoise(vec3(vLocalPos * 2. + vec2(74.664, 91.556), uTime * .5));
+    noiseColor = (noiseColor + 1.) * .5;
+
+    // get angle between capsule and ring
+    float angle = atan(vLocalPos.y - uRingPos.y, vLocalPos.x - uRingPos.x);
+
+    vec2 uv = gl_PointCoord.xy;
+    uv -= vec2(0.5);
+    uv.y *= -1.;
+    uv = rotate(uv, -angle + (noiseAngle * .5));
+
+    float h = 0.8; // position of middleColor
+    float progress = smoothstep(0., .75, pow(noiseColor, 2.));
+    vec3 col = mix(mix(uColor1, uColor2, progress/h), mix(uColor2, uColor3, (progress - h)/(1.0 - h)), step(h, progress));
+    vec3 color = col;
+
+    float rounded = sdRoundBox(uv, vec2(0.5, 0.2), vec4(.25));
+    rounded = smoothstep(.1, 0., rounded);
+
+    float a = uAlpha * rounded * smoothstep(0.1, 0.2, vScale);
+
+    if(a < 0.01){
+        discard;
+    }
+
+    color = clamp(color, 0., 1.);
+    color = mix(color, color * clamp(vVelocity, 0., 1.), float(uColorScheme));
+
+    gl_FragColor = vec4(color, clamp(a, 0., 1.));
+}
+`;
+
+const getThemeColors = (isDark) => {
+  if (isDark) {
+    return {
+      c1: '#078462', // Vibrant brand green
+      c2: '#93c5fd', // Light blue accent
+      c3: '#1e40af'  // Deep royal blue
+    };
+  } else {
+    return {
+      c1: '#013F4A', // Deep teal
+      c2: '#078462', // Vibrant brand green
+      c3: '#93c5fd'  // Light blue accent
+    };
+  }
+};
+
 function ParticleGrid() {
   const canvasRef = useRef(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    let animationFrameId
 
-    let width = window.innerWidth
-    let autoTime = 0
-    let height = window.innerHeight
-
-    const setSize = () => {
-      const rect = canvas.parentElement.getBoundingClientRect()
-      width = rect.width
-      height = rect.height
-      canvas.width = width
-      canvas.height = height
-      initParticles()
-    }
-
-    let mouse = { x: 0, y: 0 }
-    let mouseAbs = { x: -1000, y: -1000 }
-    let prevMouseAbs = { x: -1000, y: -1000 }
-    let mouseVelocity = { x: 0, y: 0 }
-    let smoothVelocity = { x: 0, y: 0 }
-    let targetRotation = { x: 0, y: 0 }
-    let currentRotation = { x: 0, y: 0 }
-    let targetCx = -1
-    let targetCy = -1
-    let currentCx = -1
-    let currentCy = -1
-    let prevCx = -1
-    let prevCy = -1
-    // Smoothed sphere-center velocity for squash-and-stretch
-    let sphereVelX = 0
-    let sphereVelY = 0
-    let mouseActive = false
-    let globalOpacity = 0.6
-    let currentScatter = 0.0
-    let hasInteracted = false
-
-    // ── Trail history buffer for magic wand wake ──────────────────────
-    const TRAIL_LENGTH = 14
-    let trailHistory = []   // Array of { x, y, age } — last N cursor positions
-
-    const handleInteraction = (clientX, clientY) => {
-      hasInteracted = true
-      mouseActive = true
-      const rect = canvas.getBoundingClientRect()
-      prevMouseAbs.x = mouseAbs.x
-      prevMouseAbs.y = mouseAbs.y
-      mouseAbs.x = clientX - rect.left
-      mouseAbs.y = clientY - rect.top
-
-      // Raw cursor velocity (pixels per event)
-      mouseVelocity.x = mouseAbs.x - prevMouseAbs.x
-      mouseVelocity.y = mouseAbs.y - prevMouseAbs.y
-
-      // Push to trail history
-      trailHistory.push({ x: mouseAbs.x, y: mouseAbs.y, age: 0 })
-      if (trailHistory.length > TRAIL_LENGTH) trailHistory.shift()
-
-      // ── Follow-offset: keep cursor OUTSIDE the sphere ────────────────
-      // Target is computed dynamically each frame in render(), not here.
-      // We only store the mouse position as the attraction point.
-
-      mouse.x = (clientX / window.innerWidth) * 2 - 1
-      mouse.y = (clientY / window.innerHeight) * 2 - 1
-      const isMobile = window.innerWidth < 768
-      const tiltMult = isMobile ? 0.15 : 0.35
-      targetRotation.y = mouse.x * tiltMult
-      targetRotation.x = -mouse.y * tiltMult
-    }
-
-    const handleMouseMove = (e) => handleInteraction(e.clientX, e.clientY)
-    const handleTouchMove = (e) => {
-      if (e.touches[0]) handleInteraction(e.touches[0].clientX, e.touches[0].clientY)
-    }
-
-    window.addEventListener('resize', setSize)
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('touchmove', handleTouchMove, { passive: false })
-
-    // 3D Setup
-    let particles = []
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-    const focalLength = isMobile ? 300 : 400
+    // 1. Initialize WebGL Renderer
+    const pixelRatio = window.devicePixelRatio || 1;
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: "high-performance",
+      preserveDrawingBuffer: true,
+      stencil: false,
+      precision: "highp"
+    });
+    renderer.setPixelRatio(pixelRatio);
     
-    const getColors = () => {
-      if (typeof window === 'undefined') return ['#93c5fd', '#078462']
-      const isDark = document.documentElement.getAttribute('data-theme') === 'dark'
-      return isDark ? ['#078462', '#1e40af'] : ['#93c5fd', '#078462']
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    renderer.setSize(width, height, false);
+    renderer.autoClear = false;
+
+    // 2. Initialize Main Scene & Perspective Camera
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+    camera.position.z = 3.1;
+
+    // 3. Initialize Raycast Plane for mouse tracking
+    const raycastPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(12.5, 12.5),
+      new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide })
+    );
+    scene.add(raycastPlane);
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2(-1000, -1000);
+    const intersectionPoint = new THREE.Vector3(0, 0, 0);
+    let isIntersecting = false;
+    let mouseIsOver = false;
+
+    // 4. Generate Poisson-Disk organic grid
+    const points = poissonDiskSample(500, 500, 4.66, 5.66, 20);
+    const pointsData = [];
+    for (let i = 0; i < points.length; i++) {
+      pointsData.push(points[i][0] - 250, points[i][1] - 250);
+    }
+    const count = points.length;
+    const size = 256;
+    const length = size * size;
+
+    // 5. Create Data Texture for GPGPU initialization
+    const posData = new Float32Array(length * 4);
+    for (let i = 0; i < count; i++) {
+      const idx = i * 4;
+      posData[idx + 0] = pointsData[i * 2 + 0] * (1 / 250);
+      posData[idx + 1] = pointsData[i * 2 + 1] * (1 / 250);
+      posData[idx + 2] = 0; // Scale
+      posData[idx + 3] = 0; // Velocity
+    }
+    const posTex = new THREE.DataTexture(posData, size, size, THREE.RGBAFormat, THREE.FloatType);
+    posTex.needsUpdate = true;
+
+    // 6. Create double-buffered GPGPU render targets
+    const createRenderTarget = () => {
+      return new THREE.WebGLRenderTarget(size, size, {
+        wrapS: THREE.ClampToEdgeWrapping,
+        wrapT: THREE.ClampToEdgeWrapping,
+        minFilter: THREE.NearestFilter,
+        magFilter: THREE.NearestFilter,
+        format: THREE.RGBAFormat,
+        type: THREE.FloatType,
+        depthBuffer: false,
+        stencilBuffer: false
+      });
+    };
+    let rt1 = createRenderTarget();
+    let rt2 = createRenderTarget();
+
+    // Clear targets
+    renderer.setRenderTarget(rt1);
+    renderer.setClearColor(0, 0);
+    renderer.clear();
+    renderer.setRenderTarget(rt2);
+    renderer.setClearColor(0, 0);
+    renderer.clear();
+    renderer.setRenderTarget(null);
+
+    // 7. Initialize GPGPU Simulation Scene & Orthographic Camera
+    const simScene = new THREE.Scene();
+    const simCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const simMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uPosition: { value: posTex },
+        uPosRefs: { value: posTex },
+        uRingPos: { value: new THREE.Vector2(0, 0) },
+        uRingRadius: { value: 0.2 },
+        uDeltaTime: { value: 0 },
+        uRingWidth: { value: 0.107 },
+        uRingWidth2: { value: 0.05 },
+        uRingDisplacement: { value: 0.15 },
+        uTime: { value: 0 }
+      },
+      vertexShader: `
+        void main() {
+          gl_Position = vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: SIMULATION_FRAGMENT_SHADER
+    });
+    const simMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), simMaterial);
+    simScene.add(simMesh);
+
+    // 8. Initialize Main Particle Mesh
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3); // Zeros, vertex shader will place
+    const uvs = new Float32Array(count * 2);
+    const seeds = new Float32Array(count * 4);
+
+    for (let s = 0; s < count; s++) {
+      const a = s % size;
+      const l = Math.floor(s / size);
+      uvs[s * 2] = a / size;
+      uvs[s * 2 + 1] = l / size;
+
+      seeds[s * 4 + 0] = Math.random();
+      seeds[s * 4 + 1] = Math.random();
+      seeds[s * 4 + 2] = Math.random();
+      seeds[s * 4 + 3] = Math.random();
     }
 
-    const initParticles = () => {
-      particles = []
-      const colors = getColors()
-      const isMobile = window.innerWidth < 768
-      const numParticles = isMobile ? 600 : 1200
-      const sphereRadius = isMobile ? 180 : 250
-      
-      // Fibonacci Sphere Algorithm for even distribution
-      const phi = Math.PI * (3 - Math.sqrt(5))
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+    geometry.setAttribute('seeds', new THREE.BufferAttribute(seeds, 4));
 
-      for (let i = 0; i < numParticles; i++) {
-        const y = 1 - (i / (numParticles - 1)) * 2
-        const radius = Math.sqrt(1 - y * y)
-        const theta = phi * i
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const themeColors = getThemeColors(isDark);
 
-        const x = Math.cos(theta) * radius
-        const z = Math.sin(theta) * radius
+    const renderMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uPosition: { value: posTex },
+        uTime: { value: 0 },
+        uColor1: { value: new THREE.Color(themeColors.c1) },
+        uColor2: { value: new THREE.Color(themeColors.c2) },
+        uColor3: { value: new THREE.Color(themeColors.c3) },
+        uAlpha: { value: 1.0 },
+        uRingPos: { value: new THREE.Vector2(0, 0) },
+        uRez: { value: new THREE.Vector2(width, height) },
+        uParticleScale: { value: 1.0 },
+        uPixelRatio: { value: pixelRatio },
+        uColorScheme: { value: isDark ? 0 : 1 }
+      },
+      vertexShader: RENDER_VERTEX_SHADER,
+      fragmentShader: RENDER_FRAGMENT_SHADER,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false
+    });
 
-        // Outward scatter direction with some random variation
-        const scatterDirX = x + (Math.random() - 0.5) * 0.4
-        const scatterDirY = y + (Math.random() - 0.5) * 0.4
-        const scatterDirZ = z + (Math.random() - 0.5) * 0.4
-        const len = Math.sqrt(scatterDirX * scatterDirX + scatterDirY * scatterDirY + scatterDirZ * scatterDirZ)
-        const scatterLen = len > 0.01 ? len : 1
+    const particleMesh = new THREE.Points(geometry, renderMaterial);
+    particleMesh.position.set(0, 0, 0);
+    particleMesh.scale.set(5, 5, 5);
+    scene.add(particleMesh);
 
-        // Reduced scatter distance (tighter, cleaner cloud)
-        particles.push({
-          x: x * sphereRadius,
-          y: y * sphereRadius,
-          z: z * sphereRadius,
-          scatterX: (scatterDirX / scatterLen) * (Math.random() * (isMobile ? 15 : 25) + (isMobile ? 5 : 10)),
-          scatterY: (scatterDirY / scatterLen) * (Math.random() * (isMobile ? 15 : 25) + (isMobile ? 5 : 10)),
-          scatterZ: (scatterDirZ / scatterLen) * (Math.random() * (isMobile ? 15 : 25) + (isMobile ? 5 : 10)),
-          color: colors[Math.floor(Math.random() * colors.length)],
-          size: isMobile ? 1.0 : 1.4,
-          // Per-particle displacement for fluid trail persistence
-          displaceX: 0,
-          displaceY: 0,
-        })
-      }
-    }
+    // 9. Simulation variables (cursor and drift value noise)
+    const noise = new ValueNoise1D();
+    const ringPos = new THREE.Vector2(0, 0);
+    const cursorPos = new THREE.Vector2(0, 0);
 
-    const observer = new MutationObserver((mutations) => {
+    // 10. Resizing handler
+    const setSize = () => {
+      const w = canvas.parentElement.clientWidth;
+      const h = canvas.parentElement.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderMaterial.uniforms.uRez.value.set(w, h);
+    };
+
+    // 11. Event Handlers for cursor tracking
+    const handleInteraction = (clientX, clientY) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      mouseIsOver = true;
+    };
+    const handleMouseMove = (e) => handleInteraction(e.clientX, e.clientY);
+    const handleTouchMove = (e) => {
+      if (e.touches[0]) handleInteraction(e.touches[0].clientX, e.touches[0].clientY);
+    };
+    const handleMouseLeave = () => {
+      mouseIsOver = false;
+    };
+
+    window.addEventListener('resize', setSize);
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    canvas.addEventListener('mouseleave', handleMouseLeave);
+
+    // 12. MutationObserver for Theme changes
+    const themeObserver = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.attributeName === 'data-theme') {
-          initParticles()
+          const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+          const newColors = getThemeColors(dark);
+          renderMaterial.uniforms.uColor1.value.set(newColors.c1);
+          renderMaterial.uniforms.uColor2.value.set(newColors.c2);
+          renderMaterial.uniforms.uColor3.value.set(newColors.c3);
+          renderMaterial.uniforms.uColorScheme.value = dark ? 0 : 1;
         }
-      })
-    })
-    observer.observe(document.documentElement, { attributes: true })
+      });
+    });
+    themeObserver.observe(document.documentElement, { attributes: true });
 
-    setSize()
+    setSize();
 
-    const render = () => {
-      ctx.clearRect(0, 0, width, height)
-      const isMobile = window.innerWidth < 768
-      const time = Date.now() * 0.001
+    // 13. Render Loop
+    let lastTime = 0;
+    let clockTime = 0;
+    let everRendered = false;
+    let animationFrameId;
 
-      // ── Smooth cursor velocity (for speed-dependent effects) ────────
-      smoothVelocity.x += (mouseVelocity.x - smoothVelocity.x) * 0.12
-      smoothVelocity.y += (mouseVelocity.y - smoothVelocity.y) * 0.12
-      const cursorSpeed = Math.sqrt(smoothVelocity.x * smoothVelocity.x + smoothVelocity.y * smoothVelocity.y)
-      // Decay raw velocity toward zero each frame
-      mouseVelocity.x *= 0.82
-      mouseVelocity.y *= 0.82
+    const render = (now) => {
+      now *= 0.001; // convert to seconds
+      let dt = now - lastTime;
+      if (dt > 0.1) dt = 0.1; // Cap dt during lag spikes
+      lastTime = now;
+      clockTime += dt;
 
-      // Age trail points
-      for (let t of trailHistory) t.age += 1
-
-      // ── Rotation smoothing ─────────────────────────────────────────
-      currentRotation.x += (targetRotation.x - currentRotation.x) * 0.025
-      currentRotation.y += (targetRotation.y - currentRotation.y) * 0.025
-
-      // ── Sphere position: follow-offset OR autonomous drift ─────────
-      const defaultCx = isMobile ? width * 0.5 : width * 0.65
-      const defaultCy = isMobile ? height * 0.38 : height * 0.45
-
-      if (!mouseActive) {
-        autoTime += 0.0012
-        targetCx = defaultCx + Math.sin(autoTime) * (isMobile ? 0 : width * 0.18)
-        targetCy = defaultCy + Math.cos(autoTime * 0.7) * 30
-      } else {
-        // ── Follow-offset: keep the cursor OUTSIDE the sphere ──────────
-        // Compute vector from sphere center → mouse
-        const safeCx = currentCx === -1 ? defaultCx : currentCx
-        const safeCy = currentCy === -1 ? defaultCy : currentCy
-        const dMx = mouseAbs.x - safeCx
-        const dMy = mouseAbs.y - safeCy
-        const dMdist = Math.sqrt(dMx * dMx + dMy * dMy)
-        const offsetDist = isMobile ? 220 : 320
-        if (dMdist > 0.1) {
-          // Sphere target = mouse minus the normalized direction * offset distance
-          // This makes the sphere orbit around the cursor at `offsetDist` px away
-          targetCx = mouseAbs.x - (dMx / dMdist) * offsetDist
-          targetCy = mouseAbs.y - (dMy / dMdist) * offsetDist
-        }
-      }
-
-      if (currentCx === -1) { currentCx = targetCx === -1 ? defaultCx : targetCx }
-      if (currentCy === -1) { currentCy = targetCy === -1 ? defaultCy : targetCy }
-
-      // Store previous center for sphere velocity
-      prevCx = currentCx
-      prevCy = currentCy
-
-      currentCx += (targetCx - currentCx) * 0.04
-      currentCy += (targetCy - currentCy) * 0.035
-
-      const cx = currentCx
-      const cy = currentCy
-
-      // ── Track sphere center velocity for squash-and-stretch ────────
-      const rawSVx = currentCx - prevCx
-      const rawSVy = currentCy - prevCy
-      sphereVelX += (rawSVx - sphereVelX) * 0.2
-      sphereVelY += (rawSVy - sphereVelY) * 0.2
-      const sphereSpeed = Math.sqrt(sphereVelX * sphereVelX + sphereVelY * sphereVelY)
-
-      // Normalized sphere velocity direction
-      const svLen = sphereSpeed > 0.001 ? sphereSpeed : 1
-      const svNx = sphereVelX / svLen
-      const svNy = sphereVelY / svLen
-
-      // Stretch factor: clamp 0 → 0.45
-      const stretchFactor = Math.min(sphereSpeed * 0.015, 0.45)
-
-      // Normalized direction from sphere center → mouse (for teardrop pull)
-      const toCursorX = mouseAbs.x - cx
-      const toCursorY = mouseAbs.y - cy
-      const toCursorDist = Math.sqrt(toCursorX * toCursorX + toCursorY * toCursorY)
-      const tcNx = toCursorDist > 0.1 ? toCursorX / toCursorDist : 0
-      const tcNy = toCursorDist > 0.1 ? toCursorY / toCursorDist : 0
-
-      // Pull amount scales with cursor speed for elongated trailing tail
-      const pullAmt = Math.min(cursorSpeed * 0.008, 0.28)
-
-      // Sphere radius for teardrop weighting
-      const sphereR = isMobile ? 180 : 250
-
-      // ── Scatter factor based on cursor distance ────────────────────
-      let targetScatter = 0.0
-      if (hasInteracted) {
-        if (mouseActive) {
-          // If mouse is active, scatter decreases as the cursor gets closer
-          const minDist = isMobile ? 220 : 320
-          const maxDist = isMobile ? 450 : 650
-          const t = (toCursorDist - minDist) / (maxDist - minDist)
-          targetScatter = Math.max(0, Math.min(1, t))
+      // Cast ray to find cursor in 3D scene space
+      if (mouseIsOver) {
+        raycaster.setFromCamera(mouse, camera);
+        const intersections = raycaster.intersectObject(raycastPlane);
+        if (intersections.length > 0) {
+          intersectionPoint.copy(intersections[0].point);
+          isIntersecting = true;
         } else {
-          targetScatter = 1.0 // Scatter when mouse is away after interaction
+          isIntersecting = false;
         }
+      } else {
+        isIntersecting = false;
       }
-      currentScatter += (targetScatter - currentScatter) * 0.035
 
-      // ── Dynamic CSS mask ───────────────────────────────────────────
-      const maskPctX = ((cx / width) * 100).toFixed(1)
-      const maskPctY = ((cy / height) * 100).toFixed(1)
-      const maskW = isMobile ? '70%' : '60%'
-      const maskH = isMobile ? '65%' : '65%'
-      const maskVal = `radial-gradient(ellipse ${maskW} ${maskH} at ${maskPctX}% ${maskPctY}%, black 45%, transparent 85%)`
-      canvas.style.webkitMaskImage = maskVal
-      canvas.style.maskImage = maskVal
+      // Compute cursor drift using 1D Value Noise
+      const driftX = (noise.getVal(clockTime * 0.66 + 94.234) - 0.5) * 2;
+      const driftY = (noise.getVal(clockTime * 0.75 + 21.028) - 0.5) * 2;
 
-      // ── Opacity ────────────────────────────────────────────────────
-      const targetOpacity = mouseActive ? 0.75 : 0.6
-      globalOpacity += (targetOpacity - globalOpacity) * 0.035
-
-      const rotY = currentRotation.y
-      const rotX = currentRotation.x
-      const cosX = Math.cos(rotX)
-      const sinX = Math.sin(rotX)
-      const cosY = Math.cos(rotY)
-      const sinY = Math.sin(rotY)
-
-      // ── Speed-dependent physics multipliers ────────────────────────
-      const speedNorm = Math.min(cursorSpeed / 25, 1)          // 0→1
-      const swirlMultiplier = 0.40 + speedNorm * 0.50
-      const repulsionBoost = 1.0 + speedNorm * 0.35
-      const elongationBoost = 1.0 + speedNorm * 1.0
-
-      // Fixed calm ripple — no speed-based vibration
-      const rippleAmp = 14
-      const rippleFreq = 0.02
-
-      const sortedParticles = [...particles].map((p, idx) => {
-        // ── Dynamic wave rippling (scales with sphere velocity) ─────
-        const distortion = Math.sin(p.x * rippleFreq + time) *
-                           Math.cos(p.y * rippleFreq + time) * rippleAmp
-
-        // Gentle floating drift when scattered (using sine/cosine waves)
-        const scatterNoiseX = Math.sin(time * 0.4 + idx * 0.1) * 6
-        const scatterNoiseY = Math.cos(time * 0.35 + idx * 0.15) * 6
-        const scatterNoiseZ = Math.sin(time * 0.25 + idx * 0.08) * 6
-
-        const scX = (p.scatterX + scatterNoiseX) * currentScatter
-        const scY = (p.scatterY + scatterNoiseY) * currentScatter
-        const scZ = (p.scatterZ + scatterNoiseZ) * currentScatter
-
-        // ── Organic morphing shape ──────────────────────────────────
-        // Deforms the perfect sphere into a dynamic, morphing organic blob
-        const nx = p.x / sphereR
-        const ny = p.y / sphereR
-        const nz = p.z / sphereR
-
-        const morphTime = time * 0.9
-        const morphFreq = isMobile ? 0.005 : 0.0035
-        const morphVal = Math.sin(p.x * morphFreq + morphTime) * 
-                         Math.cos(p.y * morphFreq + morphTime * 0.7) +
-                         Math.sin(p.z * morphFreq + morphTime * 1.3) * 0.4
-
-        const morphAmp = isMobile ? 35 : 60
-        const organicDeform = morphVal * morphAmp
-
-        // ── Squash-and-Stretch transform (relative to sphere center) ─
-        let lx = p.x + nx * organicDeform + distortion + scX
-        let ly = p.y + ny * organicDeform + distortion + scY
-        const lz = p.z + nz * organicDeform + distortion + scZ
-
-        if (stretchFactor > 0.002) {
-          // Project onto velocity axis and perpendicular axis
-          const proj = lx * svNx + ly * svNy
-          const perp = -lx * svNy + ly * svNx
-          // Stretch along velocity, squash perpendicular
-          const stretchScale = 1 + stretchFactor
-          const squashScale = 1 / (1 + stretchFactor * 0.7)
-          lx = proj * stretchScale * svNx - perp * squashScale * svNy
-          ly = proj * stretchScale * svNy + perp * squashScale * svNx
-        }
-
-        // ── Teardrop pull (toward cursor side of the sphere) ─────────
-        // Fade out pull when cursor is inside the sphere to prevent internal shape distortion
-        const pullInsideScale = Math.max(0, Math.min(1, toCursorDist / sphereR))
-        const activePullAmt = pullAmt * pullInsideScale
-        if (activePullAmt > 0.003 && mouseActive) {
-          const projCursor = lx * tcNx + ly * tcNy
-          // Non-linear weighting: front face pulls more than back
-          const pullFactor = Math.pow(Math.max(0, (projCursor / sphereR + 1) / 2), 2)
-          lx += tcNx * pullFactor * activePullAmt * sphereR
-          ly += tcNy * pullFactor * activePullAmt * sphereR
-        }
-
-        let x = lx * cosY - lz * sinY
-        let z = lx * sinY + lz * cosY
-        let y = ly * cosX - z * sinX
-        z = ly * sinX + z * cosX
-        return { ...p, rx: x, ry: y, rz: z, idx }
-      }).sort((a, b) => b.rz - a.rz)
-
-      for (let p of sortedParticles) {
-        const den = focalLength + p.rz
-        if (den <= 10) continue // Skip particles behind the camera viewport
-        const scale = focalLength / den
-        const px = p.rx * scale + cx
-        const py = p.ry * scale + cy
-
-        // ── Primary cursor interaction & Trail wake ─────────────────
-        // Set shift to 0 so the cursor passes through without affecting the physical shape
-        let shiftX = 0, shiftY = 0
-
-        // ── Per-particle displacement smoothing ───────────────────────
-        const srcParticle = particles[p.idx]
-        srcParticle.displaceX += (shiftX - srcParticle.displaceX) * 0.18
-        srcParticle.displaceY += (shiftY - srcParticle.displaceY) * 0.18
-        srcParticle.displaceX *= 0.88
-        srcParticle.displaceY *= 0.88
-
-        const fpx = px + srcParticle.displaceX
-        const fpy = py + srcParticle.displaceY
-
-        // ── Aura exclusion zone (tighter: carve, not fade) ───────────
-        const auraRadius = isMobile ? 140 : 220
-        let opacity = globalOpacity
-        const nDx = fpx - mouseAbs.x
-        const nDy = fpy - mouseAbs.y
-        const nDist = Math.sqrt(nDx * nDx + nDy * nDy)
-        if (nDist < auraRadius) {
-          opacity *= Math.pow(nDist / auraRadius, 2.5)
-        }
-
-        // ── Depth-based fade ─────────────────────────────────────────
-        const depthFactor = Math.max(0, Math.min(1, (180 - p.rz) / 350))
-        opacity *= Math.pow(depthFactor, isMobile ? 4 : 8)
-
-        if (fpx > 0 && fpx < width && fpy > 0 && fpy < height && opacity > 0.02) {
-          // Shrink drops in the scattered state to look like fine stardust (up to 45% smaller)
-          const scatterSizeMultiplier = 1.0 - currentScatter * 0.45
-          const perspectiveScale = p.size * scale * scatterSizeMultiplier
-          // Ensure finalSize is strictly positive to prevent negative radius exceptions in roundRect
-          const finalSize = Math.max(0.1, perspectiveScale * Math.pow(depthFactor, 2))
-          const dropHeight = finalSize * (2.2 * elongationBoost)
-
-          ctx.globalAlpha = Math.min(0.9, opacity)
-          ctx.fillStyle = p.color
-
-          // Orient capsule: displacement direction or toward cursor if idle
-          const dispMag = Math.sqrt(srcParticle.displaceX * srcParticle.displaceX + srcParticle.displaceY * srcParticle.displaceY)
-          let angle
-          if (dispMag > 1.5) {
-            angle = Math.atan2(srcParticle.displaceY, srcParticle.displaceX) + Math.PI / 2
-          } else {
-            angle = Math.atan2(mouseAbs.y - fpy, mouseAbs.x - fpx) + Math.PI / 2
-          }
-
-          ctx.save()
-          ctx.translate(fpx, fpy)
-          ctx.rotate(angle)
-          ctx.beginPath()
-          ctx.roundRect(-finalSize / 2, -dropHeight / 2, finalSize, dropHeight, finalSize / 2)
-          ctx.fill()
-          ctx.restore()
-        }
+      if (isIntersecting) {
+        cursorPos.set(
+          intersectionPoint.x * 0.175 + driftX * 0.1,
+          intersectionPoint.y * 0.175 + driftY * 0.1
+        );
+        ringPos.set(
+          ringPos.x + (cursorPos.x - ringPos.x) * 0.02,
+          ringPos.y + (cursorPos.y - ringPos.y) * 0.02
+        );
+      } else {
+        cursorPos.set(driftX * 0.2, driftY * 0.1);
+        ringPos.set(
+          ringPos.x + (cursorPos.x - ringPos.x) * 0.01,
+          ringPos.y + (cursorPos.y - ringPos.y) * 0.01
+        );
       }
-      animationFrameId = requestAnimationFrame(render)
-    }
 
-    render()
+      const particleScale = (canvas.clientWidth / pixelRatio / 2000) * 0.75;
 
+      // Simulation GPGPU Ping-Pong Pass
+      simMaterial.uniforms.uPosition.value = everRendered ? rt1.texture : posTex;
+      simMaterial.uniforms.uTime.value = clockTime;
+      simMaterial.uniforms.uDeltaTime.value = dt;
+      simMaterial.uniforms.uRingRadius.value = 0.175 + Math.sin(clockTime * 1.0) * 0.03 + Math.cos(clockTime * 3.0) * 0.02;
+      simMaterial.uniforms.uRingPos.value = ringPos;
+
+      renderer.setRenderTarget(rt2);
+      renderer.render(simScene, simCamera);
+      renderer.setRenderTarget(null);
+
+      // Rendering Pass
+      renderMaterial.uniforms.uPosition.value = everRendered ? rt2.texture : posTex;
+      renderMaterial.uniforms.uTime.value = clockTime;
+      renderMaterial.uniforms.uRingPos.value = ringPos;
+      renderMaterial.uniforms.uParticleScale.value = particleScale;
+
+      renderer.clear();
+      renderer.render(scene, camera);
+
+      // Swap double buffers
+      const temp = rt1;
+      rt1 = rt2;
+      rt2 = temp;
+      everRendered = true;
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    animationFrameId = requestAnimationFrame((now) => {
+      lastTime = now * 0.001;
+      render(now);
+    });
+
+    // 14. Cleanup
     return () => {
-      window.removeEventListener('resize', setSize)
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('touchmove', handleTouchMove)
-      observer.disconnect()
-      cancelAnimationFrame(animationFrameId)
-    }
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('resize', setSize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('mouseleave', handleMouseLeave);
+      themeObserver.disconnect();
+
+      geometry.dispose();
+      renderMaterial.dispose();
+      simMaterial.dispose();
+      simMesh.geometry.dispose();
+      simMesh.material.dispose();
+      raycastPlane.geometry.dispose();
+      raycastPlane.material.dispose();
+      rt1.dispose();
+      rt2.dispose();
+      posTex.dispose();
+      renderer.dispose();
+    };
   }, [])
 
   return (
@@ -446,6 +753,7 @@ function ParticleGrid() {
     />
   )
 }
+
 
 export default function Hero() {
   const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
