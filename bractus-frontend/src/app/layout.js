@@ -1,6 +1,7 @@
 // Triggering Vercel build: 2026-04-27 00:55
 import './globals.css'
 import { ThemeProvider } from './context/ThemeContext'
+import LayoutWrapper from './components/LayoutWrapper'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ChatBot from './components/ChatBot'
@@ -31,13 +32,15 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <ThemeProvider>
-          <Navbar />
-          <main style={{ paddingTop: 72 }}>
-            {children}
-          </main>
-          <Footer />
-          <ChatBot />
-          <ScrollReveal />
+          <LayoutWrapper>
+            <Navbar />
+            <main style={{ paddingTop: 72 }}>
+              {children}
+            </main>
+            <Footer />
+            <ChatBot />
+            <ScrollReveal />
+          </LayoutWrapper>
         </ThemeProvider>
         <Analytics />
       </body>
