@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 
-// Approx length of the closed outer path (M24 24 ... Z)
-const PATH_LEN = 620
+// Approx length of the closed outer path
+const PATH_LEN = 2400
 
 // Speed curve for progress bar
 function getSpeed(p) {
@@ -15,14 +15,12 @@ function getSpeed(p) {
 
 export default function Loader({ onFinish }) {
   const [pct, setPct]           = useState(0)
-  // Phases: 'bar' → 'collapse' → 'draw' → 'fill' → 'zoom' → 'out'
+  // Phases: 'bar' → 'collapse' → 'draw' → 'zoom' → 'out'
   const [phase, setPhase]       = useState('bar')
   const [logoP, setLogoP]       = useState(0)     // Stroke draw progress (0→1)
-  const [fillP, setFillP]       = useState(0)     // Fill opacity progress (0→1)
   
   const pctRef  = useRef(0)
   const logoRef = useRef(0)
-  const fillRef = useRef(0)
 
   // ── Phase 1: progress bar fills 0→100 ────────────────────────────────────
   useEffect(() => {
@@ -46,20 +44,6 @@ export default function Loader({ onFinish }) {
       setLogoP(logoRef.current)
       if (logoRef.current >= 1) {
         clearInterval(id)
-        setPhase('fill')
-      }
-    }, 16)
-    return () => clearInterval(id)
-  }, [phase])
-
-  // ── Phase 3: fill logo with solid gradient ───────────────────────────────
-  useEffect(() => {
-    if (phase !== 'fill') return
-    const id = setInterval(() => {
-      fillRef.current = Math.min(fillRef.current + 0.05, 1)
-      setFillP(fillRef.current)
-      if (fillRef.current >= 1) {
-        clearInterval(id)
         setPhase('zoom')
         // Transition to homepage occurs as the zoom reaches its peak
         setTimeout(() => {
@@ -74,6 +58,13 @@ export default function Loader({ onFinish }) {
   // Derived values
   const strokeOffset = PATH_LEN * (1 - logoP)
   const counter      = String(pct).padStart(3, '0')
+
+  // ── Theme-based CSS variables ───────────────────────────────────────────
+  const bgColor = 'var(--bg)'
+  const textColor = 'var(--text)'
+  const labelColor = 'var(--text-muted)'
+  const emptyTrackBg = 'var(--accent-light)'
+  const dotColor = 'var(--accent-light)'
 
   // ── Bar styling ──────────────────────────────────────────────────────────
   const barStyle = (() => {
@@ -92,7 +83,7 @@ export default function Loader({ onFinish }) {
 
   // ── Logo styling ─────────────────────────────────────────────────────────
   const logoStyle = (() => {
-    if (phase === 'draw' || phase === 'fill') {
+    if (phase === 'draw') {
       return {
         opacity: 1,
         transform: 'scale(1)',
@@ -122,7 +113,9 @@ export default function Loader({ onFinish }) {
       position: 'fixed',
       inset: 0,
       zIndex: 99999,
-      background: '#000000',
+      background: bgColor,
+      backgroundImage: `radial-gradient(circle, ${dotColor} 1px, transparent 1px)`,
+      backgroundSize: '28px 28px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -137,7 +130,7 @@ export default function Loader({ onFinish }) {
         width: 280,
         height: 24,
         borderRadius: 12,
-        background: 'rgba(7, 132, 98, 0.12)',
+        background: emptyTrackBg,
         overflow: 'hidden',
         transformOrigin: 'center center',
         ...barStyle,
@@ -147,18 +140,18 @@ export default function Loader({ onFinish }) {
           left: 0, top: 0, bottom: 0,
           width: `${pct}%`,
           // Exact brand logo gradient (left-to-right)
-          background: 'linear-gradient(90deg, #078462, #013F4A)',
+          background: 'linear-gradient(90deg, #109D70, #0A6781)',
           borderRadius: 12,
           transition: 'width 0.06s linear',
-          boxShadow: '0 0 20px rgba(7, 132, 98, 0.4)',
+          boxShadow: '0 0 20px rgba(16, 157, 112, 0.4)',
         }} />
       </div>
 
-      {/* ── Exact Bractus Logo (M24 24 ... Z path) ─────────────────────────── */}
+      {/* ── Exact Bractus Logo (M110 60 ... Z path) ─────────────────────────── */}
       <svg
         width="220"
-        height="320"
-        viewBox="0 0 110 160"
+        height="385"
+        viewBox="0 0 400 700"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         style={{
@@ -170,14 +163,14 @@ export default function Loader({ onFinish }) {
       >
         <defs>
           {/* Exact Bractus brand logo gradient */}
-          <linearGradient id="logoGrad" x1="20" y1="20" x2="20" y2="140" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stopColor="#078462" />
-            <stop offset="100%" stopColor="#013F4A" />
+          <linearGradient id="logoGrad" x1="110" y1="60" x2="300" y2="615" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stopColor="#109D70" />
+            <stop offset="100%" stopColor="#0A6781" />
           </linearGradient>
 
           {/* Glowing outline effect */}
           <filter id="logoGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feGaussianBlur stdDeviation="6" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -187,22 +180,18 @@ export default function Loader({ onFinish }) {
 
         {/* 
           The Bractus ribbon path is drawn as a stroke during 'draw' phase, 
-          then filled with gradient during 'fill'/'zoom' phases
+          then scaled during 'zoom' phase to transition.
         */}
         <path
-          d="M24 24 Q20 24 20 28 L20 52 Q20 58 26 62 L68 82 L26 102 Q20 106 20 112 L20 136 Q20 140 24 140 Q28 140 32 137 L90 107 Q104 100 104 82 Q104 64 90 57 L32 27 Q28 24 24 24 Z"
-          fill="url(#logoGrad)"
-          fillOpacity={phase === 'draw' ? 0 : fillP}
+          d="M110 60 Q110 20 150 20 L300 105 Q365 145 365 210 Q365 260 330 285 Q290 315 290 360 Q290 400 330 430 Q365 455 365 510 Q365 575 300 615 L150 690 Q110 690 110 650 L110 510 Q110 470 145 450 L225 405 Q260 385 260 360 Q260 335 225 315 L145 270 Q110 250 110 210 Z"
+          fill="none"
           stroke="url(#logoGrad)"
-          strokeWidth={phase === 'draw' ? 4 : 0}
+          strokeWidth="34"
           strokeLinecap="round"
           strokeLinejoin="round"
           strokeDasharray={PATH_LEN}
           strokeDashoffset={strokeOffset}
           filter="url(#logoGlow)"
-          style={{
-            transition: 'fill-opacity 0.25s ease, stroke-width 0.25s ease',
-          }}
         />
       </svg>
 
@@ -216,7 +205,7 @@ export default function Loader({ onFinish }) {
         fontWeight: 700,
         lineHeight: 1,
         letterSpacing: '-0.04em',
-        color: '#ffffff',
+        color: textColor,
         userSelect: 'none',
         pointerEvents: 'none',
         opacity: phase === 'out' ? 0 : 1,
@@ -234,7 +223,7 @@ export default function Loader({ onFinish }) {
         fontSize: '0.65rem',
         fontWeight: 500,
         letterSpacing: '0.22em',
-        color: 'rgba(255,255,255,0.2)',
+        color: labelColor,
         textTransform: 'uppercase',
         userSelect: 'none',
         pointerEvents: 'none',
@@ -244,3 +233,4 @@ export default function Loader({ onFinish }) {
     </div>
   )
 }
+
