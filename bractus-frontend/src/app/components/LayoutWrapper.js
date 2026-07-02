@@ -1,12 +1,23 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Loader from './Loader'
 
 export default function LayoutWrapper({ children }) {
   // Always start loading — shows on every page refresh
   const [loading, setLoading] = useState(true)
 
-  const handleFinish = () => setLoading(false)
+  // Force scroll to top on initial page load / refresh
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
+    }
+    window.scrollTo({ top: 0 })
+  }, [])
+
+  const handleFinish = () => {
+    window.scrollTo({ top: 0 })
+    setLoading(false)
+  }
 
   return (
     <>
