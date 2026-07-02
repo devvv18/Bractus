@@ -147,8 +147,8 @@ export default function Loader({ onFinish }) {
 
       {/* ── Exact Bractus Logo (New Brand SVG path) ─────────────────────────── */}
       <svg
-        width="420"
-        height="420"
+        width="460"
+        height="460"
         viewBox="0 0 1080 1080"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

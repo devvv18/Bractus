@@ -43,19 +43,19 @@ export function HowWeWork() {
     offset: ['start end', 'end start'],
   })
 
-  // 1. Entry Line: completes very quickly as section enters viewport
-  const rawEntryDraw = useTransform(scrollYProgress, [0.04, 0.27], [0, 1])
-  const entryDraw = useSpring(rawEntryDraw, { stiffness: 80, damping: 28 })
+  // 1. Entry Line: draws smoothly from scroll 0.04 to 0.22
+  const rawEntryDraw = useTransform(scrollYProgress, [0.04, 0.22], [0, 1])
+  const entryDraw = useSpring(rawEntryDraw, { stiffness: 70, damping: 28 })
 
-  // 2. Entry line stays visible until logo is complete, then fades out gracefully
-  const lineOpacity = useTransform(scrollYProgress, [0.34, 0.46], [1, 0])
+  // 2. Entry line stays visible until logo is complete, then fades out snappily
+  const lineOpacity = useTransform(scrollYProgress, [0.38, 0.50], [1, 0])
 
-  // 3. Logo Outline: draws as section fully enters viewport
-  const rawLogoDraw = useTransform(scrollYProgress, [0.15, 0.32], [0, 1])
-  const logoDraw = useSpring(rawLogoDraw, { stiffness: 80, damping: 28 })
+  // 3. Logo Outline: starts at 0.18 and traces smoothly until 0.38
+  const rawLogoDraw = useTransform(scrollYProgress, [0.18, 0.38], [0, 1])
+  const logoDraw = useSpring(rawLogoDraw, { stiffness: 70, damping: 28 })
 
-  // 4. Solid Fill: completes by 32% — logo fully formed when section is in view
-  const fillOpacity = useTransform(scrollYProgress, [0.15, 0.32], [0, 0.95])
+  // 4. Solid Fill: solidifies dynamically from 0.18 to 0.38
+  const fillOpacity = useTransform(scrollYProgress, [0.18, 0.38], [0, 0.95])
 
   return (
     <section
