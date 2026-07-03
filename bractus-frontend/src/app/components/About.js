@@ -34,12 +34,58 @@ const FAQS = [
 export function Founder() {
   return (
     <section id="about" className="section" style={{ background: 'var(--bg)' }}>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .founder-grid {
+          display: grid;
+          grid-template-columns: 1fr 1.2fr;
+          gap: clamp(48px, 8vw, 100px);
+          align-items: center;
+        }
+        .founder-image-wrapper {
+          position: relative;
+          margin-top: 20px;
+          margin-left: -50px;
+        }
+        .founder-image-container {
+          width: 100%;
+          height: 650px;
+          min-height: 650px;
+          flex-shrink: 0;
+          margin: 0 auto;
+          background: transparent;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+        .founder-portrait {
+          width: 100%;
+          height: 650px;
+          min-height: 650px;
+          object-fit: cover;
+          object-position: top;
+          opacity: 0.85;
+          border-radius: 24px 24px 0 0;
+        }
+
+        @media (max-width: 900px) {
+          .founder-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+          }
+          .founder-image-wrapper {
+            margin-left: 0 !important;
+          }
+          .founder-image-container,
+          .founder-portrait {
+            height: 440px !important;
+            min-height: 440px !important;
+          }
+        }
+      ` }} />
       <div className="container">
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1.2fr',
-          gap: 'clamp(48px, 8vw, 100px)', alignItems: 'center',
-        }}>
+        <div className="founder-grid">
           {/* Left Column: Story */}
           <div>
             <span className="tag" style={{ marginBottom: 20, display: 'inline-flex' }}>THE BRACTUS STORY</span>
@@ -64,20 +110,11 @@ export function Founder() {
           </div>
 
           {/* Right Column: Image & Quote */}
-          <div style={{ position: 'relative', marginTop: 20, marginLeft: '-50px' }}>
+          <div className="founder-image-wrapper">
             <div style={{ padding: 0, overflow: 'hidden', borderRadius: 24 }}>
               {/* Founder Image Placeholder */}
-              <div style={{
-                width: '100%',
-                height: '650px',
-                minHeight: '650px',
-                flexShrink: 0,
-                margin: '0 auto',
-                background: 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                position: 'relative'
-              }}>
-                <img src="/founder-portrait.png" alt="Kunal Khanna" style={{ width: '100%', height: '650px', minHeight: '650px', objectFit: 'cover', objectPosition: 'top', opacity: 0.85, borderRadius: '24px 24px 0 0' }} />
+              <div className="founder-image-container">
+                <img src="/founder-portrait.png" alt="Kunal Khanna" className="founder-portrait" />
 
                 {/* Floating Quote Over Image */}
                 <div style={{

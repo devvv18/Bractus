@@ -94,7 +94,7 @@ export default function ProcessPage() {
       </section>
 
       {/* How our team works — 2 column icon+text list */}
-      <section style={{ paddingTop: 100, paddingBottom: 100, background: '#f0f6fb' }}>
+      <section style={{ paddingTop: 100, paddingBottom: 100, background: 'var(--bg-alt)' }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
             <h2 style={{

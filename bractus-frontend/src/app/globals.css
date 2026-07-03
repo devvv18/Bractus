@@ -520,13 +520,20 @@ h6 {
   }
 
   .show-mobile {
-    display: inline !important;
-    /* Changed to inline for text spans */
+    display: block !important;
+  }
+
+  .show-mobile-flex {
+    display: flex !important;
   }
 }
 
 @media (min-width: 769px) {
   .show-mobile {
+    display: none !important;
+  }
+
+  .show-mobile-flex {
     display: none !important;
   }
 }

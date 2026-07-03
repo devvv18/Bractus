@@ -913,8 +913,11 @@ export default function Hero() {
         {/* Stats Section */}
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 65, marginBottom: 40 }}>
           <div ref={statsRef} className="anim-fade-up anim-delay-4" style={{
-            display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
-            padding: '28px 48px',
+            display: 'grid',
+            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
+            gap: isMobile ? '24px 16px' : 'clamp(32px, 6vw, 64px)',
+            justifyContent: 'center',
+            padding: isMobile ? '24px 16px' : '28px 48px',
             borderRadius: 20,
             background: 'var(--stats-bg)',
             boxShadow: 'var(--stats-shadow)',

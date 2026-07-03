@@ -74,7 +74,7 @@ export default function Navbar() {
           </button>
 
           {/* Hamburger */}
-          <button className="show-mobile" onClick={() => setMobileOpen(o => !o)}
+          <button className="show-mobile-flex" onClick={() => setMobileOpen(o => !o)}
             aria-label="Menu" style={{
               background: 'none', border: 'none', flexDirection: 'column', gap: 5, padding: 4,
             }}>
