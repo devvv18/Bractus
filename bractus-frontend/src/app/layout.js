@@ -32,15 +32,15 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <ThemeProvider>
+          <Navbar />
           <LayoutWrapper>
-            <Navbar />
             <main style={{ paddingTop: 72 }}>
               {children}
             </main>
             <Footer />
-            <ChatBot />
-            <ScrollReveal />
           </LayoutWrapper>
+          <ChatBot />
+          <ScrollReveal />
         </ThemeProvider>
         <Analytics />
       </body>
