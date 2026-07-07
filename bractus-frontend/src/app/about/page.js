@@ -70,9 +70,8 @@ export default function AboutPage() {
           </div>
 
           <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
             gap: '48px 32px',
             textAlign: 'center',
             marginBottom: 64,
@@ -85,9 +84,6 @@ export default function AboutPage() {
                 flexDirection: 'column', 
                 alignItems: 'center', 
                 gap: 16,
-                width: 'calc(20% - 32px)',
-                minWidth: 180,
-                flexGrow: 0
               }}>
                 <div style={{ position: 'relative', width: 72, height: 72 }}>
                   <svg width="72" height="72" viewBox="0 0 72 72" fill="none">

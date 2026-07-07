@@ -298,6 +298,7 @@ uniform float uTime;
 uniform float uParticleScale;
 uniform float uPixelRatio;
 uniform int uColorScheme;
+uniform bool uUseSimpleGrid;
 
 varying vec4 vSeeds;
 varying float vVelocity;
@@ -305,14 +306,27 @@ varying vec2 vLocalPos;
 varying vec2 vScreenPos;
 varying float vScale;
 
-void main() {
-    vec4 pos = texture2D(uPosition, uv);
-    vSeeds = seeds;
+${SIMPLEX_NOISE_GLSL}
 
-    vVelocity = pos.w;
-    vScale = pos.z;
-    vLocalPos = pos.xy;
-    vec4 viewSpace  = modelViewMatrix * vec4(vec3(pos.xy, 0.), 1.0);
+void main() {
+    vSeeds = seeds;
+    vec2 p;
+    if (uUseSimpleGrid) {
+        p = position.xy;
+        float driftX = snoise(vec3(p * 2.0 + vec2(18.4924, 72.9744), uTime * 0.15)) * 0.04;
+        float driftY = snoise(vec3(p * 2.0 + vec2(50.904, 120.947), uTime * 0.18)) * 0.04;
+        p += vec2(driftX, driftY);
+        vScale = 0.5 + snoise(vec3(p * 10.0, uTime * 0.3)) * 0.25;
+        vVelocity = 0.2;
+    } else {
+        vec4 pos = texture2D(uPosition, uv);
+        p = pos.xy;
+        vScale = pos.z;
+        vVelocity = pos.w;
+    }
+
+    vLocalPos = p;
+    vec4 viewSpace  = modelViewMatrix * vec4(vec3(p, 0.), 1.0);
 
     gl_Position = projectionMatrix * viewSpace;
     vScreenPos = gl_Position.xy;
@@ -426,6 +440,7 @@ function ParticleGrid() {
 
     // 1. Initialize WebGL Renderer with graceful fallbacks for Safari/mobile devices
     let renderer;
+    let useSimpleGrid = false;
     try {
       renderer = new THREE.WebGLRenderer({
         canvas: canvas,
@@ -440,12 +455,23 @@ function ParticleGrid() {
       const gl = renderer.getContext();
       if (!gl) throw new Error("Could not get WebGL context");
       const isWebGL2 = gl instanceof WebGL2RenderingContext;
-      if (!isWebGL2) {
+      
+      // Programmatic verification of float framebuffers support
+      let supportsFloatTargets = false;
+      if (isWebGL2) {
+        const floatExt = gl.getExtension('EXT_color_buffer_float');
+        if (floatExt) supportsFloatTargets = true;
+      } else {
         const floatExt = gl.getExtension('OES_texture_float');
-        if (!floatExt) throw new Error("Float textures not supported");
+        if (floatExt) supportsFloatTargets = true;
+      }
+
+      if (!supportsFloatTargets) {
+        console.warn("WebGL GPGPU float texture rendering is not supported on this device. Falling back to Simple WebGL Grid mode.");
+        useSimpleGrid = true;
       }
     } catch (e) {
-      console.warn("WebGL or Float Texture support missing, falling back to CSS grid:", e);
+      console.warn("WebGL context creation failed completely. Falling back to CSS grid:", e);
       setHasWebGL(false);
       return;
     }
@@ -485,75 +511,90 @@ function ParticleGrid() {
     const size = 256;
     const length = size * size;
 
-    // 5. Create Data Texture for GPGPU initialization
-    const posData = new Float32Array(length * 4);
-    for (let i = 0; i < count; i++) {
-      const idx = i * 4;
-      posData[idx + 0] = pointsData[i * 2 + 0] * (1 / 250);
-      posData[idx + 1] = pointsData[i * 2 + 1] * (1 / 250);
-      posData[idx + 2] = 0; // Scale
-      posData[idx + 3] = 0; // Velocity
-    }
-    const posTex = new THREE.DataTexture(posData, size, size, THREE.RGBAFormat, THREE.FloatType);
-    posTex.needsUpdate = true;
+    // 5. Create Data Texture for GPGPU initialization (only if GPGPU is supported)
+    let posData = null;
+    let posTex = null;
+    let rt1 = null;
+    let rt2 = null;
+    let simScene = null;
+    let simCamera = null;
+    let simMaterial = null;
+    let simMesh = null;
 
-    // 6. Create double-buffered GPGPU render targets
-    const createRenderTarget = () => {
-      return new THREE.WebGLRenderTarget(size, size, {
-        wrapS: THREE.ClampToEdgeWrapping,
-        wrapT: THREE.ClampToEdgeWrapping,
-        minFilter: THREE.NearestFilter,
-        magFilter: THREE.NearestFilter,
-        format: THREE.RGBAFormat,
-        type: THREE.FloatType,
-        depthBuffer: false,
-        stencilBuffer: false
+    if (!useSimpleGrid) {
+      posData = new Float32Array(length * 4);
+      for (let i = 0; i < count; i++) {
+        const idx = i * 4;
+        posData[idx + 0] = pointsData[i * 2 + 0] * (1 / 250);
+        posData[idx + 1] = pointsData[i * 2 + 1] * (1 / 250);
+        posData[idx + 2] = 0; // Scale
+        posData[idx + 3] = 0; // Velocity
+      }
+      posTex = new THREE.DataTexture(posData, size, size, THREE.RGBAFormat, THREE.FloatType);
+      posTex.needsUpdate = true;
+
+      // 6. Create double-buffered GPGPU render targets
+      const createRenderTarget = () => {
+        return new THREE.WebGLRenderTarget(size, size, {
+          wrapS: THREE.ClampToEdgeWrapping,
+          wrapT: THREE.ClampToEdgeWrapping,
+          minFilter: THREE.NearestFilter,
+          magFilter: THREE.NearestFilter,
+          format: THREE.RGBAFormat,
+          type: THREE.FloatType,
+          depthBuffer: false,
+          stencilBuffer: false
+        });
+      };
+      rt1 = createRenderTarget();
+      rt2 = createRenderTarget();
+
+      // Clear targets
+      renderer.setRenderTarget(rt1);
+      renderer.setClearColor(0, 0);
+      renderer.clear();
+      renderer.setRenderTarget(rt2);
+      renderer.setClearColor(0, 0);
+      renderer.clear();
+      renderer.setRenderTarget(null);
+
+      // 7. Initialize GPGPU Simulation Scene & Orthographic Camera
+      simScene = new THREE.Scene();
+      simCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      simMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          uPosition: { value: posTex },
+          uPosRefs: { value: posTex },
+          uRingPos: { value: new THREE.Vector2(0, 0) },
+          uRingRadius: { value: 0.2 },
+          uDeltaTime: { value: 0 },
+          uRingWidth: { value: 0.107 },
+          uRingWidth2: { value: 0.05 },
+          uRingDisplacement: { value: 0.15 },
+          uTime: { value: 0 }
+        },
+        vertexShader: `
+          void main() {
+            gl_Position = vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: SIMULATION_FRAGMENT_SHADER
       });
-    };
-    let rt1 = createRenderTarget();
-    let rt2 = createRenderTarget();
+      simMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), simMaterial);
+      simScene.add(simMesh);
+    }
 
-    // Clear targets
-    renderer.setRenderTarget(rt1);
-    renderer.setClearColor(0, 0);
-    renderer.clear();
-    renderer.setRenderTarget(rt2);
-    renderer.setClearColor(0, 0);
-    renderer.clear();
-    renderer.setRenderTarget(null);
-
-    // 7. Initialize GPGPU Simulation Scene & Orthographic Camera
-    const simScene = new THREE.Scene();
-    const simCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    const simMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        uPosition: { value: posTex },
-        uPosRefs: { value: posTex },
-        uRingPos: { value: new THREE.Vector2(0, 0) },
-        uRingRadius: { value: 0.2 },
-        uDeltaTime: { value: 0 },
-        uRingWidth: { value: 0.107 },
-        uRingWidth2: { value: 0.05 },
-        uRingDisplacement: { value: 0.15 },
-        uTime: { value: 0 }
-      },
-      vertexShader: `
-        void main() {
-          gl_Position = vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: SIMULATION_FRAGMENT_SHADER
-    });
-    const simMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), simMaterial);
-    simScene.add(simMesh);
-
-    // 8. Initialize Main Particle Mesh
+    // 8. Initialize Main Particle Mesh (populating coordinates directly for standard grid shader)
     const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(count * 3); // Zeros, vertex shader will place
+    const positions = new Float32Array(count * 3);
     const uvs = new Float32Array(count * 2);
     const seeds = new Float32Array(count * 4);
 
     for (let s = 0; s < count; s++) {
+      positions[s * 3 + 0] = pointsData[s * 2 + 0] * (1 / 250);
+      positions[s * 3 + 1] = pointsData[s * 2 + 1] * (1 / 250);
+      positions[s * 3 + 2] = 0;
+
       const a = s % size;
       const l = Math.floor(s / size);
       uvs[s * 2] = a / size;
@@ -574,7 +615,8 @@ function ParticleGrid() {
 
     const renderMaterial = new THREE.ShaderMaterial({
       uniforms: {
-        uPosition: { value: posTex },
+        uPosition: { value: posTex || new THREE.Texture() },
+        uUseSimpleGrid: { value: useSimpleGrid },
         uTime: { value: 0 },
         uColor1: { value: new THREE.Color(themeColors.c1) },
         uColor2: { value: new THREE.Color(themeColors.c2) },
@@ -603,15 +645,25 @@ function ParticleGrid() {
     const ringPos = new THREE.Vector2(0, 0);
     const cursorPos = new THREE.Vector2(0, 0);
 
-    // 10. Resizing handler
+    // 10. Resizing handler with parent Element ResizeObserver support
     const setSize = () => {
-      const w = canvas.parentElement.clientWidth;
-      const h = canvas.parentElement.clientHeight;
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      const w = parent.clientWidth;
+      const h = parent.clientHeight;
+      if (w === 0 || h === 0) return;
       renderer.setSize(w, h, false);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderMaterial.uniforms.uRez.value.set(w, h);
     };
+
+    const resizeObserver = new ResizeObserver(() => {
+      setSize();
+    });
+    if (canvas.parentElement) {
+      resizeObserver.observe(canvas.parentElement);
+    }
 
     // 11. Event Handlers for cursor tracking
     const handleInteraction = (clientX, clientY) => {
@@ -628,7 +680,6 @@ function ParticleGrid() {
       mouseIsOver = false;
     };
 
-    window.addEventListener('resize', setSize);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     canvas.addEventListener('mouseleave', handleMouseLeave);
@@ -703,19 +754,22 @@ function ParticleGrid() {
 
       const particleScale = (canvas.clientWidth / pixelRatio / 2000) * 0.75;
 
-      // Simulation GPGPU Ping-Pong Pass
-      simMaterial.uniforms.uPosition.value = everRendered ? rt1.texture : posTex;
-      simMaterial.uniforms.uTime.value = clockTime;
-      simMaterial.uniforms.uDeltaTime.value = dt;
-      simMaterial.uniforms.uRingRadius.value = 0.175 + Math.sin(clockTime * 1.0) * 0.03 + Math.cos(clockTime * 3.0) * 0.02;
-      simMaterial.uniforms.uRingPos.value = ringPos;
+      // Simulation GPGPU Ping-Pong Pass (only executed if GPGPU float rendering is supported)
+      if (!useSimpleGrid) {
+        simMaterial.uniforms.uPosition.value = everRendered ? rt1.texture : posTex;
+        simMaterial.uniforms.uTime.value = clockTime;
+        simMaterial.uniforms.uDeltaTime.value = dt;
+        simMaterial.uniforms.uRingRadius.value = 0.175 + Math.sin(clockTime * 1.0) * 0.03 + Math.cos(clockTime * 3.0) * 0.02;
+        simMaterial.uniforms.uRingPos.value = ringPos;
 
-      renderer.setRenderTarget(rt2);
-      renderer.render(simScene, simCamera);
-      renderer.setRenderTarget(null);
+        renderer.setRenderTarget(rt2);
+        renderer.render(simScene, simCamera);
+        renderer.setRenderTarget(null);
 
-      // Rendering Pass
-      renderMaterial.uniforms.uPosition.value = everRendered ? rt2.texture : posTex;
+        // Rendering Pass
+        renderMaterial.uniforms.uPosition.value = everRendered ? rt2.texture : posTex;
+      }
+
       renderMaterial.uniforms.uTime.value = clockTime;
       renderMaterial.uniforms.uRingPos.value = ringPos;
       renderMaterial.uniforms.uParticleScale.value = particleScale;
@@ -723,11 +777,13 @@ function ParticleGrid() {
       renderer.clear();
       renderer.render(scene, camera);
 
-      // Swap double buffers
-      const temp = rt1;
-      rt1 = rt2;
-      rt2 = temp;
-      everRendered = true;
+      if (!useSimpleGrid) {
+        // Swap double buffers
+        const temp = rt1;
+        rt1 = rt2;
+        rt2 = temp;
+        everRendered = true;
+      }
 
       animationFrameId = requestAnimationFrame(render);
     };
@@ -751,7 +807,7 @@ function ParticleGrid() {
     return () => {
       cancelAnimationFrame(animationFrameId);
       io.disconnect();
-      window.removeEventListener('resize', setSize);
+      resizeObserver.disconnect();
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
       canvas.removeEventListener('mouseleave', handleMouseLeave);
@@ -759,14 +815,16 @@ function ParticleGrid() {
 
       geometry.dispose();
       renderMaterial.dispose();
-      simMaterial.dispose();
-      simMesh.geometry.dispose();
-      simMesh.material.dispose();
+      if (simMaterial) {
+        simMaterial.dispose();
+        simMesh.geometry.dispose();
+        simMesh.material.dispose();
+      }
       raycastPlane.geometry.dispose();
       raycastPlane.material.dispose();
-      rt1.dispose();
-      rt2.dispose();
-      posTex.dispose();
+      if (rt1) rt1.dispose();
+      if (rt2) rt2.dispose();
+      if (posTex) posTex.dispose();
       renderer.dispose();
     };
   }, [])
@@ -880,34 +938,15 @@ export default function Hero() {
         filter: 'blur(80px)',
       }} />
 
-      <div className="container" style={{ 
-        position: 'relative', 
-        zIndex: 1, 
-        paddingTop: isMobile ? 40 : 72,
-        paddingBottom: isMobile ? 40 : 0
-      }}>
+      <div className="container hero-container">
 
         {/* Tags — centered across full width, above the two columns */}
-        <div className="anim-fade-up" style={{
-          display: 'flex',
-          gap: isMobile ? 10 : 20,
-          flexWrap: 'wrap', // Mobile-friendly wrap
-          justifyContent: 'center',
-          marginBottom: isMobile ? 30 : 40
-        }}>
-          <span className="tag" style={{ fontSize: isMobile ? '0.7rem' : '0.8rem' }}>✦ COMPREHENSIVE IT SOLUTIONS</span>
-          <span className="tag" style={{ fontSize: isMobile ? '0.7rem' : '0.8rem' }}>✦ END-TO-END TECHNOLOGY PARTNER</span>
+        <div className="anim-fade-up hero-tags">
+          <span className="tag hero-tag-text">✦ COMPREHENSIVE IT SOLUTIONS</span>
+          <span className="tag hero-tag-text">✦ END-TO-END TECHNOLOGY PARTNER</span>
         </div>
 
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-          maxWidth: 850,
-          margin: '0 auto',
-          gap: isMobile ? 30 : 40,
-        }}>
+        <div className="hero-main-content">
           {/* Content Column (Centered) */}
           <div style={{
             display: 'flex',
@@ -968,17 +1007,7 @@ export default function Hero() {
 
         {/* Stats Section */}
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 65, marginBottom: 40 }}>
-          <div ref={statsRef} className="anim-fade-up anim-delay-4" style={{
-            display: 'grid',
-            gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)',
-            gap: isMobile ? '24px 16px' : 'clamp(32px, 6vw, 64px)',
-            justifyContent: 'center',
-            padding: isMobile ? '24px 16px' : '28px 48px',
-            borderRadius: 20,
-            background: 'var(--stats-bg)',
-            boxShadow: 'var(--stats-shadow)',
-            width: '100%', maxWidth: 850,
-          }}>
+          <div ref={statsRef} className="anim-fade-up anim-delay-4 hero-stats-grid">
             {STATS.map(({ suffix, label }, i) => (
               <div key={label} style={{ textAlign: 'center' }}>
                 <div style={{
@@ -997,6 +1026,66 @@ export default function Hero() {
         </div>
       </div>
       <style>{`
+        .hero-container {
+          position: relative;
+          z-index: 1;
+          padding-top: 72px;
+          padding-bottom: 0;
+        }
+        .hero-tags {
+          display: flex;
+          gap: 20px;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-bottom: 40px;
+        }
+        .hero-tag-text {
+          font-size: 0.8rem;
+        }
+        .hero-main-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          max-width: 850px;
+          margin: 0 auto;
+          gap: 40px;
+        }
+        .hero-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: clamp(32px, 6vw, 64px);
+          justify-content: center;
+          padding: 28px 48px;
+          border-radius: 20px;
+          background: var(--stats-bg);
+          box-shadow: var(--stats-shadow);
+          width: 100%;
+          max-width: 850px;
+        }
+
+        @media (max-width: 768px) {
+          .hero-container {
+            padding-top: 40px !important;
+            padding-bottom: 40px !important;
+          }
+          .hero-tags {
+            gap: 10px !important;
+            margin-bottom: 30px !important;
+          }
+          .hero-tag-text {
+            font-size: 0.7rem !important;
+          }
+          .hero-main-content {
+            gap: 30px !important;
+          }
+          .hero-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 24px 16px !important;
+            padding: 24px 16px !important;
+          }
+        }
+
         @keyframes drift {
           0%, 100% { transform: translate(0, 0); }
           50% { transform: translate(10px, -15px); }

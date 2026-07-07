@@ -47,7 +47,7 @@ export function Founder() {
           margin-top: 20px;
           margin-left: -50px;
         }
-        .founder-image-container {
+         .founder-image-container {
           width: 100%;
           height: 650px;
           min-height: 650px;
@@ -55,8 +55,7 @@ export function Founder() {
           margin: 0 auto;
           background: transparent;
           display: flex;
-          align-items: center;
-          justify-content: center;
+          flex-direction: column;
           position: relative;
         }
         .founder-portrait {
@@ -64,9 +63,40 @@ export function Founder() {
           height: 650px;
           min-height: 650px;
           object-fit: cover;
-          object-position: top;
+          object-position: center;
           opacity: 0.85;
-          border-radius: 24px 24px 0 0;
+        }
+        .founder-quote-overlay {
+          position: absolute;
+          bottom: 0; left: 0; right: 0;
+          background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.90) 60%, transparent 85%);
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          padding: 80px 32px 60px;
+          color: #fff;
+          z-index: 1;
+        }
+        .founder-quote-text {
+          font-size: 0.9rem;
+          line-height: 1.6;
+          font-style: italic;
+          margin-bottom: 16px;
+          font-weight: 300;
+          opacity: 0.95;
+          color: #fff;
+        }
+        .founder-quote-author {
+          font-weight: 600;
+          font-size: 1rem;
+          letter-spacing: 0.02em;
+          color: #fff;
+        }
+        .founder-quote-role {
+          opacity: 0.7;
+          font-size: 0.85rem;
+          margin-top: 2px;
+          color: #fff;
         }
 
         @media (max-width: 900px) {
@@ -77,17 +107,32 @@ export function Founder() {
           .founder-image-wrapper {
             margin-left: 0 !important;
           }
-          .founder-image-container,
+          .founder-image-container {
+            height: 540px !important;
+            min-height: 540px !important;
+          }
           .founder-portrait {
-            height: 440px !important;
-            min-height: 440px !important;
+            height: 540px !important;
+            min-height: 540px !important;
+            object-position: center 15% !important;
+            border-radius: 24px !important;
+          }
+          .founder-quote-overlay {
+            padding: 50px 24px 36px !important;
           }
         }
         @media (max-width: 500px) {
-          .founder-image-container,
+          .founder-image-container {
+            height: 480px !important;
+            min-height: 480px !important;
+          }
           .founder-portrait {
-            height: 300px !important;
-            min-height: 300px !important;
+            height: 480px !important;
+            min-height: 480px !important;
+            object-position: center 10% !important;
+          }
+          .founder-quote-overlay {
+            padding: 40px 20px 28px !important;
           }
         }
       ` }} />
@@ -124,22 +169,13 @@ export function Founder() {
                 <img src="/founder-portrait.png" alt="Kunal Khanna" className="founder-portrait" />
 
                 {/* Floating Quote Over Image */}
-                <div style={{
-                  display: 'none',
-                  position: 'absolute', bottom: 0, left: 0, right: 0,
-                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.90) 60%, transparent 85%)',
-                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-                  padding: '80px 32px 60px', color: '#fff'
-                }}>
-                  <p style={{
-                    fontSize: '0.9rem', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 16,
-                    fontWeight: 300, opacity: 0.95
-                  }}>
+                <div className="founder-quote-overlay">
+                  <p className="founder-quote-text">
                     "Technology is moving faster than ever, but the fundamentals of good engineering and honest business never change. I built this company to give leaders a partner who deeply understands the tech, and actually delivers on their promises."
                   </p>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '1rem', letterSpacing: '0.02em' }}>Kunal Khanna</div>
-                    <div style={{ opacity: 0.7, fontSize: '0.85rem', marginTop: 2 }}>Founder, Bractus</div>
+                    <div className="founder-quote-author">Kunal Khanna</div>
+                    <div className="founder-quote-role">Founder, Bractus</div>
                   </div>
                 </div>
               </div>
