@@ -45,13 +45,21 @@ export function HowWeWork() {
     offset: ['start end', 'end start'],
   })
 
+  // Create a single smooth spring over scroll progress to emulate Lusion's fluid momentum scrolling
+  // Fine-tuned with stiffness 15 and damping 20 for a buttery, highly refined deceleration glide
+  const smoothScroll = useSpring(scrollYProgress, {
+    stiffness: 15,
+    damping: 20,
+    restDelta: 0.0001
+  })
+
   // Head: draws the entire thread from start (0) to end (1) — entry + logo as ONE entity
-  // 0.04 → 0.65 scroll: expanded range to make the animation transition slower on scroll
-  const pathDraw = useTransform(scrollYProgress, [0.04, 0.65], [0, 1], { clamp: true })
+  // 0.02 → 0.70 scroll: expanded range for an even steadier, more comfortable scroll rate
+  const pathDraw = useTransform(smoothScroll, [0.02, 0.70], [0, 1], { clamp: true })
 
   // Tail: erases the entry line as soon as the head reaches "w" (0.37) and starts forming the logo
-  // 0.37 → 0.60 pathDraw: tail quickly moves to 0.41 to erase the entry line in sync with logo formation
-  const pathOffset = useTransform(pathDraw, [0, 0.37, 0.60, 1], [0, 0, 0.41, 0.41], { clamp: true })
+  // 0.37 → 0.90 pathDraw: tail gradually and smoothly erases the entry line in a steady glide
+  const pathOffset = useTransform(pathDraw, [0, 0.37, 0.90, 1], [0, 0, 0.41, 0.41], { clamp: true })
 
   return (
     <section

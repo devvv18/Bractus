@@ -13,6 +13,13 @@ export const metadata = {
   description: 'Bractus delivers software engineering, DevOps, AI integration, and cloud services with senior professionals wielding AI-native toolchains for enterprise-grade outcomes.',
 }
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+}
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>

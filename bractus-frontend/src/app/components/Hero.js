@@ -416,22 +416,40 @@ const getThemeColors = (isDark) => {
 
 function ParticleGrid() {
   const canvasRef = useRef(null)
+  const [hasWebGL, setHasWebGL] = useState(true)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    // 1. Initialize WebGL Renderer
-    const pixelRatio = window.devicePixelRatio || 1;
-    const renderer = new THREE.WebGLRenderer({
-      canvas: canvas,
-      antialias: true,
-      alpha: true,
-      powerPreference: "high-performance",
-      preserveDrawingBuffer: true,
-      stencil: false,
-      precision: "highp"
-    });
+    const pixelRatio = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+
+    // 1. Initialize WebGL Renderer with graceful fallbacks for Safari/mobile devices
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+        preserveDrawingBuffer: true,
+        stencil: false,
+        precision: "highp"
+      });
+
+      const gl = renderer.getContext();
+      if (!gl) throw new Error("Could not get WebGL context");
+      const isWebGL2 = gl instanceof WebGL2RenderingContext;
+      if (!isWebGL2) {
+        const floatExt = gl.getExtension('OES_texture_float');
+        if (!floatExt) throw new Error("Float textures not supported");
+      }
+    } catch (e) {
+      console.warn("WebGL or Float Texture support missing, falling back to CSS grid:", e);
+      setHasWebGL(false);
+      return;
+    }
+
     renderer.setPixelRatio(pixelRatio);
     
     const width = canvas.clientWidth;
@@ -632,13 +650,16 @@ function ParticleGrid() {
 
     setSize();
 
-    // 13. Render Loop
+    // 13. Render Loop with Viewport Visibility Observer (prevents CPU/GPU lag when scrolled out of view)
     let lastTime = 0;
     let clockTime = 0;
     let everRendered = false;
     let animationFrameId;
+    let isInView = true;
 
     const render = (now) => {
+      if (!isInView) return; // Pause frame execution & stop scheduling if out of view
+
       now *= 0.001; // convert to seconds
       let dt = now - lastTime;
       if (dt > 0.1) dt = 0.1; // Cap dt during lag spikes
@@ -711,6 +732,16 @@ function ParticleGrid() {
       animationFrameId = requestAnimationFrame(render);
     };
 
+    const io = new IntersectionObserver(([entry]) => {
+      const wasInView = isInView;
+      isInView = entry.isIntersecting;
+      if (isInView && !wasInView) {
+        lastTime = performance.now() * 0.001;
+        animationFrameId = requestAnimationFrame(render);
+      }
+    }, { threshold: 0 });
+    io.observe(canvas);
+
     animationFrameId = requestAnimationFrame((now) => {
       lastTime = now * 0.001;
       render(now);
@@ -719,6 +750,7 @@ function ParticleGrid() {
     // 14. Cleanup
     return () => {
       cancelAnimationFrame(animationFrameId);
+      io.disconnect();
       window.removeEventListener('resize', setSize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
@@ -738,6 +770,22 @@ function ParticleGrid() {
       renderer.dispose();
     };
   }, [])
+
+  if (!hasWebGL) {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          top: 0, left: 0,
+          width: '100%', height: '100%',
+          pointerEvents: 'none',
+          zIndex: 0,
+          background: 'radial-gradient(circle at 30% 30%, var(--accent-glow) 0%, transparent 60%), radial-gradient(circle at 80% 70%, rgba(7, 132, 98, 0.12) 0%, transparent 50%)',
+          opacity: 0.8,
+        }}
+      />
+    )
+  }
 
   return (
     <canvas
@@ -798,9 +846,17 @@ export default function Hero() {
           }, frameDuration)
         })
       }
-    }, { threshold: 0.4 })
-    if (statsRef.current) observer.observe(statsRef.current)
-    return () => observer.disconnect()
+    }, { threshold: 0.15 }) // lower threshold for reliable trigger on mobile scroll
+
+    // Delay observing by 200ms to allow the mobile layout and canvas rendering to settle
+    const timer = setTimeout(() => {
+      if (statsRef.current) observer.observe(statsRef.current)
+    }, 200)
+
+    return () => {
+      clearTimeout(timer)
+      observer.disconnect()
+    }
   }, [])
 
   return (

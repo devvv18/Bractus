@@ -83,6 +83,13 @@ export function Founder() {
             min-height: 440px !important;
           }
         }
+        @media (max-width: 500px) {
+          .founder-image-container,
+          .founder-portrait {
+            height: 300px !important;
+            min-height: 300px !important;
+          }
+        }
       ` }} />
       <div className="container">
         <div className="founder-grid">

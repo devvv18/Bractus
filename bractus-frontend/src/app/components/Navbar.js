@@ -97,10 +97,15 @@ export default function Navbar() {
       {/* Mobile menu overlay */}
       {mobileOpen && (
         <div style={{
-          position: 'fixed', inset: 0, zIndex: 190,
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          height: '100dvh', // dynamic viewport height for mobile browsers
+          zIndex: 190,
           background: 'var(--bg)',
           display: 'flex', flexDirection: 'column',
-          padding: '100px 32px 40px', gap: 4,
+          padding: '100px 32px 40px',
+          gap: 4,
+          overflowY: 'auto', // ensure scrollability if links overflow
         }}>
           {NAV_LINKS.map(({ label, href }) => (
             <Link key={label} href={href} onClick={() => setMobileOpen(false)}
@@ -110,7 +115,7 @@ export default function Navbar() {
                 borderBottom: '1px solid var(--border)',
               }}>{label}</Link>
           ))}
-          <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary" style={{ marginTop: 24, textAlign: 'center' }} onClick={() => setMobileOpen(false)}>
+          <a href={`mailto:${contactEmail}?subject=Schedule%20a%20Call%20with%20Bractus&body=Hello%20Bractus%20Team%2C%0A%0AI%20would%20like%20to%20schedule%20a%20call%20to%20discuss%20how%20your%20technology%20services%20can%20help%20my%20organization.%0A%0ALooking%20forward%20to%20hearing%20from%20you%21`} className="btn-primary" style={{ marginTop: 24, textAlign: 'center', flexShrink: 0 }} onClick={() => setMobileOpen(false)}>
             Schedule a call
           </a>
         </div>
