@@ -273,7 +273,7 @@ export function GetInTouch() {
       <div className="container">
         <div id="contact-form" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
           gap: 48,
         }}>
           {/* Left - Info */}

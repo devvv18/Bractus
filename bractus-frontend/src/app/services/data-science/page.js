@@ -82,7 +82,7 @@ export default function DataSciencePage() {
         <div style={{ maxWidth: "860px", margin: "0 auto" }}>
           <SectionLabel>Real Results</SectionLabel>
           <h2 style={{ fontSize: "28px", fontWeight: 800, textAlign: "center", marginBottom: "48px" }}>What this looks like in practice</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "20px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))", gap: "20px" }}>
             {useCases.map((u, i) => (
               <div key={i} style={{ background: "#f8f9fc", borderRadius: "14px", padding: "24px 28px", border: "1px solid #e8ecf4", display: "flex", gap: "16px" }}>
                 <div style={{ flexShrink: 0, background: "#eef2ff", borderRadius: "8px", padding: "8px 14px", height: "fit-content", fontSize: "12px", fontWeight: 700, color: "#2563eb", textTransform: "uppercase", letterSpacing: "0.06em" }}>{u.industry}</div>
