@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import * as THREE from 'three'
 
 const BADGES = [
   'Website & Applications',
@@ -10,233 +11,839 @@ const BADGES = [
   'Data Engineering',
 ]
 
+// 1D Value Noise class for cursor drift (value noise)
+class ValueNoise1D {
+  constructor() {
+    this.MAX_VERTICES = 256;
+    this.MAX_VERTICES_MASK = this.MAX_VERTICES - 1;
+    this.amplitude = 1;
+    this.scale = 1;
+    this.r = [];
+    for (let e = 0; e < this.MAX_VERTICES; ++e) {
+      this.r.push(Math.random());
+    }
+  }
+  getVal(e) {
+    const t = e * this.scale;
+    const i = Math.floor(t);
+    const r = t - i;
+    const o = r * r * (3 - 2 * r);
+    const s = i % this.MAX_VERTICES_MASK;
+    const a = (s + 1) % this.MAX_VERTICES_MASK;
+    const l = this.lerp(this.r[s], this.r[a], o);
+    return l * this.amplitude;
+  }
+  lerp(e, t, i) {
+    return e * (1 - i) + t * i;
+  }
+}
+
+// O(N) Poisson-Disk Sampler to generate organic grid spacing
+function poissonDiskSample(width, height, minDistance, maxDistance, tries) {
+  const cellSize = minDistance / Math.sqrt(2);
+  const gridWidth = Math.ceil(width / cellSize);
+  const gridHeight = Math.ceil(height / cellSize);
+  const grid = new Int32Array(gridWidth * gridHeight);
+  const samplePoints = [];
+  const activeList = [];
+
+  function isValid(p) {
+    if (p[0] < 0 || p[0] >= width || p[1] < 0 || p[1] >= height) return false;
+    const cellX = Math.floor(p[0] / cellSize);
+    const cellY = Math.floor(p[1] / cellSize);
+    const minX = Math.max(0, cellX - 2);
+    const maxX = Math.min(gridWidth - 1, cellX + 2);
+    const minY = Math.max(0, cellY - 2);
+    const maxY = Math.min(gridHeight - 1, cellY + 2);
+
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        const index = grid[y * gridWidth + x] - 1;
+        if (index >= 0) {
+          const other = samplePoints[index];
+          const dx = p[0] - other[0];
+          const dy = p[1] - other[1];
+          if (dx * dx + dy * dy < minDistance * minDistance) {
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
+  function addPoint(p) {
+    samplePoints.push(p);
+    activeList.push(p);
+    const cellX = Math.floor(p[0] / cellSize);
+    const cellY = Math.floor(p[1] / cellSize);
+    grid[cellY * gridWidth + cellX] = samplePoints.length;
+  }
+
+  // Start with a random point
+  addPoint([Math.random() * width, Math.random() * height]);
+
+  while (activeList.length > 0) {
+    const activeIndex = Math.floor(Math.random() * activeList.length);
+    const p = activeList[activeIndex];
+    let found = false;
+
+    for (let i = 0; i < tries; i++) {
+      const theta = Math.random() * Math.PI * 2;
+      const radius = minDistance + Math.random() * (maxDistance - minDistance);
+      const candidate = [
+        p[0] + radius * Math.cos(theta),
+        p[1] + radius * Math.sin(theta)
+      ];
+
+      if (isValid(candidate)) {
+        addPoint(candidate);
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      activeList.splice(activeIndex, 1);
+    }
+  }
+  return samplePoints;
+}
+
+// GLSL Simplex Noise library for GPU simulation & rendering
+const SIMPLEX_NOISE_GLSL = `
+  vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+  vec4 permute(vec4 x){return mod(((x*34.0)+1.0)*x, 289.0);}
+  float permute(float x){return floor(mod(((x*34.0)+1.0)*x, 289.0));}
+
+  vec4 taylorInvSqrt(vec4 r){return 1.79284291400159 - 0.85373472095314 * r;}
+  float taylorInvSqrt(float r){return 1.79284291400159 - 0.85373472095314 * r;}
+
+  float snoise(vec2 v){
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+            -0.577350269189626, 0.024390243902439);
+    vec2 i  = floor(v + dot(v, C.yy) );
+    vec2 x0 = v -   i + dot(i, C.xx);
+    vec2 i1;
+    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+    i = mod(i, 289.0);
+    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+    + i.x + vec3(0.0, i1.x, 1.0 ));
+    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+      dot(x12.zw,x12.zw)), 0.0);
+    m = m*m ;
+    m = m*m ;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+    vec3 g;
+    g.x  = a0.x  * x0.x  + h.x  * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+  }
+
+  float snoise(vec3 v){
+    const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+    const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+
+    vec3 i  = floor(v + dot(v, C.yyy) );
+    vec3 x0 =   v - i + dot(i, C.xxx) ;
+
+    vec3 g = step(x0.yzx, x0.xyz);
+    vec3 l = 1.0 - g;
+    vec3 i1 = min( g.xyz, l.zxy );
+    vec3 i2 = max( g.xyz, l.zxy );
+
+    vec3 x1 = x0 - i1 + 1.0 * C.xxx;
+    vec3 x2 = x0 - i2 + 2.0 * C.xxx;
+    vec3 x3 = x0 - 1. + 3.0 * C.xxx;
+
+    i = mod(i, 289.0 );
+    vec4 p = permute( permute( permute(
+              i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+            + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+            + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+
+    float n_ = 1.0/7.0;
+    vec3  ns = n_ * D.wyz - D.xzx;
+
+    vec4 j = p - 49.0 * floor(p * ns.z *ns.z);
+
+    vec4 x_ = floor(j * ns.z);
+    vec4 y_ = floor(j - 7.0 * x_ );
+
+    vec4 x = x_ *ns.x + ns.yyyy;
+    vec4 y = y_ *ns.x + ns.yyyy;
+    vec4 h = 1.0 - abs(x) - abs(y);
+
+    vec4 b0 = vec4( x.xy, y.xy );
+    vec4 b1 = vec4( x.zw, y.zw );
+
+    vec4 s0 = floor(b0)*2.0 + 1.0;
+    vec4 s1 = floor(b1)*2.0 + 1.0;
+    vec4 sh = -step(h, vec4(0.0));
+
+    vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+    vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+
+    vec3 p0 = vec3(a0.xy,h.x);
+    vec3 p1 = vec3(a0.zw,h.y);
+    vec3 p2 = vec3(a1.xy,h.z);
+    vec3 p3 = vec3(a1.zw,h.w);
+
+    vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
+    p0 *= norm.x;
+    p1 *= norm.y;
+    p2 *= norm.z;
+    p3 *= norm.w;
+
+    vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+    m = m * m;
+    return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1),
+                                  dot(p2,x2), dot(p3,x3) ) );
+  }
+`;
+
+// GPGPU Simulation Fragment Shader
+const SIMULATION_FRAGMENT_SHADER = `
+precision highp float;
+uniform sampler2D uPosition;
+uniform sampler2D uPosRefs;
+uniform vec2 uRingPos;
+uniform float uTime;
+uniform float uDeltaTime;
+uniform float uRingRadius;
+
+uniform float uRingWidth;
+uniform float uRingWidth2;
+uniform float uRingDisplacement;
+
+${SIMPLEX_NOISE_GLSL}
+
+void main() {
+    vec2 simTexCoords = gl_FragCoord.xy / vec2(256.0, 256.0);
+    vec4 pFrame = texture2D(uPosition, simTexCoords);
+
+    float scale = pFrame.z;
+    float velocity = pFrame.w;
+    vec2 refPos = texture2D(uPosRefs, simTexCoords).xy;
+
+    float time = uTime * .5;
+    vec2 curentPos = refPos;
+
+    vec2 pos = pFrame.xy;
+    pos *= .8;
+
+    float dist = distance(curentPos.xy, uRingPos);
+    float noise0 = snoise(vec3(curentPos.xy * .2 + vec2(18.4924, 72.9744), time * 0.5));
+    float dist1 = distance(curentPos.xy + (noise0 * .005), uRingPos);
+
+    float t = smoothstep(uRingRadius - (uRingWidth * 2.), uRingRadius, dist) - smoothstep(uRingRadius, uRingRadius + uRingWidth, dist1);
+    float t2 = smoothstep(uRingRadius - (uRingWidth2 * 2.), uRingRadius, dist) - smoothstep(uRingRadius, uRingRadius + uRingWidth2, dist1);
+    float t3 = smoothstep(uRingRadius + uRingWidth2, uRingRadius, dist);
+
+    t = pow(t, 2.);
+    t2 = pow(t2, 3.);
+
+    t += t2 * 3.;
+    t += t3 * .4;
+    t += snoise(vec3(curentPos.xy * 30. + vec2(11.4924, 12.9744), time * 0.5)) * t3 * .5;
+
+    float nS = snoise(vec3(curentPos.xy * 2. + vec2(18.4924, 72.9744), time * 0.5));
+    t += pow((nS + 1.5) * .5, 2.) * .6;
+
+    // Mid scale noise
+    float noise1 = snoise(vec3(curentPos.xy * 4. + vec2(88.494, 32.4397), time * 0.35));
+    float noise2 = snoise(vec3(curentPos.xy * 4. + vec2(50.904, 120.947), time * 0.35));
+
+    // Close scale noise
+    float noise3 = snoise(vec3(curentPos.xy * 20. + vec2(18.4924, 72.9744), time * .5));
+    float noise4 = snoise(vec3(curentPos.xy * 20. + vec2(50.904, 120.947), time * .5));
+
+    vec2 disp = vec2(noise1, noise2) * .03;
+    disp += vec2(noise3, noise4) * .005;
+
+    // Sin waves
+    disp.x += sin((refPos.x * 20.) + (time * 4.)) * .02 * clamp(dist, 0., 1.);
+    disp.y += cos((refPos.y * 20.) + (time * 3.)) * .02 * clamp(dist, 0., 1.);
+
+    pos -= (uRingPos - (curentPos + disp)) * pow(t2, .75) * uRingDisplacement;
+
+    // Add scale
+    float scaleDiff = t - scale;
+    scaleDiff *= .2;
+    scale += scaleDiff;
+
+    // Final position
+    vec2 finalPos = curentPos + disp + (pos * .25);
+
+    velocity *= .5;
+    velocity += scale * .25;
+
+    gl_FragColor = vec4(finalPos, scale, velocity);
+}
+`;
+
+// Render Vertex Shader
+const RENDER_VERTEX_SHADER = `
+precision highp float;
+attribute vec4 seeds;
+
+uniform sampler2D uPosition;
+uniform float uTime;
+uniform float uParticleScale;
+uniform float uPixelRatio;
+uniform int uColorScheme;
+uniform bool uUseSimpleGrid;
+
+varying vec4 vSeeds;
+varying float vVelocity;
+varying vec2 vLocalPos;
+varying vec2 vScreenPos;
+varying float vScale;
+
+${SIMPLEX_NOISE_GLSL}
+
+void main() {
+    vSeeds = seeds;
+    vec2 p;
+    if (uUseSimpleGrid) {
+        p = position.xy;
+        float driftX = snoise(vec3(p * 2.0 + vec2(18.4924, 72.9744), uTime * 0.15)) * 0.04;
+        float driftY = snoise(vec3(p * 2.0 + vec2(50.904, 120.947), uTime * 0.18)) * 0.04;
+        p += vec2(driftX, driftY);
+        vScale = 0.5 + snoise(vec3(p * 10.0, uTime * 0.3)) * 0.25;
+        vVelocity = 0.2;
+    } else {
+        vec4 pos = texture2D(uPosition, uv);
+        p = pos.xy;
+        vScale = pos.z;
+        vVelocity = pos.w;
+    }
+
+    vLocalPos = p;
+    vec4 viewSpace  = modelViewMatrix * vec4(vec3(p, 0.), 1.0);
+
+    gl_Position = projectionMatrix * viewSpace;
+    vScreenPos = gl_Position.xy;
+
+    gl_PointSize = ((vScale * 10.0) * (uPixelRatio * 0.5) * uParticleScale);
+}
+`;
+
+// Render Fragment Shader
+const RENDER_FRAGMENT_SHADER = `
+precision highp float;
+
+varying vec4 vSeeds;
+varying vec2 vScreenPos;
+varying vec2 vLocalPos;
+varying float vScale;
+varying float vVelocity;
+
+uniform vec3 uColor1;
+uniform vec3 uColor2;
+uniform vec3 uColor3;
+
+uniform vec2 uRingPos;
+uniform vec2 uRez;
+
+uniform float uAlpha;
+uniform float uTime;
+
+uniform int uColorScheme;
+
+${SIMPLEX_NOISE_GLSL}
+
+float sdRoundBox( in vec2 p, in vec2 b, in vec4 r )
+{
+    r.xy = (p.x>0.0)?r.xy : r.zw;
+    r.x  = (p.y>0.0)?r.x  : r.y;
+    vec2 q = abs(p)-b+r.x;
+    return min(max(q.x,q.y),0.0) + length(max(q,0.0)) - r.x;
+}
+
+vec2 rotate(vec2 v, float a) {
+    float s = sin(a);
+    float c = cos(a);
+    mat2 m = mat2(c, s, -s, c);
+    return m * v;
+}
+
+void main() {
+    float uBorderSize = 0.2;
+    float ratio = uRez.x / uRez.y;
+
+    // Noise
+    float noiseAngle = snoise(vec3(vLocalPos * 10. + vec2(18.4924, 72.9744), uTime * .85));
+    float noiseColor = snoise(vec3(vLocalPos * 2. + vec2(74.664, 91.556), uTime * .5));
+    noiseColor = (noiseColor + 1.) * .5;
+
+    // get angle between capsule and ring
+    float angle = atan(vLocalPos.y - uRingPos.y, vLocalPos.x - uRingPos.x);
+
+    vec2 uv = gl_PointCoord.xy;
+    uv -= vec2(0.5);
+    uv.y *= -1.;
+    uv = rotate(uv, -angle + (noiseAngle * .5));
+
+    float h = 0.8; // position of middleColor
+    float progress = smoothstep(0., .75, pow(noiseColor, 2.));
+    vec3 col = mix(mix(uColor1, uColor2, progress/h), mix(uColor2, uColor3, (progress - h)/(1.0 - h)), step(h, progress));
+    vec3 color = col;
+
+    float rounded = sdRoundBox(uv, vec2(0.5, 0.2), vec4(.25));
+    rounded = smoothstep(.1, 0., rounded);
+
+    float a = uAlpha * rounded * smoothstep(0.1, 0.2, vScale);
+
+    if(a < 0.01){
+        discard;
+    }
+
+    color = clamp(color, 0., 1.);
+    color = mix(color, color * clamp(vVelocity, 0., 1.), float(uColorScheme));
+
+    gl_FragColor = vec4(color, clamp(a, 0., 1.));
+}
+`;
+
+const getThemeColors = (isDark) => {
+  if (isDark) {
+    return {
+      c1: '#078462', // Vibrant brand green
+      c2: '#93c5fd', // Light blue accent
+      c3: '#1e40af'  // Deep royal blue
+    };
+  } else {
+    return {
+      c1: '#013F4A', // Deep teal
+      c2: '#078462', // Vibrant brand green
+      c3: '#93c5fd'  // Light blue accent
+    };
+  }
+};
+
 function ParticleGrid() {
   const canvasRef = useRef(null)
+  const [hasWebGL, setHasWebGL] = useState(true)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    let animationFrameId
 
-    let width = window.innerWidth
-    let autoTime = 0 // for autonomous drift across full width
-    let height = window.innerHeight
+    const pixelRatio = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
 
+    // 1. Initialize WebGL Renderer with graceful fallbacks for Safari/mobile devices
+    let renderer;
+    let useSimpleGrid = false;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance",
+        preserveDrawingBuffer: true,
+        stencil: false,
+        precision: "highp"
+      });
+
+      const gl = renderer.getContext();
+      if (!gl) throw new Error("Could not get WebGL context");
+      const isWebGL2 = gl instanceof WebGL2RenderingContext;
+
+      // Programmatic verification of float framebuffers support
+      let supportsFloatTargets = false;
+      if (isWebGL2) {
+        const floatExt = gl.getExtension('EXT_color_buffer_float');
+        if (floatExt) supportsFloatTargets = true;
+      } else {
+        const floatExt = gl.getExtension('OES_texture_float');
+        if (floatExt) supportsFloatTargets = true;
+      }
+
+      if (!supportsFloatTargets) {
+        console.warn("WebGL GPGPU float texture rendering is not supported on this device. Falling back to Simple WebGL Grid mode.");
+        useSimpleGrid = true;
+      }
+    } catch (e) {
+      console.warn("WebGL context creation failed completely. Falling back to CSS grid:", e);
+      setHasWebGL(false);
+      return;
+    }
+
+    renderer.setPixelRatio(pixelRatio);
+
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+    renderer.setSize(width, height, false);
+    renderer.autoClear = false;
+
+    // 2. Initialize Main Scene & Perspective Camera
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+    camera.position.z = 3.1;
+
+    // 3. Initialize Raycast Plane for mouse tracking
+    const raycastPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(12.5, 12.5),
+      new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide })
+    );
+    scene.add(raycastPlane);
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2(-1000, -1000);
+    const intersectionPoint = new THREE.Vector3(0, 0, 0);
+    let isIntersecting = false;
+    let mouseIsOver = false;
+
+    // 4. Generate Poisson-Disk organic grid
+    const points = poissonDiskSample(500, 500, 4.66, 5.66, 20);
+    const pointsData = [];
+    for (let i = 0; i < points.length; i++) {
+      pointsData.push(points[i][0] - 250, points[i][1] - 250);
+    }
+    const count = points.length;
+    const size = 256;
+    const length = size * size;
+
+    // 5. Create Data Texture for GPGPU initialization (only if GPGPU is supported)
+    let posData = null;
+    let posTex = null;
+    let rt1 = null;
+    let rt2 = null;
+    let simScene = null;
+    let simCamera = null;
+    let simMaterial = null;
+    let simMesh = null;
+
+    if (!useSimpleGrid) {
+      posData = new Float32Array(length * 4);
+      for (let i = 0; i < count; i++) {
+        const idx = i * 4;
+        posData[idx + 0] = pointsData[i * 2 + 0] * (1 / 250);
+        posData[idx + 1] = pointsData[i * 2 + 1] * (1 / 250);
+        posData[idx + 2] = 0; // Scale
+        posData[idx + 3] = 0; // Velocity
+      }
+      posTex = new THREE.DataTexture(posData, size, size, THREE.RGBAFormat, THREE.FloatType);
+      posTex.needsUpdate = true;
+
+      // 6. Create double-buffered GPGPU render targets
+      const createRenderTarget = () => {
+        return new THREE.WebGLRenderTarget(size, size, {
+          wrapS: THREE.ClampToEdgeWrapping,
+          wrapT: THREE.ClampToEdgeWrapping,
+          minFilter: THREE.NearestFilter,
+          magFilter: THREE.NearestFilter,
+          format: THREE.RGBAFormat,
+          type: THREE.FloatType,
+          depthBuffer: false,
+          stencilBuffer: false
+        });
+      };
+      rt1 = createRenderTarget();
+      rt2 = createRenderTarget();
+
+      // Clear targets
+      renderer.setRenderTarget(rt1);
+      renderer.setClearColor(0, 0);
+      renderer.clear();
+      renderer.setRenderTarget(rt2);
+      renderer.setClearColor(0, 0);
+      renderer.clear();
+      renderer.setRenderTarget(null);
+
+      // 7. Initialize GPGPU Simulation Scene & Orthographic Camera
+      simScene = new THREE.Scene();
+      simCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      simMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          uPosition: { value: posTex },
+          uPosRefs: { value: posTex },
+          uRingPos: { value: new THREE.Vector2(0, 0) },
+          uRingRadius: { value: 0.2 },
+          uDeltaTime: { value: 0 },
+          uRingWidth: { value: 0.107 },
+          uRingWidth2: { value: 0.05 },
+          uRingDisplacement: { value: 0.15 },
+          uTime: { value: 0 }
+        },
+        vertexShader: `
+          void main() {
+            gl_Position = vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: SIMULATION_FRAGMENT_SHADER
+      });
+      simMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), simMaterial);
+      simScene.add(simMesh);
+    }
+
+    // 8. Initialize Main Particle Mesh (populating coordinates directly for standard grid shader)
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    const uvs = new Float32Array(count * 2);
+    const seeds = new Float32Array(count * 4);
+
+    for (let s = 0; s < count; s++) {
+      positions[s * 3 + 0] = pointsData[s * 2 + 0] * (1 / 250);
+      positions[s * 3 + 1] = pointsData[s * 2 + 1] * (1 / 250);
+      positions[s * 3 + 2] = 0;
+
+      const a = s % size;
+      const l = Math.floor(s / size);
+      uvs[s * 2] = a / size;
+      uvs[s * 2 + 1] = l / size;
+
+      seeds[s * 4 + 0] = Math.random();
+      seeds[s * 4 + 1] = Math.random();
+      seeds[s * 4 + 2] = Math.random();
+      seeds[s * 4 + 3] = Math.random();
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+    geometry.setAttribute('seeds', new THREE.BufferAttribute(seeds, 4));
+
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const themeColors = getThemeColors(isDark);
+
+    const renderMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uPosition: { value: posTex || new THREE.Texture() },
+        uUseSimpleGrid: { value: useSimpleGrid },
+        uTime: { value: 0 },
+        uColor1: { value: new THREE.Color(themeColors.c1) },
+        uColor2: { value: new THREE.Color(themeColors.c2) },
+        uColor3: { value: new THREE.Color(themeColors.c3) },
+        uAlpha: { value: 1.0 },
+        uRingPos: { value: new THREE.Vector2(0, 0) },
+        uRez: { value: new THREE.Vector2(width, height) },
+        uParticleScale: { value: 1.0 },
+        uPixelRatio: { value: pixelRatio },
+        uColorScheme: { value: isDark ? 0 : 1 }
+      },
+      vertexShader: RENDER_VERTEX_SHADER,
+      fragmentShader: RENDER_FRAGMENT_SHADER,
+      transparent: true,
+      depthTest: false,
+      depthWrite: false
+    });
+
+    const particleMesh = new THREE.Points(geometry, renderMaterial);
+    particleMesh.position.set(0, 0, 0);
+    particleMesh.scale.set(5, 5, 5);
+    scene.add(particleMesh);
+
+    // 9. Simulation variables (cursor and drift value noise)
+    const noise = new ValueNoise1D();
+    const ringPos = new THREE.Vector2(0, 0);
+    const cursorPos = new THREE.Vector2(0, 0);
+
+    // 10. Resizing handler with parent Element ResizeObserver support
     const setSize = () => {
-      const rect = canvas.parentElement.getBoundingClientRect()
-      width = rect.width
-      height = rect.height
-      canvas.width = width
-      canvas.height = height
-      initParticles()
+      const parent = canvas.parentElement;
+      if (!parent) return;
+      const w = parent.clientWidth;
+      const h = parent.clientHeight;
+      if (w === 0 || h === 0) return;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderMaterial.uniforms.uRez.value.set(w, h);
+    };
+
+    const resizeObserver = new ResizeObserver(() => {
+      setSize();
+    });
+    if (canvas.parentElement) {
+      resizeObserver.observe(canvas.parentElement);
     }
 
-    let mouse = { x: 0, y: 0 }
-    let mouseAbs = { x: -1000, y: -1000 }
-    let targetRotation = { x: 0, y: 0 }
-    let currentRotation = { x: 0, y: 0 }
-    let targetCenter = { x: 0, y: 0 }
-    let currentCenter = { x: 0, y: 0 }
-    let mouseActive = false
-    let globalOpacity = 0
-
+    // 11. Event Handlers for cursor tracking
     const handleInteraction = (clientX, clientY) => {
-      mouseActive = true
-      const rect = canvas.getBoundingClientRect()
-      mouseAbs.x = clientX - rect.left
-      mouseAbs.y = clientY - rect.top
-
-      mouse.x = (clientX / window.innerWidth) * 2 - 1
-      mouse.y = (clientY / window.innerHeight) * 2 - 1
-      
-      const isMobile = window.innerWidth < 768
-      const tiltMult = isMobile ? 0.2 : 0.4
-      targetRotation.y = mouse.x * tiltMult
-      targetRotation.x = -mouse.y * tiltMult
-
-      // Full width range: mouse drives sphere from extreme left to extreme right
-      const moveMultX = isMobile ? (width * 0.3) : (width * 0.35)
-      const moveMultY = isMobile ? 80 : 180
-      targetCenter.x = mouse.x * moveMultX
-      targetCenter.y = mouse.y * moveMultY
-    }
-
-    const handleMouseMove = (e) => handleInteraction(e.clientX, e.clientY)
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+      mouseIsOver = true;
+    };
+    const handleMouseMove = (e) => handleInteraction(e.clientX, e.clientY);
     const handleTouchMove = (e) => {
-      if (e.touches[0]) handleInteraction(e.touches[0].clientX, e.touches[0].clientY)
-    }
+      if (e.touches[0]) handleInteraction(e.touches[0].clientX, e.touches[0].clientY);
+    };
+    const handleMouseLeave = () => {
+      mouseIsOver = false;
+    };
 
-    window.addEventListener('resize', setSize)
-    window.addEventListener('mousemove', handleMouseMove)
-    window.addEventListener('touchmove', handleTouchMove, { passive: false })
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    canvas.addEventListener('mouseleave', handleMouseLeave);
 
-    // 3D Setup
-    let particles = []
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-    const spacing = isMobile ? 18 : 22 
-    const focalLength = isMobile ? 300 : 400
-    
-    const getColors = () => {
-      if (typeof window === 'undefined') return ['#1E40AF', '#166534']
-      const styles = getComputedStyle(document.documentElement)
-      const accent = styles.getPropertyValue('--accent').trim() || '#1E40AF'
-      return [accent, '#166534']
-    }
+    // 12. MutationObserver for Theme changes
+    const themeObserver = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'data-theme') {
+          const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+          const newColors = getThemeColors(dark);
+          renderMaterial.uniforms.uColor1.value.set(newColors.c1);
+          renderMaterial.uniforms.uColor2.value.set(newColors.c2);
+          renderMaterial.uniforms.uColor3.value.set(newColors.c3);
+          renderMaterial.uniforms.uColorScheme.value = dark ? 0 : 1;
+        }
+      });
+    });
+    themeObserver.observe(document.documentElement, { attributes: true });
 
-    const initParticles = () => {
-      particles = []
-      const colors = getColors()
-      const isMobile = window.innerWidth < 768
-      const numParticles = isMobile ? 600 : 1200
-      const sphereRadius = isMobile ? 180 : 250
-      
-      // Fibonacci Sphere Algorithm for even distribution
-      const phi = Math.PI * (3 - Math.sqrt(5)) // Golden angle
+    setSize();
 
-      for (let i = 0; i < numParticles; i++) {
-        const y = 1 - (i / (numParticles - 1)) * 2 // y goes from 1 to -1
-        const radius = Math.sqrt(1 - y * y) // radius at y
-        const theta = phi * i // golden angle increment
+    // 13. Render Loop with Viewport Visibility Observer (prevents CPU/GPU lag when scrolled out of view)
+    let lastTime = 0;
+    let clockTime = 0;
+    let everRendered = false;
+    let animationFrameId;
+    let isInView = true;
 
-        const x = Math.cos(theta) * radius
-        const z = Math.sin(theta) * radius
+    const render = (now) => {
+      if (!isInView) return; // Pause frame execution & stop scheduling if out of view
 
-        particles.push({
-          x: x * sphereRadius,
-          y: y * sphereRadius,
-          z: z * sphereRadius,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          size: isMobile ? 1.6 : 2.2 
-        })
-      }
-    }
+      now *= 0.001; // convert to seconds
+      let dt = now - lastTime;
+      if (dt > 0.1) dt = 0.1; // Cap dt during lag spikes
+      lastTime = now;
+      clockTime += dt;
 
-    setSize()
-
-    const render = () => {
-      ctx.clearRect(0, 0, width, height)
-      const isMobile = window.innerWidth < 768
-      const time = Date.now() * 0.002 // For slimy movement
-      autoTime += 0.003 // slow autonomous drift speed
-
-      currentRotation.x += (targetRotation.x - currentRotation.x) * 0.05
-      currentRotation.y += (targetRotation.y - currentRotation.y) * 0.05
-      
-      // Dialed back speed for a more fluid feel
-      currentCenter.x += (targetCenter.x - currentCenter.x) * 0.08
-      currentCenter.y += (targetCenter.y - currentCenter.y) * 0.08
-
-      if (mouseActive) {
-        globalOpacity += (0.6 - globalOpacity) * 0.05
+      // Cast ray to find cursor in 3D scene space
+      if (mouseIsOver) {
+        raycaster.setFromCamera(mouse, camera);
+        const intersections = raycaster.intersectObject(raycastPlane);
+        if (intersections.length > 0) {
+          intersectionPoint.copy(intersections[0].point);
+          isIntersecting = true;
+        } else {
+          isIntersecting = false;
+        }
+      } else {
+        isIntersecting = false;
       }
 
-      const rotY = currentRotation.y
-      const rotX = currentRotation.x
+      // Compute cursor drift using 1D Value Noise
+      const driftX = (noise.getVal(clockTime * 0.66 + 94.234) - 0.5) * 2;
+      const driftY = (noise.getVal(clockTime * 0.75 + 21.028) - 0.5) * 2;
 
-      const cosX = Math.cos(rotX)
-      const sinX = Math.sin(rotX)
-      const cosY = Math.cos(rotY)
-      const sinY = Math.sin(rotY)
-
-      // Autonomous drift: sphere glides from extreme left to extreme right continuously
-      // sin(autoTime) goes -1 to +1, mapping to full width travel
-      const autoDriftX = isMobile ? 0 : Math.sin(autoTime) * (width * 0.35)
-      const baseCx = isMobile ? width * 0.5 : width * 0.5 // center as base
-      const cx = baseCx + autoDriftX + currentCenter.x
-      const cy = (isMobile ? height * 0.4 : height * 0.45) + currentCenter.y
-
-      const sortedParticles = [...particles].map(p => {
-        // Slimy Deformation: Wobble the radius based on position and time
-        const distortion = Math.sin(p.x * 0.02 + time) * Math.cos(p.y * 0.02 + time) * 15
-        const sx = p.x + distortion
-        const sy = p.y + distortion
-        const sz = p.z + distortion
-
-        let x = sx * cosY - sz * sinY
-        let z = sx * sinY + sz * cosY
-        let y = sy * cosX - z * sinX
-        z = sy * sinX + z * cosX
-        return { ...p, rx: x, ry: y, rz: z }
-      }).sort((a, b) => b.rz - a.rz)
-
-      for (let p of sortedParticles) {
-        const scale = focalLength / (focalLength + p.rz)
-        const px = p.rx * scale + cx
-        const py = p.ry * scale + cy
-        
-        const dx = px - mouseAbs.x
-        const dy = py - mouseAbs.y
-        const dist = Math.sqrt(dx * dx + dy * dy)
-        
-        const repulsionRadius = isMobile ? 250 : 400 // Expanded repulsion
-        const repulsionPower = isMobile ? 25 : 40
-        
-        let shiftX = 0, shiftY = 0
-        if (dist < repulsionRadius) {
-          const force = (1 - dist / repulsionRadius) * repulsionPower
-          shiftX = (dx / dist) * force
-          shiftY = (dy / dist) * force
-        }
-
-        const fpx = px + shiftX
-        const fpy = py + shiftY
-        
-        const auraRadius = isMobile ? 150 : 250 // Expanded invisible hole
-        let opacity = globalOpacity
-        
-        const nDx = fpx - mouseAbs.x
-        const nDy = fpy - mouseAbs.y
-        const nDist = Math.sqrt(nDx * nDx + nDy * nDy)
-
-        if (nDist < auraRadius) {
-          opacity *= Math.pow(nDist / auraRadius, 2)
-        }
-        
-        const depthFactor = Math.max(0, Math.min(1, (180 - p.rz) / 350))
-        opacity *= Math.pow(depthFactor, isMobile ? 4 : 8)
-
-        if (fpx > 0 && fpx < width && fpy > 0 && fpy < height && opacity > 0.02) {
-          const perspectiveScale = p.size * scale
-          // Extra size falloff for depth to clean up the back
-          const finalSize = perspectiveScale * Math.pow(depthFactor, 2)
-          const dropHeight = finalSize * 2.2 
-
-          ctx.globalAlpha = Math.min(0.9, opacity)
-          ctx.fillStyle = p.color
-          
-          const angle = Math.atan2(mouseAbs.y - fpy, mouseAbs.x - fpx)
-
-          ctx.save()
-          ctx.translate(fpx, fpy)
-          ctx.rotate(angle + Math.PI / 2) 
-          
-          ctx.beginPath()
-          ctx.roundRect(
-            -finalSize / 2, 
-            -dropHeight / 2, 
-            finalSize, 
-            dropHeight, 
-            finalSize / 2
-          )
-          ctx.fill()
-          ctx.restore()
-        }
+      if (isIntersecting) {
+        cursorPos.set(
+          intersectionPoint.x * 0.175 + driftX * 0.1,
+          intersectionPoint.y * 0.175 + driftY * 0.1
+        );
+        ringPos.set(
+          ringPos.x + (cursorPos.x - ringPos.x) * 0.02,
+          ringPos.y + (cursorPos.y - ringPos.y) * 0.02
+        );
+      } else {
+        cursorPos.set(driftX * 0.2, driftY * 0.1);
+        ringPos.set(
+          ringPos.x + (cursorPos.x - ringPos.x) * 0.01,
+          ringPos.y + (cursorPos.y - ringPos.y) * 0.01
+        );
       }
-      animationFrameId = requestAnimationFrame(render)
-    }
 
-    render()
+      const particleScale = (canvas.clientWidth / pixelRatio / 2000) * 0.75;
 
+      // Simulation GPGPU Ping-Pong Pass (only executed if GPGPU float rendering is supported)
+      if (!useSimpleGrid) {
+        simMaterial.uniforms.uPosition.value = everRendered ? rt1.texture : posTex;
+        simMaterial.uniforms.uTime.value = clockTime;
+        simMaterial.uniforms.uDeltaTime.value = dt;
+        simMaterial.uniforms.uRingRadius.value = 0.175 + Math.sin(clockTime * 1.0) * 0.03 + Math.cos(clockTime * 3.0) * 0.02;
+        simMaterial.uniforms.uRingPos.value = ringPos;
+
+        renderer.setRenderTarget(rt2);
+        renderer.render(simScene, simCamera);
+        renderer.setRenderTarget(null);
+
+        // Rendering Pass
+        renderMaterial.uniforms.uPosition.value = everRendered ? rt2.texture : posTex;
+      }
+
+      renderMaterial.uniforms.uTime.value = clockTime;
+      renderMaterial.uniforms.uRingPos.value = ringPos;
+      renderMaterial.uniforms.uParticleScale.value = particleScale;
+
+      renderer.clear();
+      renderer.render(scene, camera);
+
+      if (!useSimpleGrid) {
+        // Swap double buffers
+        const temp = rt1;
+        rt1 = rt2;
+        rt2 = temp;
+        everRendered = true;
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    const io = new IntersectionObserver(([entry]) => {
+      const wasInView = isInView;
+      isInView = entry.isIntersecting;
+      if (isInView && !wasInView) {
+        lastTime = performance.now() * 0.001;
+        animationFrameId = requestAnimationFrame(render);
+      }
+    }, { threshold: 0 });
+    io.observe(canvas);
+
+    animationFrameId = requestAnimationFrame((now) => {
+      lastTime = now * 0.001;
+      render(now);
+    });
+
+    // 14. Cleanup
     return () => {
-      window.removeEventListener('resize', setSize)
-      window.removeEventListener('mousemove', handleMouseMove)
-      window.removeEventListener('touchmove', handleTouchMove)
-      cancelAnimationFrame(animationFrameId)
-    }
+      cancelAnimationFrame(animationFrameId);
+      io.disconnect();
+      resizeObserver.disconnect();
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('touchmove', handleTouchMove);
+      canvas.removeEventListener('mouseleave', handleMouseLeave);
+      themeObserver.disconnect();
+
+      geometry.dispose();
+      renderMaterial.dispose();
+      if (simMaterial) {
+        simMaterial.dispose();
+        simMesh.geometry.dispose();
+        simMesh.material.dispose();
+      }
+      raycastPlane.geometry.dispose();
+      raycastPlane.material.dispose();
+      if (rt1) rt1.dispose();
+      if (rt2) rt2.dispose();
+      if (posTex) posTex.dispose();
+      renderer.dispose();
+    };
   }, [])
 
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+  if (!hasWebGL) {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          top: 0, left: 0,
+          width: '100%', height: '100%',
+          pointerEvents: 'none',
+          zIndex: 0,
+          background: 'radial-gradient(circle at 30% 30%, var(--accent-glow) 0%, transparent 60%), radial-gradient(circle at 80% 70%, rgba(7, 132, 98, 0.12) 0%, transparent 50%)',
+          opacity: 0.8,
+        }}
+      />
+    )
+  }
 
   return (
     <canvas
@@ -247,19 +854,17 @@ function ParticleGrid() {
         width: '100%', height: '100%',
         pointerEvents: 'none',
         zIndex: 0,
-        opacity: 0.8,
-        WebkitMaskImage: 'radial-gradient(ellipse 55% 60% at 50% 50%, black 55%, transparent 100%)',
-        maskImage: 'radial-gradient(ellipse 55% 60% at 50% 50%, black 55%, transparent 100%)',
+        opacity: 1,
       }}
     />
   )
 }
 
+
 export default function Hero() {
   const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
   const statsRef = useRef(null)
   const [counts, setCounts] = useState({ c0: 0, c1: 0, c2: 0, c3: 0 })
-  const animated = useRef(false)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -279,28 +884,53 @@ export default function Hero() {
   ]
 
   useEffect(() => {
+    let activeTimers = [];
+
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !animated.current) {
-        animated.current = true
+      if (entry.isIntersecting) {
+        // Clear any running timers first
+        activeTimers.forEach(clearInterval);
+        activeTimers = [];
+
+        // Reset counts to 0 before starting count-up
+        setCounts({ c0: 0, c1: 0, c2: 0, c3: 0 });
+
         STATS.forEach(({ end }, i) => {
-          let start = 0
-          const duration = 1500
-          const frameDuration = 1000 / 60
-          const totalFrames = Math.round(duration / frameDuration)
-          const step = end / totalFrames
-          
-          let currentFrame = 0
+          let start = 0;
+          const duration = 1500; // slightly faster speed for responsive impact
+          const frameDuration = 1000 / 60;
+          const totalFrames = Math.round(duration / frameDuration);
+          const step = end / totalFrames;
+
+          let currentFrame = 0;
           const timer = setInterval(() => {
-            currentFrame++
-            start = Math.min(end, Math.ceil(step * currentFrame))
-            setCounts(prev => ({ ...prev, [`c${i}`]: start }))
-            if (currentFrame >= totalFrames) clearInterval(timer)
-          }, frameDuration)
-        })
+            currentFrame++;
+            start = Math.min(end, Math.ceil(step * currentFrame));
+            setCounts(prev => ({ ...prev, [`c${i}`]: start }));
+            if (currentFrame >= totalFrames) {
+              clearInterval(timer);
+            }
+          }, frameDuration);
+          activeTimers.push(timer);
+        });
+      } else {
+        // Clear running timers and reset to 0 when scrolled away
+        activeTimers.forEach(clearInterval);
+        activeTimers = [];
+        setCounts({ c0: 0, c1: 0, c2: 0, c3: 0 });
       }
-    }, { threshold: 0.4 })
-    if (statsRef.current) observer.observe(statsRef.current)
-    return () => observer.disconnect()
+    }, { threshold: 0.05 }) // low threshold so it triggers the moment it enters viewport
+
+    // Delay observing by 200ms to allow layout settling
+    const timer = setTimeout(() => {
+      if (statsRef.current) observer.observe(statsRef.current)
+    }, 200)
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+      activeTimers.forEach(clearInterval);
+    }
   }, [])
 
   return (
@@ -324,34 +954,15 @@ export default function Hero() {
         filter: 'blur(80px)',
       }} />
 
-      <div className="container" style={{ 
-        position: 'relative', 
-        zIndex: 1, 
-        paddingTop: isMobile ? 40 : 72,
-        paddingBottom: isMobile ? 40 : 0
-      }}>
+      <div className="container hero-container">
 
         {/* Tags — centered across full width, above the two columns */}
-        <div className="anim-fade-up" style={{
-          display: 'flex',
-          gap: isMobile ? 10 : 20,
-          flexWrap: 'wrap', // Mobile-friendly wrap
-          justifyContent: 'center',
-          marginBottom: isMobile ? 30 : 40
-        }}>
-          <span className="tag" style={{ fontSize: isMobile ? '0.7rem' : '0.8rem' }}>✦ COMPREHENSIVE IT SOLUTIONS</span>
-          <span className="tag" style={{ fontSize: isMobile ? '0.7rem' : '0.8rem' }}>✦ END-TO-END TECHNOLOGY PARTNER</span>
+        <div className="anim-fade-up hero-tags">
+          <span className="tag hero-tag-text">✦ COMPREHENSIVE IT SOLUTIONS</span>
+          <span className="tag hero-tag-text">✦ END-TO-END TECHNOLOGY PARTNER</span>
         </div>
 
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          textAlign: 'center',
-          maxWidth: 850,
-          margin: '0 auto',
-          gap: isMobile ? 30 : 40,
-        }}>
+        <div className="hero-main-content">
           {/* Content Column (Centered) */}
           <div style={{
             display: 'flex',
@@ -400,7 +1011,7 @@ export default function Hero() {
               ))}
             </div>
 
-            <div className="anim-fade-up anim-delay-4" style={{ 
+            <div className="anim-fade-up anim-delay-4" style={{
               display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32,
               justifyContent: 'center',
             }}>
@@ -412,14 +1023,7 @@ export default function Hero() {
 
         {/* Stats Section */}
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 65, marginBottom: 40 }}>
-          <div ref={statsRef} className="anim-fade-up anim-delay-4" style={{
-            display: 'flex', gap: 'clamp(32px, 6vw, 64px)', justifyContent: 'center',
-            padding: '28px 48px',
-            borderRadius: 20,
-            background: 'var(--stats-bg)',
-            boxShadow: 'var(--stats-shadow)',
-            width: '100%', maxWidth: 850,
-          }}>
+          <div ref={statsRef} className="anim-fade-up anim-delay-4 hero-stats-grid">
             {STATS.map(({ suffix, label }, i) => (
               <div key={label} style={{ textAlign: 'center' }}>
                 <div style={{
@@ -438,6 +1042,66 @@ export default function Hero() {
         </div>
       </div>
       <style>{`
+        .hero-container {
+          position: relative;
+          z-index: 1;
+          padding-top: 72px;
+          padding-bottom: 0;
+        }
+        .hero-tags {
+          display: flex;
+          gap: 20px;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-bottom: 40px;
+        }
+        .hero-tag-text {
+          font-size: 0.8rem;
+        }
+        .hero-main-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          max-width: 850px;
+          margin: 0 auto;
+          gap: 40px;
+        }
+        .hero-stats-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: clamp(32px, 6vw, 64px);
+          justify-content: center;
+          padding: 28px 48px;
+          border-radius: 20px;
+          background: var(--stats-bg);
+          box-shadow: var(--stats-shadow);
+          width: 100%;
+          max-width: 850px;
+        }
+
+        @media (max-width: 768px) {
+          .hero-container {
+            padding-top: 40px !important;
+            padding-bottom: 40px !important;
+          }
+          .hero-tags {
+            gap: 10px !important;
+            margin-bottom: 30px !important;
+          }
+          .hero-tag-text {
+            font-size: 0.7rem !important;
+          }
+          .hero-main-content {
+            gap: 30px !important;
+          }
+          .hero-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 24px 16px !important;
+            padding: 24px 16px !important;
+          }
+        }
+
         @keyframes drift {
           0%, 100% { transform: translate(0, 0); }
           50% { transform: translate(10px, -15px); }

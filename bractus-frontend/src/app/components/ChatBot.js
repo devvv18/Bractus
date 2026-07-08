@@ -80,22 +80,46 @@ export default function ChatBot() {
   )
 
   return (
-    <div style={{ 
-      position: 'fixed', 
-      bottom: 'clamp(12px, 4vw, 32px)', 
-      right: 'clamp(12px, 4vw, 32px)', 
-      zIndex: 9999 
-    }}>
+    <div className={`chatbot-wrapper ${open ? 'chatbot-open' : ''}`}>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .chatbot-wrapper {
+          position: fixed;
+          bottom: clamp(12px, 4vw, 32px);
+          right: clamp(12px, 4vw, 32px);
+          z-index: 9999;
+          transition: all 0.2s ease-in-out;
+        }
+        .chatbot-box {
+          width: clamp(280px, calc(100vw - 24px), 380px);
+          height: clamp(350px, 80dvh, 550px);
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: 16px;
+          box-shadow: var(--card-shadow-hover);
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+        @media (max-width: 480px) {
+          .chatbot-wrapper.chatbot-open {
+            right: 12px !important;
+            left: 12px !important;
+            bottom: 12px !important;
+          }
+          .chatbot-box {
+            width: 100% !important;
+            height: 70dvh !important;
+          }
+          .chatbot-wrapper:not(.chatbot-open) {
+            right: 12px !important;
+            left: auto !important;
+            bottom: 12px !important;
+          }
+        }
+      `}} />
       {open ? (
-        <div className="anim-fade-up" style={{
-          width: 'clamp(300px, 90vw, 380px)', height: 550,
-          background: 'var(--bg)',
-          border: '1px solid var(--border)',
-          borderRadius: 16,
-          boxShadow: 'var(--card-shadow-hover)',
-          display: 'flex', flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
+        <div className="chatbot-box anim-fade-up">
           {/* Header */}
           <div style={{ background: 'var(--accent)', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff' }}>
             <div style={{ fontWeight: 400, fontFamily: 'Nunito, sans-serif', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -156,7 +180,7 @@ export default function ChatBot() {
           onClick={() => setOpen(true)}
           style={{
             background: 'transparent', border: 'none',
-            cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center',
+            cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-end',
             padding: 0, outline: 'none', transition: 'transform 0.2s'
           }}
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.08)' }}
@@ -177,7 +201,9 @@ export default function ChatBot() {
           }}>
             Hi! I&apos;m John. Ask me anything.
           </div>
-          <BotAvatar large={true} waving={isWaving} />
+          <div style={{ paddingRight: 10 }}>
+            <BotAvatar large={true} waving={isWaving} />
+          </div>
         </button>
       )}
     </div>

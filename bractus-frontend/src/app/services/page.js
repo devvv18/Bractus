@@ -116,7 +116,7 @@ export default function ServicesPage() {
   return (
     <main style={{ background: 'var(--bg)', minHeight: '100vh' }}>
 
-      <section style={{ paddingTop: 60, paddingBottom: 100 }}>
+      <section style={{ paddingTop: 120, paddingBottom: 100 }}>
         <div className="container">
 
           {/* Top divider removed as requested */}
@@ -125,7 +125,7 @@ export default function ServicesPage() {
           {/* 3-column grid for 6 blocks */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
             gap: '64px 40px',
           }}>
             {SERVICES.map((s, i) => (

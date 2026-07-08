@@ -1,6 +1,7 @@
 // Triggering Vercel build: 2026-04-27 00:55
 import './globals.css'
 import { ThemeProvider } from './context/ThemeContext'
+import LayoutWrapper from './components/LayoutWrapper'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import ChatBot from './components/ChatBot'
@@ -10,6 +11,13 @@ import { Analytics } from '@vercel/analytics/react'
 export const metadata = {
   title: 'Bractus — AI & Software Development Consulting',
   description: 'Bractus delivers software engineering, DevOps, AI integration, and cloud services with senior professionals wielding AI-native toolchains for enterprise-grade outcomes.',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
 }
 
 export default function RootLayout({ children }) {
@@ -32,10 +40,12 @@ export default function RootLayout({ children }) {
       <body>
         <ThemeProvider>
           <Navbar />
-          <main style={{ paddingTop: 72 }}>
-            {children}
-          </main>
-          <Footer />
+          <LayoutWrapper>
+            <main style={{ paddingTop: 72 }}>
+              {children}
+            </main>
+            <Footer />
+          </LayoutWrapper>
           <ChatBot />
           <ScrollReveal />
         </ThemeProvider>

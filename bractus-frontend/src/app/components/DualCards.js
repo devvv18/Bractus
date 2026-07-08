@@ -106,13 +106,13 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       const dataRight = octx.getImageData(0, 0, w, h).data
 
       const getColors = () => {
-        if (typeof window === 'undefined') return ['rgba(46, 84, 150, 0.9)', 'rgba(99, 139, 242, 0.9)', 'rgba(16, 185, 129, 0.9)']
+        if (typeof window === 'undefined') return ['rgba(1, 63, 74, 0.9)', 'rgba(99, 139, 242, 0.9)', 'rgba(7, 132, 98, 0.9)']
         const styles = getComputedStyle(document.documentElement)
-        const accent = styles.getPropertyValue('--accent').trim() || '#2E5496'
+        const accent = styles.getPropertyValue('--accent').trim() || '#013F4A'
         return [
-          accent,        // Theme Blue
+          accent,        // Theme Accent
           '#638BF2',     // Magic Blue
-          '#10b981'      // Magic Green
+          '#078462'      // Magic Green
         ]
       }
 

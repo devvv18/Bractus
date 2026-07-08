@@ -89,7 +89,7 @@ export default function Services() {
   }
 
   return (
-    <section id="services" className="section" style={{ background: 'var(--bg)', overflowX: 'visible', position: 'relative' }}>
+    <section id="services" className="section" style={{ background: 'var(--bg)', overflowX: 'hidden', position: 'relative' }}>
       {/* Immersive 3D CSS Styles */}
       <style>{`
         .carousel-card {

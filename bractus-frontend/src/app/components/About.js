@@ -33,13 +33,111 @@ const FAQS = [
 
 export function Founder() {
   return (
-    <section id="about" className="section" style={{ background: 'var(--bg)' }}>
+    <section id="about" className="section" style={{ background: 'var(--bg)', overflow: 'hidden' }}>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .founder-grid {
+          display: grid;
+          grid-template-columns: 1fr 1.2fr;
+          gap: clamp(48px, 8vw, 100px);
+          align-items: center;
+        }
+        .founder-image-wrapper {
+          position: relative;
+          margin-top: 20px;
+          margin-left: -50px;
+        }
+         .founder-image-container {
+          width: 100%;
+          height: 650px;
+          min-height: 650px;
+          flex-shrink: 0;
+          margin: 0 auto;
+          background: transparent;
+          display: flex;
+          flex-direction: column;
+          position: relative;
+        }
+        .founder-portrait {
+          width: 100%;
+          height: 650px;
+          min-height: 650px;
+          object-fit: cover;
+          object-position: center;
+          opacity: 0.85;
+        }
+        .founder-quote-overlay {
+          position: absolute;
+          bottom: 0; left: 0; right: 0;
+          background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.90) 60%, transparent 85%);
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-end;
+          padding: 80px 32px 60px;
+          color: #fff;
+          z-index: 1;
+        }
+        .founder-quote-text {
+          font-size: 0.9rem;
+          line-height: 1.6;
+          font-style: italic;
+          margin-bottom: 16px;
+          font-weight: 300;
+          opacity: 0.95;
+          color: #fff;
+        }
+        .founder-quote-author {
+          font-weight: 600;
+          font-size: 1rem;
+          letter-spacing: 0.02em;
+          color: #fff;
+        }
+        .founder-quote-role {
+          opacity: 0.7;
+          font-size: 0.85rem;
+          margin-top: 2px;
+          color: #fff;
+        }
+
+        @media (max-width: 900px) {
+          .founder-grid {
+            grid-template-columns: 1fr !important;
+            gap: 40px !important;
+          }
+          .founder-image-wrapper {
+            margin-left: 0 !important;
+          }
+          .founder-image-container {
+            height: 540px !important;
+            min-height: 540px !important;
+          }
+          .founder-portrait {
+            height: 540px !important;
+            min-height: 540px !important;
+            object-position: center 15% !important;
+            border-radius: 24px !important;
+          }
+          .founder-quote-overlay {
+            padding: 50px 24px 36px !important;
+          }
+        }
+        @media (max-width: 500px) {
+          .founder-image-container {
+            height: 480px !important;
+            min-height: 480px !important;
+          }
+          .founder-portrait {
+            height: 480px !important;
+            min-height: 480px !important;
+            object-position: center 10% !important;
+          }
+          .founder-quote-overlay {
+            padding: 40px 20px 28px !important;
+          }
+        }
+      ` }} />
       <div className="container">
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1.2fr',
-          gap: 'clamp(48px, 8vw, 100px)', alignItems: 'center',
-        }}>
+        <div className="founder-grid">
           {/* Left Column: Story */}
           <div>
             <span className="tag" style={{ marginBottom: 20, display: 'inline-flex' }}>THE BRACTUS STORY</span>
@@ -64,38 +162,20 @@ export function Founder() {
           </div>
 
           {/* Right Column: Image & Quote */}
-          <div style={{ position: 'relative', marginTop: 20, marginLeft: '-50px' }}>
+          <div className="founder-image-wrapper">
             <div style={{ padding: 0, overflow: 'hidden', borderRadius: 24 }}>
               {/* Founder Image Placeholder */}
-              <div style={{
-                width: '100%',
-                height: '650px',
-                minHeight: '650px',
-                flexShrink: 0,
-                margin: '0 auto',
-                background: 'transparent',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                position: 'relative'
-              }}>
-                <img src="/founder-portrait.png" alt="Kunal Khanna" style={{ width: '100%', height: '650px', minHeight: '650px', objectFit: 'cover', objectPosition: 'top', opacity: 0.85, borderRadius: '24px 24px 0 0' }} />
+              <div className="founder-image-container">
+                <img src="/founder-portrait.png" alt="Kunal Khanna" className="founder-portrait" />
 
                 {/* Floating Quote Over Image */}
-                <div style={{
-                  display: 'none',
-                  position: 'absolute', bottom: 0, left: 0, right: 0,
-                  background: 'linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.90) 60%, transparent 85%)',
-                  display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-                  padding: '80px 32px 60px', color: '#fff'
-                }}>
-                  <p style={{
-                    fontSize: '0.9rem', lineHeight: 1.6, fontStyle: 'italic', marginBottom: 16,
-                    fontWeight: 300, opacity: 0.95
-                  }}>
+                <div className="founder-quote-overlay">
+                  <p className="founder-quote-text">
                     "Technology is moving faster than ever, but the fundamentals of good engineering and honest business never change. I built this company to give leaders a partner who deeply understands the tech, and actually delivers on their promises."
                   </p>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: '1rem', letterSpacing: '0.02em' }}>Kunal Khanna</div>
-                    <div style={{ opacity: 0.7, fontSize: '0.85rem', marginTop: 2 }}>Founder, Bractus</div>
+                    <div className="founder-quote-author">Kunal Khanna</div>
+                    <div className="founder-quote-role">Founder, Bractus</div>
                   </div>
                 </div>
               </div>
@@ -117,7 +197,7 @@ export function Testimonials() {
   ]
 
   return (
-    <section id="testimonials" className="section" style={{ background: 'var(--bg)' }}>
+    <section id="testimonials" className="section" style={{ background: 'var(--bg)', overflow: 'hidden' }}>
       <div className="container">
         {/* Client Logos Section */}
         <div style={{ marginBottom: 80, textAlign: 'center' }}>
@@ -150,7 +230,7 @@ export function Testimonials() {
 
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 300px), 1fr))',
           gap: 20,
         }}>
           {TESTIMONIALS.map(({ quote, name, role, initials }) => (
@@ -182,7 +262,7 @@ export function Testimonials() {
 
 export function FAQ() {
   return (
-    <section id="faq" className="section" style={{ background: 'var(--bg-alt)' }}>
+    <section id="faq" className="section" style={{ background: 'var(--bg-alt)', overflow: 'hidden' }}>
       <div className="container" style={{ maxWidth: 800 }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <span className="tag">FAQ</span>

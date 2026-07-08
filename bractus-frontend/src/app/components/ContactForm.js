@@ -269,11 +269,11 @@ export function GetInTouch() {
   }
 
   return (
-    <section id="contact" className="section" style={{ background: 'var(--bg)' }}>
+    <section id="contact" className="section" style={{ background: 'var(--bg)', overflow: 'hidden' }}>
       <div className="container">
         <div id="contact-form" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
           gap: 48,
         }}>
           {/* Left - Info */}
@@ -341,7 +341,7 @@ export function GetInTouch() {
               </div>
             ) : (
               <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12 }}>
                   <div>
                     <label style={labelStyle}>Name *</label>
                     <input name="name" required value={form.name} onChange={onChange}
