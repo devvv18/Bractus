@@ -57,7 +57,7 @@ export function HowWeWork() {
 
   // Tail: starts follow-erasing the entry line early (at 0.10 progress) to create a smooth, gradual fade
   // The entry curve line fades completely by 41% progress as requested
-  const pathOffset = useTransform(pathDraw, [0, 0.10, 0.41, 1], [0, 0, 0.41, 0.41], { clamp: true })
+  const pathOffset = useTransform(pathDraw, [0, 0.10, 0.40, 1], [0, 0, 0.40, 0.40], { clamp: true })
 
   return (
     <section

@@ -455,7 +455,7 @@ function ParticleGrid() {
       const gl = renderer.getContext();
       if (!gl) throw new Error("Could not get WebGL context");
       const isWebGL2 = gl instanceof WebGL2RenderingContext;
-      
+
       // Programmatic verification of float framebuffers support
       let supportsFloatTargets = false;
       if (isWebGL2) {
@@ -477,7 +477,7 @@ function ParticleGrid() {
     }
 
     renderer.setPixelRatio(pixelRatio);
-    
+
     const width = canvas.clientWidth;
     const height = canvas.clientHeight;
     renderer.setSize(width, height, false);
@@ -865,7 +865,6 @@ export default function Hero() {
   const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
   const statsRef = useRef(null)
   const [counts, setCounts] = useState({ c0: 0, c1: 0, c2: 0, c3: 0 })
-  const animated = useRef(false)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -885,35 +884,52 @@ export default function Hero() {
   ]
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting && !animated.current) {
-        animated.current = true
-        STATS.forEach(({ end }, i) => {
-          let start = 0
-          const duration = 1500
-          const frameDuration = 1000 / 60
-          const totalFrames = Math.round(duration / frameDuration)
-          const step = end / totalFrames
-          
-          let currentFrame = 0
-          const timer = setInterval(() => {
-            currentFrame++
-            start = Math.min(end, Math.ceil(step * currentFrame))
-            setCounts(prev => ({ ...prev, [`c${i}`]: start }))
-            if (currentFrame >= totalFrames) clearInterval(timer)
-          }, frameDuration)
-        })
-      }
-    }, { threshold: 0.15 }) // lower threshold for reliable trigger on mobile scroll
+    let activeTimers = [];
 
-    // Delay observing by 200ms to allow the mobile layout and canvas rendering to settle
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        // Clear any running timers first
+        activeTimers.forEach(clearInterval);
+        activeTimers = [];
+
+        // Reset counts to 0 before starting count-up
+        setCounts({ c0: 0, c1: 0, c2: 0, c3: 0 });
+
+        STATS.forEach(({ end }, i) => {
+          let start = 0;
+          const duration = 1500; // slightly faster speed for responsive impact
+          const frameDuration = 1000 / 60;
+          const totalFrames = Math.round(duration / frameDuration);
+          const step = end / totalFrames;
+
+          let currentFrame = 0;
+          const timer = setInterval(() => {
+            currentFrame++;
+            start = Math.min(end, Math.ceil(step * currentFrame));
+            setCounts(prev => ({ ...prev, [`c${i}`]: start }));
+            if (currentFrame >= totalFrames) {
+              clearInterval(timer);
+            }
+          }, frameDuration);
+          activeTimers.push(timer);
+        });
+      } else {
+        // Clear running timers and reset to 0 when scrolled away
+        activeTimers.forEach(clearInterval);
+        activeTimers = [];
+        setCounts({ c0: 0, c1: 0, c2: 0, c3: 0 });
+      }
+    }, { threshold: 0.05 }) // low threshold so it triggers the moment it enters viewport
+
+    // Delay observing by 200ms to allow layout settling
     const timer = setTimeout(() => {
       if (statsRef.current) observer.observe(statsRef.current)
     }, 200)
 
     return () => {
-      clearTimeout(timer)
-      observer.disconnect()
+      clearTimeout(timer);
+      observer.disconnect();
+      activeTimers.forEach(clearInterval);
     }
   }, [])
 
@@ -995,7 +1011,7 @@ export default function Hero() {
               ))}
             </div>
 
-            <div className="anim-fade-up anim-delay-4" style={{ 
+            <div className="anim-fade-up anim-delay-4" style={{
               display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 32,
               justifyContent: 'center',
             }}>

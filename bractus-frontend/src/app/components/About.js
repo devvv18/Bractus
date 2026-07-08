@@ -33,7 +33,7 @@ const FAQS = [
 
 export function Founder() {
   return (
-    <section id="about" className="section" style={{ background: 'var(--bg)' }}>
+    <section id="about" className="section" style={{ background: 'var(--bg)', overflow: 'hidden' }}>
       <style dangerouslySetInnerHTML={{
         __html: `
         .founder-grid {
@@ -197,7 +197,7 @@ export function Testimonials() {
   ]
 
   return (
-    <section id="testimonials" className="section" style={{ background: 'var(--bg)' }}>
+    <section id="testimonials" className="section" style={{ background: 'var(--bg)', overflow: 'hidden' }}>
       <div className="container">
         {/* Client Logos Section */}
         <div style={{ marginBottom: 80, textAlign: 'center' }}>
@@ -262,7 +262,7 @@ export function Testimonials() {
 
 export function FAQ() {
   return (
-    <section id="faq" className="section" style={{ background: 'var(--bg-alt)' }}>
+    <section id="faq" className="section" style={{ background: 'var(--bg-alt)', overflow: 'hidden' }}>
       <div className="container" style={{ maxWidth: 800 }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <span className="tag">FAQ</span>

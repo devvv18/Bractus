@@ -269,7 +269,7 @@ export function GetInTouch() {
   }
 
   return (
-    <section id="contact" className="section" style={{ background: 'var(--bg)' }}>
+    <section id="contact" className="section" style={{ background: 'var(--bg)', overflow: 'hidden' }}>
       <div className="container">
         <div id="contact-form" style={{
           display: 'grid',
