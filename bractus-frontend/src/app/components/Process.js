@@ -44,20 +44,19 @@ export function HowWeWork() {
     target: sectionRef,
     offset: ['start end', 'end start'],
   })
-  // Create a single smooth spring over scroll progress to emulate Lusion's fluid momentum scrolling
-  // Fine-tuned with stiffness 18 and damping 24 for a buttery, highly refined deceleration glide
+  // Create a highly-responsive, tight spring to cushion mouse wheel increments without introducing slide lag
   const smoothScroll = useSpring(scrollYProgress, {
-    stiffness: 18,
-    damping: 24,
+    stiffness: 90,
+    damping: 30,
     restDelta: 0.0001
   })
   // Head: draws the entire thread from start (0) to end (1) — entry + logo as ONE entity
-  // 0.02 → 0.70 scroll: expanded range for an even steadier, more comfortable scroll rate
-  const pathDraw = useTransform(smoothScroll, [0.02, 0.70], [0, 1], { clamp: true })
+  // 0.02 → 0.85 scroll: expanded range to slow down drawing speed on scroll
+  const pathDraw = useTransform(smoothScroll, [0.02, 0.85], [0, 1], { clamp: true })
 
-  // Tail: starts follow-erasing the entry line early (at 0.10 progress) to create a smooth, gradual fade
-  // The entry curve line fades completely by 40.5% path progress to prevent bulging
-  const pathOffset = useTransform(pathDraw, [0, 0.10, 0.404, 1], [0, 0, 0.404, 0.404], { clamp: true })
+  // Tail: starts follow-erasing the entry line early (at 0.10 progress)
+  // Reaches 40.4% depth exactly at 41% scroll progress (which equates to 47% pathDraw progress under the new range)
+  const pathOffset = useTransform(pathDraw, [0, 0.10, 0.47, 1], [0, 0, 0.404, 0.404], { clamp: true })
 
   return (
     <section
