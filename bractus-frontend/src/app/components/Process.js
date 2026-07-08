@@ -56,8 +56,8 @@ export function HowWeWork() {
   const pathDraw = useTransform(smoothScroll, [0.02, 0.70], [0, 1], { clamp: true })
 
   // Tail: starts follow-erasing the entry line early (at 0.10 progress) to create a smooth, gradual fade
-  // The entry curve line fades completely by 41% progress as requested
-  const pathOffset = useTransform(pathDraw, [0, 0.10, 0.40, 1], [0, 0, 0.40, 0.40], { clamp: true })
+  // The entry curve line fades completely by 40.5% path progress to prevent bulging
+  const pathOffset = useTransform(pathDraw, [0, 0.10, 0.404, 1], [0, 0, 0.404, 0.404], { clamp: true })
 
   return (
     <section
