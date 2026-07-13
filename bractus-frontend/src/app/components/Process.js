@@ -229,7 +229,7 @@ export function WhyChooseUs() {
           maxWidth: 620,
           margin: '0 auto 16px',
         }}>
-          Our teams deliver the outcomes you need quickly and efficiently, so you see progress, not just process.
+          Our teams deliver the outcomes you need quickly and efficiently, <br /> so you see progress, not just process.
         </p>
         <h2 style={{
           textAlign: 'center',

@@ -37,7 +37,7 @@ export default function Footer() {
       }} className="footer-grid">
         {/* Brand col */}
         <div>
-          <div style={{ marginBottom: 12 }}>
+          <div style={{ marginBottom: 12, marginTop: -45 }}>
             <Logo variant="footer" />
           </div>
           <p style={{
@@ -62,8 +62,8 @@ export default function Footer() {
               transition: 'border-color 0.2s, color 0.2s',
               textDecoration: 'none'
             }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.color = '#64748b' }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--accent)'; e.currentTarget.style.color = 'var(--accent)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.color = '#64748b' }}
             >in</a>
           </div>
         </div>
@@ -84,8 +84,8 @@ export default function Footer() {
                     transition: 'color 0.2s',
                     textDecoration: 'none'
                   }}
-                  onMouseEnter={e => e.target.style.color = 'var(--accent)'}
-                  onMouseLeave={e => e.target.style.color = '#94a3b8'}
+                    onMouseEnter={e => e.target.style.color = 'var(--accent)'}
+                    onMouseLeave={e => e.target.style.color = '#94a3b8'}
                   >{label}</Link>
                 </li>
               ))}
