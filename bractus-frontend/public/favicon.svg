@@ -2,12 +2,7 @@
   <defs>
     <style>
       .icon-path {
-        fill: #078462; /* Brand green for light mode tabs */
-      }
-      @media (prefers-color-scheme: dark) {
-        .icon-path {
-          fill: #4ade80; /* Neon green for dark mode tabs */
-        }
+        fill: #078462; /* Vibrant brand green shade (highly visible in both light and dark tabs) */
       }
     </style>
   </defs>
