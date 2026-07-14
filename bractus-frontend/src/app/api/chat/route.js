@@ -16,65 +16,38 @@ export async function POST(req) {
   try {
     const { messages } = await req.json()
 
-    // 1. Try OpenRouter if the key is defined
-    if (process.env.OPENROUTER_API_KEY) {
-      try {
-        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-            'HTTP-Referer': 'https://bractus.com',
-            'X-Title': 'Bractus Brack Agent'
-          },
-          body: JSON.stringify({
-            model: 'openrouter/free',
-            messages: [
-              { role: 'system', content: SYSTEM_PROMPT },
-              ...messages
-            ],
-            temperature: 0.7,
-            max_tokens: 500,
-          })
-        })
-
-        const data = await res.json()
-        if (data.choices && data.choices[0]?.message?.content) {
-          return NextResponse.json({ reply: data.choices[0].message.content })
-        }
-        console.warn('OpenRouter API returned no choices, trying Groq fallback:', data)
-      } catch (err) {
-        console.error('OpenRouter call failed, attempting Groq fallback:', err)
-      }
+    if (!process.env.OPENROUTER_API_KEY) {
+      return NextResponse.json({ error: 'OpenRouter API key is not configured.' }, { status: 500 })
     }
 
-    // 2. Fall back to Groq using GROQ_API_KEY if OpenRouter is unconfigured or fails
-    if (process.env.GROQ_API_KEY) {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${process.env.GROQ_API_KEY}`
-        },
-        body: JSON.stringify({
-          model: 'llama-3.1-8b-instant',
-          messages: [
-            { role: 'system', content: SYSTEM_PROMPT },
-            ...messages
-          ],
-          temperature: 0.7,
-          max_tokens: 500,
-        })
-      })
+    const modelName = process.env.OPENROUTER_MODEL_NAME || 'openrouter/free'
 
-      const data = await res.json()
-      if (data.choices && data.choices[0]?.message?.content) {
-        return NextResponse.json({ reply: data.choices[0].message.content })
-      }
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'HTTP-Referer': 'https://bractus.com',
+        'X-Title': 'Bractus Brack Agent'
+      },
+      body: JSON.stringify({
+        model: modelName,
+        messages: [
+          { role: 'system', content: SYSTEM_PROMPT },
+          ...messages
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+      })
+    })
+
+    const data = await res.json()
+
+    if (!data.choices || !data.choices[0] || !data.choices[0].message?.content) {
       return NextResponse.json({ error: data.error?.message || 'Chatbot system overloaded.' }, { status: 500 })
     }
 
-    return NextResponse.json({ error: 'No AI API keys configured.' }, { status: 500 })
+    return NextResponse.json({ reply: data.choices[0].message.content })
   } catch (error) {
     console.error('Chat API Error:', error)
     return NextResponse.json({ error: 'Failed to process request' }, { status: 500 })
