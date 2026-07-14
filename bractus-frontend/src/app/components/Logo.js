@@ -2,87 +2,95 @@
 import Link from 'next/link'
 import { logoConfig } from '../logo-config'
 
-/**
- * Logo Component
- * A central place to manage the Bractus branding.
- * Modify logo-config.js to update the logo across the entire application.
- * 
- * @param {string} variant - 'nav' or 'footer' (affects styling)
- */
 export default function Logo({ variant = 'nav' }) {
   const isFooter = variant === 'footer'
-  const { type, imageSrc, imageWidth, imageHeight, letter, text, showText } = logoConfig
-  
+  const { imageSrc, imageWidth, imageHeight, text } = logoConfig
+
+  // Inline SVG Logo representing the Bractus icon and wordmark (white)
+  // Expanded viewBox "100 330 850 360" to prevent vertical clipping of curves
+  const SvgLogo = ({ className, style }) => (
+    <svg
+      id="Layer_1"
+      data-name="Layer 1"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="100 330 850 360"
+      className={className}
+      style={{
+        display: 'block',
+        ...style
+      }}
+    >
+      <defs>
+        <style>
+          {`.cls-2 { fill: #fff; }`}
+        </style>
+      </defs>
+      <g>
+        <g id="kXOtxZ-2" data-name="kXOtxZ">
+          <path className="cls-2" d="M313.69,502.22c4.75-14.03.83-29.66-9.99-39.72-2.76-2.56-5.75-4.38-9.03-6.27l-41.9-24.17-34.86-20.05-32.6-18.72c-7.46-4.28-16.92-3.7-24.69-.72-10.19,4.31-17.19,13.57-18.24,24.57v59.14c0,8.98,3.6,17.28,9.54,23.75,2.89,3.14,6.03,5.41,9.7,7.53l29.65,17.15,25.86,14.91c.86.49,1.17,1.64,1.13,2.45-.05.91-.64,1.66-1.52,2.15l-17.59,9.77-15.35,8.53-23.93,13.5c-9.43,5.32-17.45,17.21-17.45,27.94v53.71c-.01,4.69,1.36,9.02,3.38,13.14,6.53,13.31,21.13,21.15,35.86,18.46,2.24-.41,4.27-1.12,6.25-2.16l5.52-2.9,56.78-29.97,45.7-24.77c12.93-7.01,20.27-22.21,19.75-36.83-.27-7.68-2.62-15.01-7.05-21.23-3.25-4.55-7.53-7.88-12.26-10.77-3.94-2.41-7.65-4.91-11.19-7.82-2.87-2.36-4.81-5.54-5.5-9.16-1-5.28,1.34-10.52,5.77-13.41l13.55-8.85c6.99-4.57,12.04-11.3,14.71-19.18ZM289.88,498.77l-13.57,9.39c-15.82,10.95-23.11,32.77-12.32,49.9,2.15,3.42,4.55,6.53,7.69,9.05l8.01,6.42,8.12,6.08c5.01,4,7.66,9.89,7.19,16.25-.42,5.75-3.11,10.8-7.7,14.3l-5.59,3.44-33.9,18.33-23.98,12.87-43.93,23.39c-3.86,2.05-8.71.95-11.89-1.81-2.88-2.51-4.55-6.07-4.56-9.98l-.04-48.68c0-3.72.84-6.94,2.95-9.97,1.66-2.38,3.85-4.27,6.4-5.71l6.97-3.93,29-16.16,25.88-14.73c5.64-3.44,8.85-10.15,8.52-16.66-.33-6.49-4.03-12.3-9.55-15.5l-21.71-12.61-41.06-23.72c-4.19-3.24-7.33-7.83-7.33-13.28l-.05-54.33c0-2.73,1.03-5.14,2.93-7.1,2.67-2.75,7.33-3.65,10.9-1.58l39.68,23,42.57,24.66,23.56,13.56,5.08,3.33c3.03,2.38,5.28,5.45,6.25,9.2,1.25,4.82-.37,9.7-4.53,12.58Z" />
+        </g>
+        <g>
+          <path className="cls-2" d="M456.62,548.51c4.49,5.64,6.74,12.03,6.74,19.17,0,6.1-1.58,11.6-4.75,16.49-3.17,4.9-7.75,8.75-13.73,11.57-5.99,2.82-12.95,4.23-20.9,4.23h-48.02v-120.04h45.77c8.17,0,15.2,1.38,21.07,4.15,5.87,2.76,10.3,6.48,13.3,11.14,2.99,4.66,4.49,9.87,4.49,15.63,0,6.91-1.84,12.67-5.53,17.27-1.48,1.85-3.16,3.5-5.05,4.96-3.14,2.43-3.06,7.09.2,9.35,2.32,1.6,4.45,3.63,6.4,6.08ZM395.65,530.38h24.35c6.45,0,11.49-1.47,15.11-4.4,3.63-2.94,5.44-7.17,5.44-12.69s-1.81-9.64-5.44-12.7c-3.63-3.05-8.67-4.58-15.11-4.58h-24.35v34.37ZM437.96,579.09c3.8-3.22,5.7-7.71,5.7-13.47s-2.02-10.54-6.05-13.99c-4.03-3.45-9.39-5.18-16.06-5.18h-25.91v37.48h26.6c6.68,0,11.92-1.61,15.72-4.84Z" />
+          <path className="cls-2" d="M502.65,507.32c4.78-2.7,10.45-4.06,17.01-4.06v20.38s-5.01,0-5.01,0c-7.72,0-13.56,1.96-17.53,5.87-3.97,3.92-5.96,10.71-5.96,20.38v50.09h-19.69v-95.17h19.69v5.69c0,2.47,2.99,3.73,4.73,1.97,1.99-2.02,4.24-3.74,6.76-5.16Z" />
+          <path className="cls-2" d="M624.39,526.49c3.97-7.43,9.47-13.16,16.49-17.19,7.02-4.03,15.08-6.05,24.18-6.05,11.51,0,21.04,2.74,28.59,8.2,7.54,5.47,12.64,13.27,15.29,23.4h-21.25s0,0,0,0c-1.73-4.72-4.49-8.4-8.29-11.05-3.8-2.65-8.58-3.97-14.34-3.97-8.06,0-14.48,2.85-19.26,8.55-4.78,5.7-7.17,13.67-7.17,23.92s2.39,18.25,7.17,24.01c4.78,5.76,11.2,8.63,19.26,8.63,11.4,0,18.94-5.01,22.63-15.03,0,0,0,0,0,0h21.25c-2.76,9.67-7.95,17.36-15.55,23.06-7.6,5.7-17.04,8.55-28.33,8.55-9.1,0-17.16-2.04-24.18-6.13-7.02-4.09-12.52-9.85-16.49-17.27s-5.96-16.03-5.96-25.82,1.99-18.39,5.96-25.82Z" />
+          <path className="cls-2" d="M521.9,526.53c3.97-7.37,9.38-13.1,16.24-17.19,6.85-4.09,14.42-6.13,22.71-6.13,7.48,0,14.02,1.47,19.6,4.4,3.27,1.72,6.15,3.68,8.65,5.89,1.84,1.63,4.74.36,4.74-2.1v-6.64s19.86,0,19.86,0v95.17h-19.86v-8.39c0-1.96-2.33-2.89-3.74-1.53-2.76,2.66-6.06,4.99-9.9,6.99-5.76,2.99-12.32,4.49-19.69,4.49-8.18,0-15.66-2.1-22.45-6.3-6.8-4.2-12.18-10.07-16.15-17.62-3.97-7.54-5.96-16.09-5.96-25.65s1.99-18.02,5.96-25.39ZM589.78,535.16c-2.71-4.84-6.25-8.52-10.62-11.05-4.38-2.53-9.1-3.8-14.16-3.8s-9.79,1.24-14.16,3.71c-4.38,2.48-7.92,6.11-10.62,10.88-2.71,4.78-4.06,10.45-4.06,17.01s1.35,12.32,4.06,17.27c2.7,4.95,6.27,8.72,10.71,11.31,4.43,2.59,9.12,3.89,14.08,3.89s9.79-1.26,14.16-3.8c4.38-2.53,7.92-6.25,10.62-11.14,2.7-4.89,4.06-10.62,4.06-17.19s-1.35-12.26-4.06-17.1Z" />
+          <path className="cls-2" d="M740,521.63v53.08c0,3.6.84,6.18,2.52,7.74,1.68,1.57,4.55,2.35,8.61,2.35h12.18v16.53h-15.66c-8.94,0-15.78-2.09-20.54-6.27-4.76-4.18-7.14-10.96-7.14-20.36v-53.08h-11.31v-16.18h4.39c3.82,0,6.92-3.1,6.92-6.92v-16.92h20.01v17.02c0,3.77,3.05,6.82,6.82,6.82h16.5v16.18h-23.32Z" />
+          <path className="cls-2" d="M855.83,505.44v95.89h-19.84v-3.84c0-2.62-3.01-4.06-5.07-2.45-2.13,1.67-4.53,3.1-7.2,4.29-5.05,2.26-10.41,3.39-16.1,3.39-7.54,0-14.3-1.57-20.27-4.7-5.98-3.13-10.68-7.77-14.1-13.92-3.42-6.15-5.13-13.57-5.13-22.28v-56.39h19.67v53.43c0,8.59,2.15,15.17,6.44,19.75,4.29,4.58,10.15,6.87,17.58,6.87s13.31-2.29,17.66-6.87c4.35-4.58,6.53-11.17,6.53-19.75v-53.43h19.84Z" />
+          <path className="cls-2" d="M880.62,598.81c-5.98-2.72-10.7-6.44-14.18-11.14-3.48-4.7-5.34-9.95-5.57-15.75h20.54c.35,4.06,2.29,7.46,5.83,10.18,3.54,2.73,7.98,4.09,13.31,4.09s9.89-1.07,12.97-3.22c3.07-2.15,4.61-4.9,4.61-8.27,0-3.59-1.71-6.27-5.13-8.01-3.42-1.74-8.85-3.65-16.27-5.74-7.2-1.97-13.05-3.89-17.58-5.74-4.52-1.85-8.44-4.7-11.75-8.53-3.31-3.83-4.96-8.88-4.96-15.14,0-5.1,1.51-9.77,4.52-14.01,3.02-4.23,7.34-7.57,12.97-10.01,5.63-2.44,12.1-3.65,19.4-3.65,10.9,0,19.69,2.76,26.37,8.27,6.67,5.51,10.24,13.03,10.7,22.54h-19.84c-.35-4.29-2.09-7.71-5.22-10.27-3.13-2.55-7.37-3.83-12.7-3.83s-9.22.99-12.01,2.96c-2.78,1.97-4.18,4.58-4.18,7.83,0,2.55.93,4.7,2.78,6.44,1.85,1.74,4.12,3.11,6.79,4.09,2.67.99,6.61,2.24,11.83,3.74,6.96,1.86,12.67,3.74,17.14,5.66,4.46,1.91,8.32,4.73,11.57,8.44,3.25,3.71,4.93,8.64,5.05,14.79,0,5.45-1.51,10.33-4.52,14.62-3.02,4.29-7.28,7.66-12.79,10.09-5.51,2.44-11.98,3.65-19.4,3.65s-14.3-1.37-20.27-4.09Z" />
+        </g>
+      </g>
+    </svg>
+  )
+
   return (
-    <Link href="/" style={{ 
-      display: 'flex', 
-      alignItems: 'center', 
-      gap: isFooter ? 10 : 12, 
+    <Link href="/" style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: isFooter ? 10 : 12,
       textDecoration: 'none',
       transition: 'opacity 0.2s'
     }}
-    onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
-    onMouseLeave={e => e.currentTarget.style.opacity = '1'}
+      onMouseEnter={e => e.currentTarget.style.opacity = '0.85'}
+      onMouseLeave={e => e.currentTarget.style.opacity = '1'}
     >
-      {type === 'image' ? (
-        /* Image Logo */
-        (() => {
-          const finalWidth = imageWidth
-          const finalHeight = imageHeight
-          const finalMarginLeft = logoConfig.imageMarginLeft || 0
-          const finalMarginTop = logoConfig.imageMarginTop || 0
-          const finalMarginBottom = logoConfig.imageMarginBottom || 0
-          const filterStyle = isFooter ? 'brightness(0) invert(1)' : 'none'
-
-          return (
-            <img 
-              src={imageSrc} 
-              alt={text} 
-              className={isFooter ? '' : 'logo-image-nav'}
-              style={{ 
-                width: finalWidth, 
-                height: finalHeight, 
-                objectFit: 'contain',
-                marginLeft: finalMarginLeft,
-                marginTop: finalMarginTop,
-                marginBottom: finalMarginBottom,
-                filter: filterStyle
-              }}
-            />
-          )
-        })()
+      {isFooter ? (
+        /* Original Image Logo for Footer */
+        <img
+          src={imageSrc}
+          alt={text}
+          style={{
+            width: imageWidth,
+            height: imageHeight,
+            objectFit: 'contain',
+            marginLeft: logoConfig.imageMarginLeft || 0,
+            marginTop: logoConfig.imageMarginTop || 0,
+            marginBottom: logoConfig.imageMarginBottom || 0,
+            filter: 'brightness(0) invert(1)'
+          }}
+        />
       ) : (
-        /* Text/Letter Logo Icon */
-        <div style={{
-          width: isFooter ? 34 : 36, 
-          height: isFooter ? 34 : 36, 
-          borderRadius: 8,
-          background: 'var(--accent)',
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center',
-          fontFamily: 'Nunito, sans-serif', 
-          fontWeight: 400, 
-          fontSize: isFooter ? 16 : 18, 
-          color: '#fff',
-          boxShadow: isFooter ? 'none' : '0 4px 12px rgba(47, 84, 150, 0.25)'
-        }}>
-          {letter}
-        </div>
-      )}
-
-      {/* Logo Text */}
-      {showText && (
-        <span style={{
-          fontFamily: 'Nunito, sans-serif', 
-          fontWeight: 400,
-          fontSize: isFooter ? '1.15rem' : '1.25rem', 
-          color: isFooter ? '#f1f5f9' : 'var(--text)', 
-          letterSpacing: '-0.02em',
-          textTransform: 'uppercase'
-        }}>
-          {text}
-        </span>
+        /* Nav logo */
+        <>
+          {/* Light Mode: Render PNG image */}
+          <img
+            src={imageSrc}
+            alt={text}
+            className="logo-image-nav show-light"
+            style={{
+              width: imageWidth,
+              height: imageHeight,
+              objectFit: 'contain',
+              marginLeft: logoConfig.imageMarginLeft || 0,
+              marginTop: logoConfig.imageMarginTop || 0,
+              marginBottom: logoConfig.imageMarginBottom || 0
+            }}
+          />
+          {/* Dark Mode: Render sharp custom inline SvgLogo */}
+          <SvgLogo
+            className="hide-light"
+            style={{ height: 60, width: 'auto' }}
+          />
+        </>
       )}
     </Link>
   )

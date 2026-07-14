@@ -205,8 +205,9 @@ export function HowWeWork() {
 
                 <p style={{
                   fontSize: '0.9rem',
-                  color: 'var(--text-secondary)',
+                  color: 'var(--text)',
                   lineHeight: 1.7,
+                  fontWeight: 450,
                 }}>{desc}</p>
               </div>
             ))}
