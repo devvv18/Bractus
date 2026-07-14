@@ -59,7 +59,7 @@ export function EcosystemBanner() {
               fontWeight: 400, marginBottom: 16,
               lineHeight: 1.2
             }}>
-              One partner for your entire <span className="accent-text">technology ecosystem.</span>
+              One partner for your <br /> entire <span className="accent-text">technology ecosystem.</span>
             </h2>
             <p style={{
               color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: 1.7,

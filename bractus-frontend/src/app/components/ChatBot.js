@@ -3,7 +3,7 @@ import { Suspense, useState, useRef, useEffect } from 'react'
 
 export default function ChatBot() {
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState([{ role: 'assistant', content: 'Hi! I\'m John. How can I help you regarding Bractus today?' }])
+  const [messages, setMessages] = useState([{ role: 'assistant', content: 'Hi! I\'m Brack. How can I help you regarding Bractus today?' }])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -124,7 +124,7 @@ export default function ChatBot() {
           <div style={{ background: 'var(--accent)', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff' }}>
             <div style={{ fontWeight: 400, fontFamily: 'Nunito, sans-serif', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 8, height: 8, background: '#4ade80', borderRadius: '50%', boxShadow: '0 0 10px #4ade80' }}></div>
-              John
+              Brack
             </div>
             <button onClick={() => setOpen(false)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 24, cursor: 'pointer', lineHeight: 1 }}>×</button>
           </div>
@@ -199,7 +199,7 @@ export default function ChatBot() {
             boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
             animation: 'waveBobble 2s ease-in-out infinite'
           }}>
-            Hi! I&apos;m John. Ask me anything.
+            Hi! I&apos;m Brack. Ask me anything.
           </div>
           <div style={{ paddingRight: 10 }}>
             <BotAvatar large={true} waving={isWaving} />

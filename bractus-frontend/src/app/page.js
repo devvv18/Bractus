@@ -17,8 +17,8 @@ export default function HomePage() {
       <Founder />
       <WhyChooseUs />
       {/* <Testimonials /> */}
-      <GetInTouch />
       <FAQ />
+      <GetInTouch />
     </>
   )
 }
