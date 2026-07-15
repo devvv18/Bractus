@@ -238,9 +238,6 @@ export default function Services() {
           transform-style: preserve-3d;
           transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .carousel-card:not(.card-active) .rotation-wrapper {
-          animation: backgroundSpin 5s infinite cubic-bezier(0.4, 0, 0.2, 1);
-        }
       `}</style>
 
 

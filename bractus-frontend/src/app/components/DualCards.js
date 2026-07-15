@@ -7,6 +7,8 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
   const particlesRef = useRef([])
   const hoverRef = useRef({ left: false, right: false })
   const timeRef = useRef(0)
+  const lastLHoverRef = useRef(false)
+  const lastRHoverRef = useRef(false)
 
   // Sync props to refs so the render loop always has latest values without re-running useEffect
   useEffect(() => {
@@ -19,8 +21,6 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
     const ctx = canvas.getContext('2d', { willReadFrequently: true })
 
     let animationFrameId
-    const friction = 0.97 // Much more buttery
-    const spring = 0.0015 // Softer, cuter gathering force
     const dotRadius = 1.3
 
     const resize = () => {
@@ -51,14 +51,12 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       octx.clearRect(0, 0, w, h)
       octx.lineCap = 'round'
       octx.lineJoin = 'round'
-      octx.lineWidth = 26 // Even thicker as requested
+      octx.lineWidth = 26
       octx.strokeStyle = '#fff'
 
-      // Much larger scale for desktop/mobile
       const sW = Math.min(w, h) * (isMobile ? 0.35 : 0.28) 
       const sH = Math.min(w, h) * (isMobile ? 0.28 : 0.25)
       
-      // Draw '<' (Far left, larger, 75-degree angle)
       octx.beginPath()
       octx.moveTo(cxLeft - sW * 1.5, cyLeft)
       octx.lineTo(cxLeft - sW * 0.6, cyLeft - sH * 0.7)
@@ -66,13 +64,11 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       octx.lineTo(cxLeft - sW * 0.6, cyLeft + sH * 0.7)
       octx.stroke()
 
-      // Draw '/' (Even shorter for compact look)
       octx.beginPath()
       octx.moveTo(cxLeft - sW * 0.2, cyLeft + sH * 1.0)
       octx.lineTo(cxLeft + sW * 0.2, cyLeft - sH * 1.0)
       octx.stroke()
 
-      // Draw '>' (Far right, larger, 75-degree angle)
       octx.beginPath()
       octx.moveTo(cxLeft + sW * 1.5, cyLeft)
       octx.lineTo(cxLeft + sW * 0.6, cyLeft - sH * 0.7)
@@ -88,7 +84,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       const hexW = Math.sqrt(3) * hexR
       const hexH = 2 * hexR
       const ySpacing = hexH * 0.75
-      octx.lineWidth = 14 // Thicker honeycomb too
+      octx.lineWidth = 14
       octx.lineJoin = 'round'
       for (let r = -4; r <= 4; r++) {
         for (let c = -4; c <= 4; c++) {
@@ -116,85 +112,187 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
         ]
       }
 
-      const newParticles = []
-      const spacing = 5 // Denser sampling for thicker lines
       const colors = getColors()
+      const newParticles = []
+      const gridSpacing = isMobile ? 22 : 18
 
-      for (let y = 0; y < h; y += spacing) {
-        for (let x = 0; x < w; x += spacing) {
-          const isL = dataLeft[(y * w + x) * 4 + 3] > 128
-          const isR = dataRight[(y * w + x) * 4 + 3] > 128
-          
-          if (isL || isR) {
-            newParticles.push({
-              x: Math.random() * w, y: Math.random() * h,
-              baseX: Math.random() * w, baseY: Math.random() * h,
-              targetX: x, targetY: y,
-              vx: 0, vy: 0,
-              isLeft: isL,
-              randomWander: Math.random() * 100,
-              // Speed factor for 'organic' boom
-              speedFactor: 0.5 + Math.random() * 0.5,
-              color: colors[Math.floor(Math.random() * colors.length)]
-            })
+      // Generate base grid of particles (clean rectangular grid)
+      for (let y = gridSpacing / 2; y < h; y += gridSpacing) {
+        for (let x = gridSpacing / 2; x < w; x += gridSpacing) {
+          const isL = x < w / 2
+          newParticles.push({
+            x: x, y: y,
+            baseX: x, baseY: y,
+            targetX: x, targetY: y,
+            vx: 0, vy: 0,
+            isLeft: isL,
+            hasShapeTarget: false,
+            randomWander: Math.random() * 100,
+            speedFactor: 0.6 + Math.random() * 0.4,
+            alpha: 0.35,
+            color: '#94a3b8' // Muted background color
+          })
+        }
+      }
+
+      // Sample Left shape points with larger step to avoid oversampling
+      const shapePointsLeft = []
+      const sampleStep = isMobile ? 11 : 8
+      for (let y = 0; y < h; y += sampleStep) {
+        for (let x = 0; x < w; x += sampleStep) {
+          if (dataLeft[(y * w + x) * 4 + 3] > 128) {
+            shapePointsLeft.push({ x, y })
           }
         }
       }
+
+      // Sample Right shape points
+      const shapePointsRight = []
+      for (let y = 0; y < h; y += sampleStep) {
+        for (let x = 0; x < w; x += sampleStep) {
+          if (dataRight[(y * w + x) * 4 + 3] > 128) {
+            shapePointsRight.push({ x, y })
+          }
+        }
+      }
+
+      // Match Left shape points to nearest left grid particles
+      const leftGrid = newParticles.filter(p => p.isLeft)
+      for (const pt of shapePointsLeft) {
+        let closestP = null
+        let minDist = Infinity
+        for (const p of leftGrid) {
+          if (p.hasShapeTarget) continue
+          const dx = p.baseX - pt.x
+          const dy = p.baseY - pt.y
+          const dist = dx*dx + dy*dy
+          if (dist < minDist) {
+            minDist = dist
+            closestP = p
+          }
+        }
+        if (closestP) {
+          closestP.targetX = pt.x
+          closestP.targetY = pt.y
+          closestP.hasShapeTarget = true
+          closestP.color = colors[2] // Brand Green
+        }
+      }
+
+      // Match Right shape points to nearest right grid particles
+      const rightGrid = newParticles.filter(p => !p.isLeft)
+      for (const pt of shapePointsRight) {
+        let closestP = null
+        let minDist = Infinity
+        for (const p of rightGrid) {
+          if (p.hasShapeTarget) continue
+          const dx = p.baseX - pt.x
+          const dy = p.baseY - pt.y
+          const dist = dx*dx + dy*dy
+          if (dist < minDist) {
+            minDist = dist
+            closestP = p
+          }
+        }
+        if (closestP) {
+          closestP.targetX = pt.x
+          closestP.targetY = pt.y
+          closestP.hasShapeTarget = true
+          closestP.color = colors[2] // Brand Green
+        }
+      }
+
       particlesRef.current = newParticles
     }
 
     const render = () => {
       timeRef.current += 0.005
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      const isMobile = canvas.width < 768
       const particles = particlesRef.current
+
+      const isLHover = hoverRef.current.left
+      const isRHover = hoverRef.current.right
+      const anyHovered = isLHover || isRHover
+
+      // Detect unhover events (transitions from true -> false)
+      const justLeftUnhovered = !isLHover && lastLHoverRef.current
+      const justRightUnhovered = !isRHover && lastRHoverRef.current
+
+      lastLHoverRef.current = isLHover
+      lastRHoverRef.current = isRHover
+
+      // Trigger "diffusion blast" on unhover by injecting random velocities
+      if (justLeftUnhovered) {
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i]
+          if (p.isLeft && p.hasShapeTarget) {
+            p.vx = (Math.random() - 0.5) * 8
+            p.vy = (Math.random() - 0.5) * 8
+          }
+        }
+      }
+      if (justRightUnhovered) {
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i]
+          if (!p.isLeft && p.hasShapeTarget) {
+            p.vx = (Math.random() - 0.5) * 8
+            p.vy = (Math.random() - 0.5) * 8
+          }
+        }
+      }
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]
-        let tx = p.baseX
-        let ty = p.baseY
-
-        const active = (p.isLeft && hoverRef.current.left) || (!p.isLeft && hoverRef.current.right)
         
-        if (active) {
-          tx = p.targetX
-          ty = p.targetY
+        // Active if this particle belongs to the hovered card's shape
+        const active = p.hasShapeTarget && (
+          (p.isLeft && isLHover) || 
+          (!p.isLeft && isRHover)
+        )
 
-          // Very slow, subtle "hovering" motion for the </> shape only
-          if (p.isLeft) {
-            const hoverTime = timeRef.current * 0.5
-            tx += Math.sin(hoverTime + p.randomWander) * 4
-            ty += Math.cos(hoverTime + p.randomWander) * 4
-          }
-          
-          ctx.fillStyle = p.color
-          
-          // DIRECT EASING (No double movement/vibration)
-          p.x += (tx - p.x) * 0.08 * p.speedFactor
-          p.y += (ty - p.y) * 0.08 * p.speedFactor
-          p.vx = 0 // Kill existing velocity for absolute precision
+        let tx = active ? p.targetX : p.baseX
+        let ty = active ? p.targetY : p.baseY
+
+        // Target Alpha: 
+        // 1.0 if part of the active gathered shape design
+        // 0.35 otherwise (grid dots remain visible always)
+        const targetAlpha = active ? 1.0 : 0.35
+
+        // Smoothly transition opacity (slightly slower for smoother fade)
+        p.alpha += (targetAlpha - p.alpha) * 0.07
+
+        if (active) {
+          // Direct Easing for gathering (fluid magnetic movement)
+          p.x += (tx - p.x) * 0.065 * p.speedFactor
+          p.y += (ty - p.y) * 0.065 * p.speedFactor
+          p.vx = 0 
           p.vy = 0
         } else {
-          ctx.fillStyle = p.color
-          ctx.globalAlpha = 0.3
-          
-          // Organic Spring Physics for background
-          tx += Math.sin(timeRef.current + p.randomWander) * 4
-          ty += Math.cos(timeRef.current + p.randomWander) * 4
+          // Add subtle organic floating micro-wobble for background grid dots
+          const driftTime = timeRef.current * 0.35
+          const wx = tx + Math.sin(driftTime + p.randomWander) * 1.2
+          const wy = ty + Math.cos(driftTime + p.randomWander) * 1.2
 
-          p.vx += (tx - p.x) * spring * p.speedFactor
-          p.vy += (ty - p.y) * spring * p.speedFactor
+          // Cushioned Spring Physics for smooth settling back
+          const spring = 0.015
+          const friction = 0.91
+          p.vx += (wx - p.x) * spring * p.speedFactor
+          p.vy += (wy - p.y) * spring * p.speedFactor
           p.vx *= friction
           p.vy *= friction
           p.x += p.vx
           p.y += p.vy
         }
 
+        ctx.fillStyle = active ? p.color : '#94a3b8'
+        ctx.globalAlpha = p.alpha
+
         ctx.beginPath()
         ctx.arc(p.x, p.y, dotRadius, 0, Math.PI * 2)
         ctx.fill()
-        ctx.globalAlpha = 1.0
       }
+
+      ctx.globalAlpha = 1.0
       animationFrameId = requestAnimationFrame(render)
     }
 
