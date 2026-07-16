@@ -42,8 +42,8 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
       const isMobile = w < 768
       const cxLeft = isMobile ? w / 2 : w * 0.25
-      const cxRight = isMobile ? w / 2 : w * 0.75
-      
+      const cxRight = isMobile ? w / 2 : w * 0.730
+
       const cyLeft = isMobile ? h * 0.18 : h / 2
       const cyRight = isMobile ? h * 0.68 : h / 2
 
@@ -54,14 +54,14 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       octx.lineWidth = 26
       octx.strokeStyle = '#fff'
 
-      const sW = Math.min(w, h) * (isMobile ? 0.35 : 0.28) 
-      const sH = Math.min(w, h) * (isMobile ? 0.28 : 0.25)
-      
+      const sW = Math.min(w, h) * (isMobile ? 0.42 : 0.35)
+      const sH = Math.min(w, h) * (isMobile ? 0.32 : 0.29)
+
       octx.beginPath()
       octx.moveTo(cxLeft - sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft - sW * 0.6, cyLeft - sH * 0.7)
+      octx.lineTo(cxLeft - sW * 0.75, cyLeft - sH * 0.7)
       octx.moveTo(cxLeft - sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft - sW * 0.6, cyLeft + sH * 0.7)
+      octx.lineTo(cxLeft - sW * 0.75, cyLeft + sH * 0.7)
       octx.stroke()
 
       octx.beginPath()
@@ -71,16 +71,16 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
       octx.beginPath()
       octx.moveTo(cxLeft + sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft + sW * 0.6, cyLeft - sH * 0.7)
+      octx.lineTo(cxLeft + sW * 0.75, cyLeft - sH * 0.7)
       octx.moveTo(cxLeft + sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft + sW * 0.6, cyLeft + sH * 0.7)
+      octx.lineTo(cxLeft + sW * 0.75, cyLeft + sH * 0.7)
       octx.stroke()
 
       const dataLeft = octx.getImageData(0, 0, w, h).data
 
       // Draw Shape 2: Honeycomb
       octx.clearRect(0, 0, w, h)
-      const hexR = Math.min(w, h) * (isMobile ? 0.045 : 0.05) 
+      const hexR = Math.min(w, h) * (isMobile ? 0.045 : 0.05)
       const hexW = Math.sqrt(3) * hexR
       const hexH = 2 * hexR
       const ySpacing = hexH * 0.75
@@ -88,7 +88,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       octx.lineJoin = 'round'
       for (let r = -4; r <= 4; r++) {
         for (let c = -4; c <= 4; c++) {
-          if (Math.sqrt(r*r + c*c) > 4.2) continue
+          if (Math.sqrt(r * r + c * c) > 4.2) continue
           let hx = cxRight + c * hexW + (r % 2 ? hexW / 2 : 0)
           let hy = cyRight + r * ySpacing
           octx.beginPath()
@@ -165,7 +165,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
           if (p.hasShapeTarget) continue
           const dx = p.baseX - pt.x
           const dy = p.baseY - pt.y
-          const dist = dx*dx + dy*dy
+          const dist = dx * dx + dy * dy
           if (dist < minDist) {
             minDist = dist
             closestP = p
@@ -188,7 +188,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
           if (p.hasShapeTarget) continue
           const dx = p.baseX - pt.x
           const dy = p.baseY - pt.y
-          const dist = dx*dx + dy*dy
+          const dist = dx * dx + dy * dy
           if (dist < minDist) {
             minDist = dist
             closestP = p
@@ -243,10 +243,10 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i]
-        
+
         // Active if this particle belongs to the hovered card's shape
         const active = p.hasShapeTarget && (
-          (p.isLeft && isLHover) || 
+          (p.isLeft && isLHover) ||
           (!p.isLeft && isRHover)
         )
 
@@ -265,7 +265,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
           // Direct Easing for gathering (fluid magnetic movement)
           p.x += (tx - p.x) * 0.065 * p.speedFactor
           p.y += (ty - p.y) * 0.065 * p.speedFactor
-          p.vx = 0 
+          p.vx = 0
           p.vy = 0
         } else {
           // Add subtle organic floating micro-wobble for background grid dots
