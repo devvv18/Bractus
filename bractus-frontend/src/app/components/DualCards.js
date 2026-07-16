@@ -82,9 +82,9 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
       octx.beginPath()
       octx.moveTo(cxLeft - sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft - sW * 0.60, cyLeft - sH * 0.7)
+      octx.lineTo(cxLeft - sW * 0.50, cyLeft - sH * 0.7)
       octx.moveTo(cxLeft - sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft - sW * 0.60, cyLeft + sH * 0.7)
+      octx.lineTo(cxLeft - sW * 0.50, cyLeft + sH * 0.7)
       octx.stroke()
 
       octx.beginPath()
@@ -94,9 +94,9 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
       octx.beginPath()
       octx.moveTo(cxLeft + sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft + sW * 0.60, cyLeft - sH * 0.7)
+      octx.lineTo(cxLeft + sW * 0.50, cyLeft - sH * 0.7)
       octx.moveTo(cxLeft + sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft + sW * 0.60, cyLeft + sH * 0.7)
+      octx.lineTo(cxLeft + sW * 0.50, cyLeft + sH * 0.7)
       octx.stroke()
 
       const dataLeft = octx.getImageData(0, 0, w, h).data
