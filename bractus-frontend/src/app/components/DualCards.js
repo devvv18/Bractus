@@ -25,14 +25,42 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
     const resize = () => {
       if (!canvas.parentElement) return
-      canvas.width = window.innerWidth
-      canvas.height = canvas.parentElement.getBoundingClientRect().height || canvas.parentElement.offsetHeight
-      initParticles()
+      const w = window.innerWidth
+      const h = canvas.parentElement.getBoundingClientRect().height || canvas.parentElement.offsetHeight
+      canvas.width = w
+      canvas.height = h
+
+      const sectionRect = canvas.parentElement.getBoundingClientRect()
+      const leftEl = canvas.parentElement.querySelector('.left-card-text')
+      const rightEl = canvas.parentElement.querySelector('.right-card-text')
+      const isMobile = w < 768
+
+      let cxLeft = isMobile ? w / 2 : w * 0.25
+      let cyLeft = isMobile ? h * 0.25 : h / 2 - 30
+      let cxRight = isMobile ? w / 2 : w * 0.730
+      let cyRight = isMobile ? h * 0.75 : h / 2
+
+      if (leftEl) {
+        const rect = leftEl.getBoundingClientRect()
+        cxLeft = rect.left - sectionRect.left + rect.width / 2
+        cyLeft = rect.top - sectionRect.top + rect.height / 2
+        // Shift brackets significantly upward on mobile to clear text
+        cyLeft -= isMobile ? 100 : 30
+      }
+      if (rightEl) {
+        const rect = rightEl.getBoundingClientRect()
+        cxRight = rect.left - sectionRect.left + rect.width / 2
+        cyRight = rect.top - sectionRect.top + rect.height / 2
+        // Offset honeycomb slightly left if not on mobile, since lopsidedness shifts it right
+        if (!isMobile) {
+          cxRight -= w * 0.02
+        }
+      }
+
+      initParticles(w, h, cxLeft, cyLeft, cxRight, cyRight)
     }
 
-    const initParticles = () => {
-      const w = canvas.width
-      const h = canvas.height
+    const initParticles = (w, h, cxLeft, cyLeft, cxRight, cyRight) => {
       if (w === 0 || h === 0) return
 
       const off = document.createElement('canvas')
@@ -41,11 +69,6 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       const octx = off.getContext('2d', { willReadFrequently: true })
 
       const isMobile = w < 768
-      const cxLeft = isMobile ? w / 2 : w * 0.25
-      const cxRight = isMobile ? w / 2 : w * 0.730
-
-      const cyLeft = isMobile ? h * 0.18 : h / 2
-      const cyRight = isMobile ? h * 0.68 : h / 2
 
       // Draw Shape 1: Massive Custom < / > 
       octx.clearRect(0, 0, w, h)
@@ -54,14 +77,14 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       octx.lineWidth = 26
       octx.strokeStyle = '#fff'
 
-      const sW = Math.min(w, h) * (isMobile ? 0.42 : 0.35)
-      const sH = Math.min(w, h) * (isMobile ? 0.32 : 0.29)
+      const sW = Math.min(w, h) * (isMobile ? 0.32 : 0.35)
+      const sH = Math.min(w, h) * (isMobile ? 0.24 : 0.29)
 
       octx.beginPath()
       octx.moveTo(cxLeft - sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft - sW * 0.75, cyLeft - sH * 0.7)
+      octx.lineTo(cxLeft - sW * 0.60, cyLeft - sH * 0.7)
       octx.moveTo(cxLeft - sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft - sW * 0.75, cyLeft + sH * 0.7)
+      octx.lineTo(cxLeft - sW * 0.60, cyLeft + sH * 0.7)
       octx.stroke()
 
       octx.beginPath()
@@ -71,9 +94,9 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
       octx.beginPath()
       octx.moveTo(cxLeft + sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft + sW * 0.75, cyLeft - sH * 0.7)
+      octx.lineTo(cxLeft + sW * 0.60, cyLeft - sH * 0.7)
       octx.moveTo(cxLeft + sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft + sW * 0.75, cyLeft + sH * 0.7)
+      octx.lineTo(cxLeft + sW * 0.60, cyLeft + sH * 0.7)
       octx.stroke()
 
       const dataLeft = octx.getImageData(0, 0, w, h).data
@@ -114,12 +137,12 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
       const colors = getColors()
       const newParticles = []
-      const gridSpacing = isMobile ? 22 : 18
+      const gridSpacing = isMobile ? 15 : 18
 
       // Generate base grid of particles (clean rectangular grid)
       for (let y = gridSpacing / 2; y < h; y += gridSpacing) {
         for (let x = gridSpacing / 2; x < w; x += gridSpacing) {
-          const isL = x < w / 2
+          const isL = isMobile ? (y < h / 2) : (x < w / 2)
           newParticles.push({
             x: x, y: y,
             baseX: x, baseY: y,
@@ -226,8 +249,8 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i]
           if (p.isLeft && p.hasShapeTarget) {
-            p.vx = (Math.random() - 0.5) * 8
-            p.vy = (Math.random() - 0.5) * 8
+            p.vx = (Math.random() - 0.5) * 4.5
+            p.vy = (Math.random() - 0.5) * 4.5
           }
         }
       }
@@ -235,8 +258,8 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
         for (let i = 0; i < particles.length; i++) {
           const p = particles[i]
           if (!p.isLeft && p.hasShapeTarget) {
-            p.vx = (Math.random() - 0.5) * 8
-            p.vy = (Math.random() - 0.5) * 8
+            p.vx = (Math.random() - 0.5) * 4.5
+            p.vy = (Math.random() - 0.5) * 4.5
           }
         }
       }
@@ -259,12 +282,12 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
         const targetAlpha = active ? 1.0 : 0.35
 
         // Smoothly transition opacity (slightly slower for smoother fade)
-        p.alpha += (targetAlpha - p.alpha) * 0.07
+        p.alpha += (targetAlpha - p.alpha) * 0.04
 
         if (active) {
           // Direct Easing for gathering (fluid magnetic movement)
-          p.x += (tx - p.x) * 0.065 * p.speedFactor
-          p.y += (ty - p.y) * 0.065 * p.speedFactor
+          p.x += (tx - p.x) * 0.042 * p.speedFactor
+          p.y += (ty - p.y) * 0.042 * p.speedFactor
           p.vx = 0
           p.vy = 0
         } else {
@@ -274,8 +297,8 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
           const wy = ty + Math.cos(driftTime + p.randomWander) * 1.2
 
           // Cushioned Spring Physics for smooth settling back
-          const spring = 0.015
-          const friction = 0.91
+          const spring = 0.012
+          const friction = 0.93
           p.vx += (wx - p.x) * spring * p.speedFactor
           p.vy += (wy - p.y) * spring * p.speedFactor
           p.vx *= friction
@@ -360,8 +383,10 @@ export default function DualCards() {
           style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px, 12vw, 100px) 48px' }}
           onMouseEnter={() => setHoverLeft(true)}
           onMouseLeave={() => setHoverLeft(false)}
+          onTouchStart={() => setHoverLeft(true)}
+          onTouchEnd={() => setHoverLeft(false)}
         >
-          <div style={{ textAlign: 'center' }}>
+          <div className="left-card-text" style={{ textAlign: 'center' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For Individual Technical Support</h2>
             <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Get the dedicated engineering support and expert guidance.</p>
             <a href={`mailto:${contactEmail}?subject=${devSubject}&body=${devBody}`} className="btn-primary" style={{ borderRadius: 100 }}>Request Support</a>
@@ -376,8 +401,10 @@ export default function DualCards() {
           style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px, 12vw, 100px) 48px' }}
           onMouseEnter={() => setHoverRight(true)}
           onMouseLeave={() => setHoverRight(false)}
+          onTouchStart={() => setHoverRight(true)}
+          onTouchEnd={() => setHoverRight(false)}
         >
-          <div style={{ textAlign: 'center' }}>
+          <div className="right-card-text" style={{ textAlign: 'center' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For organization</h2>
             <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Scale your digital capabilities instantly.</p>
             <a href={`mailto:${contactEmail}?subject=${orgSubject}&body=${orgBody}`} className="btn-outline" style={{ borderRadius: 100, background: 'var(--bg)' }}>Partner with us</a>
