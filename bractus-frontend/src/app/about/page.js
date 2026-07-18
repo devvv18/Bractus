@@ -101,7 +101,7 @@ export default function AboutPage() {
                     color: 'var(--accent)',
                   }}>{letter}</span>
                 </div>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', fontFamily: 'Nunito, sans-serif' }}>{title}</h3>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', fontFamily: 'Poppins, sans-serif' }}>{title}</h3>
                 <p style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', lineHeight: 1.65 }}>{desc}</p>
               </div>
             ))}

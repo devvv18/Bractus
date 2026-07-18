@@ -1027,7 +1027,7 @@ export default function Hero() {
             {STATS.map(({ suffix, label }, i) => (
               <div key={label} style={{ textAlign: 'center' }}>
                 <div style={{
-                  fontFamily: 'Nunito, sans-serif',
+                  fontFamily: 'Poppins, sans-serif',
                   fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)',
                   fontWeight: 800, color: 'var(--stats-text)',
                 }}>{counts[`c${i}`]}{suffix}</div>

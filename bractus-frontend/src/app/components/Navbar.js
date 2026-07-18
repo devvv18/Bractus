@@ -110,7 +110,7 @@ export default function Navbar() {
           {NAV_LINKS.map(({ label, href }) => (
             <Link key={label} href={href} onClick={() => setMobileOpen(false)}
               style={{
-                fontSize: '1.5rem', fontFamily: 'Nunito, sans-serif', fontWeight: 400,
+                fontSize: '1.5rem', fontFamily: 'Poppins, sans-serif', fontWeight: 400,
                 color: 'var(--text)', padding: '16px 0',
                 borderBottom: '1px solid var(--border)',
               }}>{label}</Link>

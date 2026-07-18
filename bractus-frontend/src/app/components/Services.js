@@ -365,7 +365,7 @@ function ServiceCard({ icon, tag, title, desc, linkText, href, active }) {
       }}>{tag}</div>
       
       <h3 style={{
-        fontFamily: 'Nunito, sans-serif', 
+        fontFamily: 'Poppins, sans-serif', 
         fontSize: '1.4rem',
         fontWeight: 400, 
         marginBottom: 12, 

@@ -87,7 +87,7 @@ function ServiceColumn({ icon, title, items, href }) {
         color: 'var(--text)',
         lineHeight: 1.3,
         marginBottom: 20,
-        fontFamily: 'Nunito, sans-serif'
+        fontFamily: 'Poppins, sans-serif'
       }}>
         {title}
       </h3>
@@ -100,7 +100,7 @@ function ServiceColumn({ icon, title, items, href }) {
             <span style={{
               fontSize: '0.88rem',
               color: 'var(--text-secondary)',
-              fontFamily: 'Nunito, sans-serif'
+              fontFamily: 'Poppins, sans-serif'
             }}>
               {item}
             </span>

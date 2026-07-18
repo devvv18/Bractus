@@ -54,7 +54,7 @@ export function EcosystemBanner() {
         }}>
           <div style={{ maxWidth: 640 }}>
             <h2 style={{
-              fontFamily: 'Nunito, sans-serif',
+              fontFamily: 'Poppins, sans-serif',
               fontSize: 'clamp(1.5rem, 4vw, 2.6rem)',
               fontWeight: 400, marginBottom: 16,
               lineHeight: 1.2
@@ -328,7 +328,7 @@ export function GetInTouch() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 28,
                 }}>✓</div>
-                <h3 style={{ fontFamily: 'Nunito, sans-serif', fontWeight: 400, fontSize: '1.3rem' }}>
+                <h3 style={{ fontFamily: 'Poppins, sans-serif', fontWeight: 400, fontSize: '1.3rem' }}>
                   Message sent!
                 </h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>

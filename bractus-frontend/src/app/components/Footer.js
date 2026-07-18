@@ -74,7 +74,7 @@ export default function Footer() {
             <h4 style={{
               fontSize: '0.72rem', fontWeight: 400, color: '#94a3b8',
               textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16,
-              fontFamily: 'Nunito, sans-serif',
+              fontFamily: 'Poppins, sans-serif',
             }}>{group}</h4>
             <ul style={{ display: 'flex', flexDirection: 'column', gap: 10, listStyle: 'none', padding: 0, margin: 0 }}>
               {links.map(({ label, href }) => (

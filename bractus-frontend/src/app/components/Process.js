@@ -187,7 +187,7 @@ export function HowWeWork() {
                 }}
               >
                 <div style={{
-                  fontFamily: 'Nunito, sans-serif',
+                  fontFamily: 'Poppins, sans-serif',
                   fontSize: '3.5rem',
                   fontWeight: 400,
                   color: 'var(--accent)',
@@ -197,7 +197,7 @@ export function HowWeWork() {
                 }}>{num}</div>
 
                 <h3 style={{
-                  fontFamily: 'Nunito, sans-serif',
+                  fontFamily: 'Poppins, sans-serif',
                   fontSize: '1.2rem',
                   fontWeight: 400,
                   marginBottom: 12,
@@ -252,7 +252,7 @@ export function WhyChooseUs() {
               borderBottom: '1px solid var(--border)',
             }}>
               <h4 style={{
-                fontFamily: 'Nunito, sans-serif',
+                fontFamily: 'Poppins, sans-serif',
                 fontSize: '1rem',
                 fontWeight: 400,
                 marginBottom: 8,

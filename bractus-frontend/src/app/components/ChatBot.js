@@ -122,7 +122,7 @@ export default function ChatBot() {
         <div className="chatbot-box anim-fade-up">
           {/* Header */}
           <div style={{ background: 'var(--accent)', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff' }}>
-            <div style={{ fontWeight: 400, fontFamily: 'Nunito, sans-serif', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ fontWeight: 400, fontFamily: 'Poppins, sans-serif', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 8, height: 8, background: '#4ade80', borderRadius: '50%', boxShadow: '0 0 10px #4ade80' }}></div>
               Brack
             </div>
@@ -190,7 +190,7 @@ export default function ChatBot() {
             background: 'var(--accent)',
             color: '#fff',
             fontSize: '0.75rem',
-            fontFamily: 'Nunito, sans-serif',
+            fontFamily: 'Poppins, sans-serif',
             fontWeight: 700,
             padding: '5px 10px',
             borderRadius: 20,
