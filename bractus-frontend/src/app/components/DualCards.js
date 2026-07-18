@@ -77,49 +77,100 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       octx.lineWidth = 26
       octx.strokeStyle = '#fff'
 
-      const sW = Math.min(w, h) * (isMobile ? 0.32 : 0.35)
-      const sH = Math.min(w, h) * (isMobile ? 0.24 : 0.29)
+      const sW = isMobile ? 220 : Math.min(w, h) * 0.35
+      const sH = isMobile ? 180 : Math.min(w, h) * 0.29
+
+      const vertexFactor = isMobile ? 1.10 : 1.5
+      const innerFactor = isMobile ? 0.62 : 0.50
+      const slashFactor = isMobile ? 0.15 : 0.2
+
+      const shift = isMobile ? 50 : 20 // Shift closer: 50px on mobile, 20px on desktop
 
       octx.beginPath()
-      octx.moveTo(cxLeft - sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft - sW * 0.40, cyLeft - sH * 0.7)
-      octx.moveTo(cxLeft - sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft - sW * 0.40, cyLeft + sH * 0.7)
+      octx.moveTo(cxLeft - sW * vertexFactor + shift, cyLeft)
+      octx.lineTo(cxLeft - sW * innerFactor + shift, cyLeft - sH * 0.7)
+      octx.moveTo(cxLeft - sW * vertexFactor + shift, cyLeft)
+      octx.lineTo(cxLeft - sW * innerFactor + shift, cyLeft + sH * 0.7)
       octx.stroke()
 
       octx.beginPath()
-      octx.moveTo(cxLeft - sW * 0.2, cyLeft + sH * 1.0)
-      octx.lineTo(cxLeft + sW * 0.2, cyLeft - sH * 1.0)
+      octx.moveTo(cxLeft - sW * slashFactor, cyLeft + sH * 1.0)
+      octx.lineTo(cxLeft + sW * slashFactor, cyLeft - sH * 1.0)
       octx.stroke()
 
       octx.beginPath()
-      octx.moveTo(cxLeft + sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft + sW * 0.40, cyLeft - sH * 0.7)
-      octx.moveTo(cxLeft + sW * 1.5, cyLeft)
-      octx.lineTo(cxLeft + sW * 0.40, cyLeft + sH * 0.7)
+      octx.moveTo(cxLeft + sW * vertexFactor - shift, cyLeft)
+      octx.lineTo(cxLeft + sW * innerFactor - shift, cyLeft - sH * 0.7)
+      octx.moveTo(cxLeft + sW * vertexFactor - shift, cyLeft)
+      octx.lineTo(cxLeft + sW * innerFactor - shift, cyLeft + sH * 0.7)
       octx.stroke()
 
       const dataLeft = octx.getImageData(0, 0, w, h).data
 
       // Draw Shape 2: Honeycomb
       octx.clearRect(0, 0, w, h)
-      const hexR = Math.min(w, h) * (isMobile ? 0.045 : 0.05)
+      const hexR = Math.min(w, h) * (isMobile ? 0.045 : 0.046)
       const hexW = Math.sqrt(3) * hexR
       const hexH = 2 * hexR
       const ySpacing = hexH * 0.75
       octx.lineWidth = 14
       octx.lineJoin = 'round'
+
+      const drawnSegments = new Set()
+
       for (let r = -4; r <= 4; r++) {
-        for (let c = -4; c <= 4; c++) {
-          if (Math.sqrt(r * r + c * c) > 4.2) continue
+        for (let c = -4; c <= 5; c++) {
+          if (Math.sqrt(r * r + c * c) > 4.2) {
+            // Exceptions: Add one hexagon on the right in row -2, 0, and 2
+            if (!(((r === -2 || r === 2) && c === 4) || (r === 0 && c === 5))) {
+              continue
+            }
+          }
           let hx = cxRight + c * hexW + (r % 2 ? hexW / 2 : 0)
           let hy = cyRight + r * ySpacing
-          octx.beginPath()
-          for (let e = 0; e <= 6; e++) {
+
+          // Calculate vertices for this hexagon
+          const vertices = []
+          for (let e = 0; e < 6; e++) {
             const a = (Math.PI / 3) * e - Math.PI / 6
-            octx.lineTo(hx + hexR * Math.cos(a), hy + hexR * Math.sin(a))
+            vertices.push({
+              x: Math.round(hx + hexR * Math.cos(a)),
+              y: Math.round(hy + hexR * Math.sin(a))
+            })
           }
-          octx.stroke()
+
+          // Render each unique segment once
+          for (let e = 0; e < 6; e++) {
+            const p1 = vertices[e]
+            const p2 = vertices[(e + 1) % 6]
+
+            const k = p1.x < p2.x || (p1.x === p2.x && p1.y < p2.y)
+              ? `${p1.x},${p1.y}_${p2.x},${p2.y}`
+              : `${p2.x},${p2.y}_${p1.x},${p1.y}`
+
+            if (!drawnSegments.has(k)) {
+              drawnSegments.add(k)
+
+              const isVertical = p1.x === p2.x
+              if (isVertical) {
+                const step = isMobile ? 11 : 8
+                const xSnapped = Math.round(p1.x / step) * step
+                octx.beginPath()
+                octx.lineWidth = 8
+                octx.moveTo(xSnapped, p1.y)
+                octx.lineTo(xSnapped, p2.y)
+                octx.moveTo(xSnapped - step, p1.y)
+                octx.lineTo(xSnapped - step, p2.y)
+                octx.stroke()
+              } else {
+                octx.beginPath()
+                octx.lineWidth = 14
+                octx.moveTo(p1.x, p1.y)
+                octx.lineTo(p2.x, p2.y)
+                octx.stroke()
+              }
+            }
+          }
         }
       }
       const dataRight = octx.getImageData(0, 0, w, h).data
@@ -137,7 +188,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 
       const colors = getColors()
       const newParticles = []
-      const gridSpacing = isMobile ? 15 : 18
+      const gridSpacing = isMobile ? 15 : 16
 
       // Generate base grid of particles (clean rectangular grid)
       for (let y = gridSpacing / 2; y < h; y += gridSpacing) {
@@ -340,6 +391,14 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
 export default function DualCards() {
   const [hoverLeft, setHoverLeft] = useState(false)
   const [hoverRight, setHoverRight] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768)
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const contactEmail = process?.env?.NEXT_PUBLIC_CONTACT_EMAIL || 'hello@bractus.com';
 
@@ -386,10 +445,10 @@ export default function DualCards() {
           onTouchStart={() => setHoverLeft(true)}
           onTouchEnd={() => setHoverLeft(false)}
         >
-          <div className="left-card-text" style={{ textAlign: 'center' }}>
+          <div className="left-card-text" style={{ textAlign: 'center', maxWidth: isMobile ? 165 : 'none', margin: '0 auto' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For Individual Technical Support</h2>
             <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Get the dedicated engineering support and expert guidance.</p>
-            <a href={`mailto:${contactEmail}?subject=${devSubject}&body=${devBody}`} className="btn-primary" style={{ borderRadius: 100 }}>Request Support</a>
+            <a href="/support" className="btn-primary" style={{ borderRadius: 100 }}>Request Support</a>
           </div>
         </div>
 
@@ -404,10 +463,10 @@ export default function DualCards() {
           onTouchStart={() => setHoverRight(true)}
           onTouchEnd={() => setHoverRight(false)}
         >
-          <div className="right-card-text" style={{ textAlign: 'center' }}>
+          <div className="right-card-text" style={{ textAlign: 'center', maxWidth: isMobile ? 165 : 'none', margin: '0 auto' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For organization</h2>
             <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Scale your digital capabilities instantly.</p>
-            <a href={`mailto:${contactEmail}?subject=${orgSubject}&body=${orgBody}`} className="btn-outline" style={{ borderRadius: 100, background: 'var(--bg)' }}>Partner with us</a>
+            <a href="/service" className="btn-outline" style={{ borderRadius: 100, background: 'var(--bg)' }}>Partner with us</a>
           </div>
         </div>
       </div>
