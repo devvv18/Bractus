@@ -13,6 +13,8 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 a {
@@ -102,6 +104,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  max-width: 100%;
   transition: background-color 0.35s ease, color 0.25s ease;
   line-height: 1.6;
 }

@@ -84,7 +84,7 @@ const UnifiedCanvas = ({ hoverLeft, hoverRight }) => {
       const innerFactor = isMobile ? 0.62 : 0.50
       const slashFactor = isMobile ? 0.15 : 0.2
 
-      const shift = isMobile ? 50 : 20 // Shift closer: 50px on mobile, 20px on desktop
+      const shift = isMobile ? 15 : 20 // Shift closer: 15px on mobile, 20px on desktop
 
       octx.beginPath()
       octx.moveTo(cxLeft - sW * vertexFactor + shift, cyLeft)
@@ -439,16 +439,16 @@ export default function DualCards() {
       <div style={{ display: 'flex', flexWrap: 'wrap', minHeight: '85vh', position: 'relative', zIndex: 1 }}>
         {/* Left Card */}
         <div
-          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px, 12vw, 100px) 48px' }}
+          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '60px 24px' : 'clamp(60px, 12vw, 100px) 48px' }}
           onMouseEnter={() => setHoverLeft(true)}
           onMouseLeave={() => setHoverLeft(false)}
           onTouchStart={() => setHoverLeft(true)}
           onTouchEnd={() => setHoverLeft(false)}
         >
-          <div className="left-card-text" style={{ textAlign: 'center', maxWidth: isMobile ? 165 : 'none', margin: '0 auto' }}>
+          <div className="left-card-text" style={{ textAlign: 'center', maxWidth: isMobile ? 240 : 'none', margin: '0 auto' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For Individual Technical Support</h2>
             <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Get the dedicated engineering support and expert guidance.</p>
-            <a href="/support" className="btn-primary" style={{ borderRadius: 100 }}>Request Support</a>
+            <a href="/individual-support" className="btn-primary" style={{ borderRadius: 100 }}>Request Support</a>
           </div>
         </div>
 
@@ -457,16 +457,16 @@ export default function DualCards() {
 
         {/* Right Card */}
         <div
-          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(60px, 12vw, 100px) 48px' }}
+          style={{ flex: 1, minWidth: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '60px 24px' : 'clamp(60px, 12vw, 100px) 48px' }}
           onMouseEnter={() => setHoverRight(true)}
           onMouseLeave={() => setHoverRight(false)}
           onTouchStart={() => setHoverRight(true)}
           onTouchEnd={() => setHoverRight(false)}
         >
-          <div className="right-card-text" style={{ textAlign: 'center', maxWidth: isMobile ? 165 : 'none', margin: '0 auto' }}>
+          <div className="right-card-text" style={{ textAlign: 'center', maxWidth: isMobile ? 240 : 'none', margin: '0 auto' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text)', marginBottom: 8 }}>For organization</h2>
             <p style={{ fontSize: 'clamp(1.2rem, 3vw, 1.8rem)', fontWeight: 300, color: 'var(--text-secondary)', marginBottom: 32, maxWidth: 420 }}>Scale your digital capabilities instantly.</p>
-            <a href="/service" className="btn-outline" style={{ borderRadius: 100, background: 'var(--bg)' }}>Partner with us</a>
+            <a href="/organisation-service" className="btn-outline" style={{ borderRadius: 100, background: 'var(--bg)' }}>Partner with us</a>
           </div>
         </div>
       </div>

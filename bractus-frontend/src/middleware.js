@@ -6,18 +6,18 @@ export function middleware(request) {
 
   // 1. Check if the user is visiting support.bractus.com
   if (hostname.includes('support.bractus.com')) {
-    // If the path doesn't already start with /support, rewrite it internally
-    if (!url.pathname.startsWith('/support')) {
-      url.pathname = `/support${url.pathname}`
+    // If the path doesn't already start with /individual-support, rewrite it internally
+    if (!url.pathname.startsWith('/individual-support')) {
+      url.pathname = `/individual-support${url.pathname}`
       return NextResponse.rewrite(url)
     }
   }
 
   // 2. Check if the user is visiting service.bractus.com
   if (hostname.includes('service.bractus.com')) {
-    // If the path doesn't already start with /service, rewrite it internally
-    if (!url.pathname.startsWith('/service')) {
-      url.pathname = `/service${url.pathname}`
+    // If the path doesn't already start with /organisation-service, rewrite it internally
+    if (!url.pathname.startsWith('/organisation-service')) {
+      url.pathname = `/organisation-service${url.pathname}`
       return NextResponse.rewrite(url)
     }
   }

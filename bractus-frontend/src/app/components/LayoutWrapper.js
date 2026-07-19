@@ -29,6 +29,8 @@ export default function LayoutWrapper({ children }) {
           transition: 'opacity 1.0s cubic-bezier(0.16, 1, 0.3, 1), transform 1.0s cubic-bezier(0.16, 1, 0.3, 1)',
           minHeight: '100vh',
           width: '100%',
+          overflowX: 'hidden',
+          position: 'relative'
         }}
       >
         {children}
