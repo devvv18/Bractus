@@ -16,7 +16,7 @@ export default function HomePage() {
       <DualCards />
       <Founder />
       <WhyChooseUs />
-      {/* <Testimonials /> */}
+      <Testimonials />
       <FAQ />
       <GetInTouch />
     </>

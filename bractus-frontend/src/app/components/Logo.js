@@ -22,7 +22,7 @@ export default function Logo({ variant = 'nav' }) {
     >
       <defs>
         <style>
-          {`.cls-2 { fill: #fff; }`}
+          {`.cls-2 { fill: var(--logo-fill, #078462); }`}
         </style>
       </defs>
       <g>
